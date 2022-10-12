@@ -1,4 +1,4 @@
-function [indicies] = getIndicies(trials)
+function [indicies] = getIndicies(trials);
 % Written by Faye 220928
 % This function fetches the trial outcomes from session data "trials"
 % makes a struct called indicies
