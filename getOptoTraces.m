@@ -1,4 +1,4 @@
-function [traceMatrix] = getOptoTraces(trials)
+function [traceMatrix] = getOptoTraces(trials);
 %Written by Faye 220929
 %Edited 221006
 
@@ -57,4 +57,6 @@ end
 % Tricky part: to the correct bins in traceMatrix
 % Account for the reference/start point for your trace Matrix
 % and the start point of the optoProfile on that trial.
+%build heatmaps for differences btwn code and each trials (hits, misses)
+%mean of both matrix 2 versions of code
 

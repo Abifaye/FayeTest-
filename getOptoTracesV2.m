@@ -32,7 +32,7 @@ for nTrials = 1:length(trials)
         if  power(timePoints-1)==0
             continue
         elseif power(timePoints-1)~=0
-            traceMatrix(nTrials,min(timePoints)+4000:min(timePoints)+4000+range(time)) = power(timePoints-1);
+            traceMatrix(nTrials,time(timePoints-1)+4000:time(timePoints)+4000) = power(timePoints-1);
             % Manually adjust our counter to the new start point for next
             % bin
             counter = counter + nBins;
@@ -58,8 +58,21 @@ end
 % if no power in current time window, you can skip those bins
 % else you need to write the power for that time window
 % Tricky part: to the correct bins in traceMatrix
+
+%% for weekend
 % Account for the reference/start point for your trace Matrix
 % and the start point of the optoProfile on that trial.
+%loop a single trial 
+
+%% heatmap
+
+heatmap(traceMatrix, 'colorVariable')
+hold on
+heatmap(traceMatrix,'colorVariable')
+hold off 
+
+
+
 
 
 
