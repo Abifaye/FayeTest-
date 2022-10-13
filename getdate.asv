@@ -2,7 +2,7 @@ function [date] = getdate('/Users/mouseuser/Documents/GitHub/FayeTest-');
 %UNTITLED5 Summary of this function goes here
 %   Detailed explanation goes here
 
-dir '*.mat'
+fileName = cell(dir('*.mat'))
 
-date = strip('*.mat','right','.')
+date = strtok(str)
 end
