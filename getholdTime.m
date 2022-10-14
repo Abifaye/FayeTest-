@@ -11,4 +11,5 @@ for i = 1:length(totalHoldTime)
         holdTime = totalHoldTime;
     end
 end
+end
 
