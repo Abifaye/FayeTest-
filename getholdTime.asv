@@ -1,6 +1,7 @@
 function [holdTime] = getholdTime(trials);
-%
-% inputs into trials and get hold time,
+%Created by
+% inputs into trials and get hold time, and corrects for incorrect neg values
+% by adding 500
 preStimLoc =[trials.trial];
 preStimTime = [preStimLoc.preStimMS]; 
 responseType = [trials.trialEnd];
@@ -16,9 +17,10 @@ for i = 1:length(totalHoldTime)
         holdTime(i) = totalHoldTime(i);
     end
 end
+%check = totalHoldTime < 0; no neg values?
 end
 
-check = totalHoldTime < 0
+
 
 
 
