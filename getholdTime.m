@@ -6,7 +6,7 @@ totalHoldTime = preStimTime - getRTs(trials);
 holdTime = {};
 for i = 1:length(totalHoldTime)
     if totalHoldTime < 0
-       holdTime = totalHoldTime(i + 500);
+       holdTime = totalHoldTime(i) + 500;
     else
         holdTime = totalHoldTime;
     end

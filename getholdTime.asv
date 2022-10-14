@@ -3,12 +3,13 @@ function [holdTime] = getholdTime(trials);
 %   Detailed explanation goes here
 preStimTime= ([trials.zeroOptoFromPhotoDiode]);%not sure
 totalHoldTime = preStimTime - getRTs(trials);
-holdTime = 
+holdTime = {};
 for i = 1:length(totalHoldTime)
     if totalHoldTime < 0
-       holdTime = totalHoldTime(i) + 500;
+       holdTime = totalHoldTime(i + 500);
     else
-        continue
+        holdTime = totalHoldTime;
     end
+end
 end
 
