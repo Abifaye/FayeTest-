@@ -1,16 +1,25 @@
 function [holdTime] = getholdTime(trials);
-%UNTITLED4 Summary of this function goes here
-%   Detailed explanation goes here
-preStimLoc = [trials.trialpreStimMS[preStimMS]];%not sure
-preStimTime = [preStimLoc.preStimMS];
-totalHoldTime = preStimTime - getRTs(trials);
-holdTime = {};
+%
+% inputs into trials and get hold time,
+preStimLoc =[trials.trial];
+preStimTime = [preStimLoc.preStimMS]; 
+responseType = [trials.trialEnd];
+RTs = [trials.reactTimeMS]
+totalHoldTime = preStimTime(responseType~=2) - RTs(responseType~=2);
+
+holdTime = [];
+
 for i = 1:length(totalHoldTime)
-    if totalHoldTime < 0
-       holdTime = totalHoldTime(i) + 500;
+    if totalHoldTime(i) < 0
+        holdTime(i) = totalHoldTime(i) + 500;
     else
-        holdTime = totalHoldTime;
+        holdTime(i) = totalHoldTime(i);
     end
 end
 end
+
+check = totalHoldTime < 0
+
+
+
 
