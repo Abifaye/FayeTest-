@@ -16,9 +16,10 @@ for i = 1:length(totalHoldTime)
         holdTime(i) = totalHoldTime(i);
     end
 end
+
 end
 
-check = totalHoldTime < 0
+
 
 
 
