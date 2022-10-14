@@ -9,12 +9,18 @@
 %create a struct to put all info
 
 masterStruct = struct('mouseNumber',[],'Date',[], 'Indicies',[],'traceMatrix',[],...
-    'Rewards',[],'reactionTimes',[],'holdTimes',[],'visualStim',[],'meanPower',[],'nTrials',[] );
-
+    'Rewards',[],'reactionTimes',[],'holdTimes',[],'visualStim',[],'meanPower',[],'nTrials',[]);
+masterStruct.nTrials = 1:length(masterStruct); 
 masterStruct.mouseNumber = getmouseNum(file);
+masterStruct.date = getdate(pwd);
 masterStruct.Indicies = getIndicies(trials);
 masterStruct.traceMatrix = getOptoTraces(trials);
 masterStruct.Rewards = getrewards(trials);
 masterStruct.reactionTimes = getRTs(trials);
-masterStruct.nTrials = 1:length(masterStruct)
+masterStruct.traceMatrix = getmPower(trials);
+%way to make this shorter
+%I have mean power from OptoTraces, can I use that instead of creating
+%another function?
+
+
 

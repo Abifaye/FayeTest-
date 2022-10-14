@@ -3,6 +3,6 @@ function [date] = getdate(pwd);
 % inputs to the current folder, finds file name, and take only the date from file name
 %pwd accesses current folder
  %access file name
-date = erase(dir('*.mat').name,'.mat');
-
+%date = erase(dir('*.mat').name,'.mat');
+date = strtok(dir('*.mat').name,'.mat');
 end
