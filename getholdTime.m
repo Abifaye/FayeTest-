@@ -1,7 +1,8 @@
 function [holdTime] = getholdTime(trials);
 %UNTITLED4 Summary of this function goes here
 %   Detailed explanation goes here
-preStimTime= ([trials.zeroOptoFromPhotoDiode]);%not sure
+preStimLoc =[trials.trial];
+preStimTime = [preStimLoc.preStimMS];
 totalHoldTime = preStimTime - getRTs(trials);
 holdTime = {};
 for i = 1:length(totalHoldTime)

@@ -17,10 +17,11 @@ masterStruct.Indicies = getIndicies(trials);
 masterStruct.traceMatrix = getOptoTraces(trials);
 masterStruct.Rewards = getrewards(trials);
 masterStruct.reactionTimes = getRTs(trials);
+masterStruct.holdTimes = getholdTime(trials);
+masterStruct.visualStim = getvisualStim(trials);
 masterStruct.traceMatrix = getmPower(trials);
-%way to make this shorter
-%I have mean power from OptoTraces, can I use that instead of creating
-%another function?
+%way to make this shorter?
+
 
 
 
