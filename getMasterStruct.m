@@ -1,18 +1,18 @@
-%% Concat Data
-%written by Faye 221012
+function [masterStruct] = getMasterStruct(pwd);
 
+%created by Faye 221020
 
-
-%Index for mouse number
-
-%Index for Date
-%create a struct to put all info
-
+%inputs into current folder to get functions for mouse number, date
+%indices, tracematrix, rewards, reaction times, visualStim, and meanPower
+%and put them in the corresponding fied in masterStruct preloaded with empty 
+%fields. nTrials is also created in masterStruct to keep tract of trial
+%number.
 masterStruct = struct('mouseNumber',[],'Date',[], 'Indicies',[],'traceMatrix',[],...
     'Rewards',[],'reactionTimes',[],'holdTimes',[],'visualStim',[],'meanPower',[],'nTrials',[]);
-masterStruct.nTrials = 1:length(trials); 
+trialNum = [trials.trial];
+masterStruct.nTrials = 1:length(trialNum); 
 masterStruct.mouseNumber = getmouseNum(file);
-masterStruct.date = getdate(pwd);
+masterStruct.Date = getdate(pwd);
 masterStruct.Indicies = getIndicies(trials);
 masterStruct.traceMatrix = getOptoTraces(trials);
 masterStruct.Rewards = getrewards(trials);
@@ -21,7 +21,5 @@ masterStruct.holdTimes = getholdTime(trials);
 masterStruct.visualStim = getvisualStim(trials);
 masterStruct.meanPower = getmeanPower(trials);
 %way to make this shorter?
-
-
-
+end
 
