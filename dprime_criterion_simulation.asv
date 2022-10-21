@@ -1,0 +1,51 @@
+
+%% d' and criterion simulation
+%Draw a random number from a normal distribution of signal with m = 3 s = 1
+NDsignal_rnd = normrnd(10,1)
+
+%Draw a random number from a normal distribution of noise with m = 3 s =1
+NDnoise_rnd = normrnd(3,1)
+
+%state criterion
+c = 7
+
+%create for loop for 10 trials  so that when random value drawn from noise
+%and signal distribution are greater than criterion, it is a hit
+randomdraw = zeros(1,20)
+for i = 1:10
+    if NDsignal_rnd > c
+        randomdraw(i) = 'hit';
+    else 
+        continue
+    end
+end
+
+%% coding thoughts for actual trials on a specific visual stim value
+hits = [trials.trialEnd]==0;
+FA = [trials.trialEnd]==1;
+miss = [trials.trialEnd]==2;
+visualStim30 = floor([trials.visualStimValue])==30;
+meanPowerPresent = [trials.meanPowerMW]~=0;
+%create a distribution for signal (hits) and set mean to be different from
+%FA
+hits_30 = double(hits & ~visualStim30 & ~meanPowerPresent)
+hits = fitdist(hits_30(:),'normal'))
+%create a distribution for noise (FA) and set mean to be different from
+%hits
+
+%set a criterion
+
+%create a for loop
+
+%set loop for 1:length(ntrials)0
+
+
+
+    
+
+    
+
+
+
+
+
