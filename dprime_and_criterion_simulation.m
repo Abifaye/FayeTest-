@@ -1,10 +1,11 @@
 
 %% Pre-Define Future Inputs to your sim fnc
 % Number of trials to simulate
-nSimTrials = 100;
+nSimTrials = 1000000;
 % state criterion
 c = 2;
-dPrime = 3;
+Var = 1; % Variance of signal and noise Distribution
+signalStrength = 3;
 noiseMean = 3; 
 CTpropn = 0.2; % set catch trial proportion
 
@@ -14,10 +15,10 @@ outcomes = cell(1,nSimTrials); %Q:I used zeroes before, what is the difference b
 %% Initialization Stuff 
 
 %Draw nSimTrials random number from a normal distribution of noise with m = 3 s =1
-NDnoise_rnd = normrnd(3,1, [1,nSimTrials]);
+NDnoise_rnd = normrnd(3,Var, [1,nSimTrials]);
 
 %Draw nSimTrials random numbers from a normal distribution of signal with m = 10 s = 1
-NDsignal_rnd = normrnd(noiseMean+dPrime,1, [1,nSimTrials]);
+NDsignal_rnd = normrnd(noiseMean+signalStrength,Var, [1,nSimTrials]);
 
 % Draw numbers between 0 - 1 for 100 trials
 trial_Type = rand(1,nSimTrials); 
@@ -32,7 +33,7 @@ for trialNum = 1:nSimTrials
     if trial_Type(trialNum)>CTpropn
         if NDsignal_rnd(trialNum) > c
             outcomes{trialNum} = 'hit';
-        elseif NDsignal_rnd(ntrials)<= c
+        elseif NDsignal_rnd(trialNum)<= c
             outcomes{trialNum} = 'miss';
         end
 
@@ -51,16 +52,35 @@ end
 % Propotion hits (hit rate) 
 num_hits = sum(strcmp('hit',outcomes));
 denom_hits = sum(strcmp('hit',outcomes)|strcmp('miss',outcomes));
-hitRate= num/denom;
+hitRate= num_hits/denom_hits;
 % Propotion FA (FA rate)
-num_ = sum(strcmp('fa',outcomes));
-denom = sum(strcmp('fa',outcomes)|strcmp('cr',outcomes));
-faRate = num/denom;
+num_fa= sum(strcmp('fa',outcomes));
+denom_fa= sum(strcmp('fa',outcomes)|strcmp('cr',outcomes));
+faRate = num_fa/denom_fa;
 
 % note to compute accurate hit rate, we need to track stimulus occurances
 % Compute d' and c based on the inverse Z-Transform of the hit and fa rate
-dprime = norminv(hitRate) - norminv(faRate)
-c = -(1/2*(norminv(hitRate) + norminv(faRate)));
+
+%dprime computation
+dprime = norminv(hitRate) - norminv(faRate);
+
+%when norminv of either hit/fa results in inf set it to +/- 100 
+if dprime == Inf
+    dprime = 100;
+elseif dprime == -Inf
+    dprime = -100;
+end
+
+%criterion computation
+criterion = -(1/2*(norminv(hitRate) + norminv(faRate)));
+
+%when norminv of either hit/fa results in inf set it to +/- 100 
+if criterion == Inf 
+    criterion = 100;
+elseif criterion == -Inf
+    criterion = -100;
+end
+
 % How many trials do you need to get to a accurate estimate of d' 
 
 
