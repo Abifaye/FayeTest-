@@ -18,7 +18,7 @@ NDnoise_rnd = normrnd(3,1, [1,nSimTrials]);
 c = 9
 
 %init a randomdraw that will contain the response type for each trial
-randomdraw = cell(1,nSimTrials); %Q:I used zeroes before, what is the difference btwn using cell and zeroes
+randomdraw = cell(1,nSimTrials); 
 
 
 %set catch trial proportion to 0.2
