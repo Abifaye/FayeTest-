@@ -10,6 +10,9 @@ noiseMean = 3;
 CTpropn = 0.2; % set catch trial proportion
 
 %init a randomdraw that will contain the response type for each trial
+<<<<<<< HEAD
+randomdraw = cell(1,nSimTrials); 
+=======
 outcomes = cell(1,nSimTrials); %Q:I used zeroes before, what is the difference btwn using cell and zeroes
 
 %% Initialization Stuff 
@@ -24,6 +27,7 @@ NDsignal_rnd = normrnd(noiseMean+signalStrength,Var, [1,nSimTrials]);
 trial_Type = rand(1,nSimTrials); 
 
 %% Simulation loop
+>>>>>>> 0c10b9ca20ce174c0582800526595ac2adeab74e
 
 
 for trialNum = 1:nSimTrials
