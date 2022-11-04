@@ -3,11 +3,9 @@ c = -1:0.5:1; % vector for criterion
 signalMean = 0:0.5:4; % Vector for Mean of Signal Distribution
 Var = 1; % Variance
 nSimTrials = 500; %number of trials
-MasterStruct = struct('dprime',[]); %contains
+MasterStruct = struct('dprime',[],'criterion',[]); %contains
 %the criterion and dprimes of different tRounds (need to come up with
 %better field names)
-
-outcomeContainer = zeros(nSimTrials,1);%contains outcomes for each number round of trials 
 
 
 
@@ -25,8 +23,12 @@ for  ndprimeRound = 1:length(signalMean) %for loop that will run different round
         signal(signalTrialIdx) = normrnd(signalMean(ndprimeRound), Var, [1, sum(signalTrialIdx)]);
         % Vector of the signal, the signal the animal sees whether or not there was
         % a stimulus
+        outcomeContainer = cell(length(nSimTrials),1);%contains outcomes for each number round of trials
+        
         for trialNum = 1:length(nSimTrials) %for loop for going through each nSimtrial #
-          
+            
+            
+            
             
             %Outcome legend
             
@@ -38,22 +40,22 @@ for  ndprimeRound = 1:length(signalMean) %for loop that will run different round
             % Not a catch trial
             if signalTrialIdx(trialNum) == 1 %if stimulus present
                 if signal(trialNum) > nCriterionRound %If greater than the the criterion of this round
-                  outcomeContainer(trialNum)  = 1; %Hit
+                  outcomeContainer  = 1; %Hit
                 elseif signal(trialNum) <= nCriterionRound %If less than/= to criterion of this round
-                    outcomeContainer(trialNum)  = 2; %Miss
+                    outcomeContainer  = 2; %Miss
                 end
                 
                 % Catch Trial
             elseif signalTrialIdx(trialNum) == 0
                 if signal(trialNum) > nCriterionRound
-                  outcomeContainer(trialNum)  = 3; %FA
+                    outcomeContainer  = 3; %FA
                 elseif signal(trialNum) <= nCriterionRound
-                    outcomeContainer(trialNum)  = 4; %CR
+                    outcomeContainer  = 4; %CR
                 end
             end
         end
     end
-  MasterStruct.dprime(nCriterionRound) = outcomeContainer(nCriterionRound)
+    
 end
 
 
