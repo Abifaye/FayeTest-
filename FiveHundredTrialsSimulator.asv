@@ -104,13 +104,13 @@ plot([MasterStruct.hitRates])
 
 %plot function
 x1 =[MasterStruct.signal];
-y1 =[MasterStruct.hitRates];
-x2 = [MasterStruct.c];
+tHit =[MasterStruct.hitRates];
+tC = [MasterStruct.c];
 y2 = [MasterStruct.hitRates];
 t = tiledlayout(1,1); %Create a 1-by-1 tiled chart layout t
 ax1 = axes(t);%Create an axes object ax1 by calling the axes function and 
 %specifying t as the parent object
-plot(ax1,x1,y1,'-r') %Plot x1 and y1 as a red line, and specify ax1 as the target axes
+plot(ax1,tsignal,tHit,'-r') %Plot x1 and y1 as a red line, and specify ax1 as the target axes
 ax1.XColor = 'r'; %Change the color of the x-axis to match the plotted line
 ax1.YColor = 'r';% Change the color of the y-axis to match the plotted line
 ax1.XLabel.String = 'dprime';
@@ -118,7 +118,7 @@ ax1.XLabel.Color = 'k';
 ax1.YLabel.String = 'Hit Rate';
 ax1.YLabel.Color = 'k';
 ax2 = axes(t);
-plot(ax2,x2,y2,'-k')
+plot(ax2,tC,y2,'-k')
 ax2.XAxisLocation = 'top';%Move the x-axis to the top
 ax2.YAxisLocation = 'right';%move the y-axis to the right
 ax2.Color = 'none'; %Set the color of the axes object to 'none' so that the
@@ -147,32 +147,20 @@ figure;
 plot([MasterStruct.missRates])
 
 %misses as function of dprime and criterion
-x1 =[MasterStruct.signal];
-y1 =[MasterStruct.missRates];
-x2 = [MasterStruct.c];
-y2 = [MasterStruct.missRates];
-t = tiledlayout(1,1); %Create a 1-by-1 tiled chart layout t
-ax1 = axes(t);%Create an axes object ax1 by calling the axes function and 
-%specifying t as the parent object
-plot(ax1,x1,y1,'-r') %Plot x1 and y1 as a red line, and specify ax1 as the target axes
-ax1.XColor = 'r'; %Change the color of the x-axis to match the plotted line
-ax1.YColor = 'r';% Change the color of the y-axis to match the plotted line
-ax1.XLabel.String = 'dprime';
-ax1.XLabel.Color = 'r';
-ax1.YLabel.String = 'Miss Rate';
-ax1.YLabel.Color = 'r';
-ax2 = axes(t);
-plot(ax2,x2,y2,'-k')
-ax2.XAxisLocation = 'top';%Move the x-axis to the top
-ax2.YAxisLocation = 'right';%move the y-axis to the right
-ax2.Color = 'none'; %Set the color of the axes object to 'none' so that the
-%underlying plot is visible
-ax2.XLabel.String = 'c';
-ax1.Box = 'off';%turn off the plot boxes to prevent the box edges from obscuring the x-axes
-ax2.Box = 'off';%turn off the plot boxes to prevent the box edges from obscuring the y-axes
-ax1.FontSize(gca,13,"pixels");
 
-%heatmap of fa rate
+plot(rand(1, 10));       % Plot some random data
+ylabel(gca, 'scale 1');  % Add a label to the left y axis
+set(gca, 'Box', 'off');  % Turn off the box surrounding the whole axes
+axesPosition = get(gca, 'Position');           % Get the current axes position
+hNewAxes = axes('Position', axesPosition, ...  % Place a new axes on top...
+                'Color', 'none', ...           %   ... with no background color
+                'YLim', [0 10], ...            %   ... and a different scale
+                'YAxisLocation', 'right', ...  %   ... located on the right
+                'XTick', [], ...               %   ... with no x tick marks
+                'Box', 'off');                 %   ... and no surrounding box
+ylabel(hNewAxes, 'scale 2');  % Add a label to the right y axis
+
+%heatmap of miss rate
 tsignal =[MasterStruct.signal];
 tmiss =[MasterStruct.missRates];
 tC = [MasterStruct.c];
@@ -187,45 +175,7 @@ h.Title = 'Miss Rate as a Function of dprime and Criterion';
 figure;
 plot([MasterStruct.faRates])
 
-%fa as function of dprime and criterion
-x1 =[MasterStruct.signal];
-y1 =[MasterStruct.faRates];
-x2 = [MasterStruct.c];
-y2 = [MasterStruct.faRates];
-t = tiledlayout(1,1); %Create a 1-by-1 tiled chart layout t
-ax1 = axes(t);%Create an axes object ax1 by calling the axes function and 
-%specifying t as the parent object
-plot(ax1,x1,y1,'-r') %Plot x1 and y1 as a red line, and specify ax1 as the target axes
-ax1.XColor = 'r'; %Change the color of the x-axis to match the plotted line
-ax1.YColor = 'r';% Change the color of the y-axis to match the plotted line
-ax1.XLabel.String = 'dprime';
-ax1.XLabel.Color = 'r';
-ax1.YLabel.String = 'False Alarm Rate';
-ax1.YLabel.Color = 'r';
-ax2 = axes(t);
-plot(ax2,x2,y2,'-k')
-ax2.XAxisLocation = 'top';%Move the x-axis to the top
-ax2.YAxisLocation = 'right';%move the y-axis to the right
-ax2.Color = 'none'; %Set the color of the axes object to 'none' so that the
-%underlying plot is visible
-ax2.XLabel.String = 'c';
-ax1.Box = 'off';%turn off the plot boxes to prevent the box edges from obscuring the x-axes
-ax2.Box = 'off';%turn off the plot boxes to prevent the box edges from obscuring the y-axes
-ax1.FontSize(gca,13,"pixels");
-
-%heatmap of miss rate
-tsignal =[MasterStruct.signal];
-tmiss =[MasterStruct.missRates];
-tC = [MasterStruct.c];
-tbl = table(tsignal(:),tmiss(:),tC(:));
-tbl.Properties.VariableNames{1} = 'dprime';
-tbl.Properties.VariableNames{2} = 'Misses';
-tbl.Properties.VariableNames{3} = 'Criterion';
-h = heatmap(tbl,'dprime','Criterion','ColorVariable','Misses','ColorMethod','none');
-h.Title = 'Miss Rate as a Function of dprime and Criterion';
-
-
-%heatmap of fa rate
+%heatmap of hit rate
 tsignal =[MasterStruct.signal];
 tfa =[MasterStruct.faRates];
 tC = [MasterStruct.c];
@@ -240,49 +190,7 @@ h.Title = 'False Alarm Rate as a Function of dprime and Criterion';
 figure;
 plot([MasterStruct.crRates])
 
-%heatmap of miss rate
-tsignal =[MasterStruct.signal];
-tmiss =[MasterStruct.missRates];
-tC = [MasterStruct.c];
-tbl = table(tsignal(:),tmiss(:),tC(:));
-tbl.Properties.VariableNames{1} = 'dprime';
-tbl.Properties.VariableNames{2} = 'Misses';
-tbl.Properties.VariableNames{3} = 'Criterion';
-h = heatmap(tbl,'dprime','Criterion','ColorVariable','Misses','ColorMethod','none');
-h.Title = 'Miss Rate as a Function of dprime and Criterion';
-
-%faRate
-figure;
-plot([MasterStruct.faRates])
-
-%cr as function of dprime and criterion
-x1 =[MasterStruct.signal];
-y1 =[MasterStruct.crRates];
-x2 = [MasterStruct.c];
-y2 = [MasterStruct.crRates];
-t = tiledlayout(1,1); %Create a 1-by-1 tiled chart layout t
-ax1 = axes(t);%Create an axes object ax1 by calling the axes function and 
-%specifying t as the parent object
-plot(ax1,x1,y1,'-r') %Plot x1 and y1 as a red line, and specify ax1 as the target axes
-ax1.XColor = 'r'; %Change the color of the x-axis to match the plotted line
-ax1.YColor = 'r';% Change the color of the y-axis to match the plotted line
-ax1.XLabel.String = 'dprime';
-ax1.XLabel.Color = 'r';
-ax1.YLabel.String = 'False Alarm Rate';
-ax1.YLabel.Color = 'r';
-ax2 = axes(t);
-plot(ax2,x2,y2,'-k')
-ax2.XAxisLocation = 'top';%Move the x-axis to the top
-ax2.YAxisLocation = 'right';%move the y-axis to the right
-ax2.Color = 'none'; %Set the color of the axes object to 'none' so that the
-%underlying plot is visible
-ax2.XLabel.String = 'c';
-ax1.Box = 'off';%turn off the plot boxes to prevent the box edges from obscuring the x-axes
-ax2.Box = 'off';%turn off the plot boxes to prevent the box edges from obscuring the y-axes
-ax1.FontSize(gca,13,"pixels");
-
-
-%heatmap of cr rate
+%heatmap of hit rate
 tsignal =[MasterStruct.signal];
 tcr =[MasterStruct.crRates];
 tC = [MasterStruct.c];
