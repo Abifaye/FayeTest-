@@ -23,3 +23,5 @@ DistribRTs = histogram(masterRTs);
 title('Distribution of Reaction Time for Correct Responses')
 xlabel('Reaction Time (ms)')
 
+end
+
