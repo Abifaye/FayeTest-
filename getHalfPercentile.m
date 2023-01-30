@@ -3,35 +3,38 @@ function [topPros,btmPros] = getHalfPercentile
 %hit profiles
 %% Initialize variables
 %Go to folder containing hit profiles
-cd 'C:\Users\afbar\OneDrive - University of Calgary\Documents\OneDrive\Documents\Psyc 504\Coding\FayeTest-\Stim Profiles'
+cd 'E:\School\Psyc 504\FayeTest-'
 %get hitProsloc function to get all hit profiles
-hitPros = gethitProsloc(pwd);
+%hitPros = gethitProsLoc;
 %go back to previous folder to access getmasterRTs function
-cd 'C:\Users\afbar\OneDrive - University of Calgary\Documents\OneDrive\Documents\Psyc 504\Coding\FayeTest-';
+%cd 'E:\School\Psyc 504\FayeTest-\Stim Profiles';
 %load masterTable file to be able to use getmasterRTs
-load('masterTable.mat');
+load('TablewithHitProfiles.mat');
 %getmasterRTs
-RTs = getmasterRTs(T);
-%Create logical index for the top + btm percentile of RTs. prctile function
-%creates range for top and bottom percentile
-topIdx = (RTs >= min(prctile(RTs,[0 50])) & RTs < max(prctile(RTs,[0 50])));
-btmIdx = (RTs >= min(prctile(RTs,[50.01 100])) & RTs <= max(prctile(RTs,[50.01 100])));
 %init locations for top + btm profiles
 topPros = zeros();
 btmPros = zeros();
 %init counters for determining where to put profiles
 CounterTop = 1;
 CounterBtm = 1;
-%% Create loop for getting hit profiles and putting them in topPros/btmPros matrix
-for nTrial = 1:height(hitPros) %loops through all hit profiles
-    if topIdx(nTrial) == 1 %if current trial is in top half percentile
-        topPros(CounterTop,1:width(hitPros)) = hitPros (nTrial); %place
-        %corresponding hit profile in topPros matrix
-        CounterTop = 1 + height(topPros); %increase height of matrix if a profile gets added
-    elseif btmIdx (nTrial)  == 1 %if current trial is in btm half percentile
-        btmPros(CounterBtm,1:width(hitPros)) = hitPros (nTrial); %place
-        %corresponding hit profile in btmPros matrix
-        CounterBtm =  1 + height(btmPros); %increase height of matrix if a profile gets added
+for nSession = 1:height(TablewithHitProfiles)
+    RTs = cell2mat(TablewithHitProfiles.stimCorrectRTs(nSession));
+    hitPros = cell2mat(struct2cell(TablewithHitProfiles.HitProfiles(nSession)));
+    %Create logical index for the top + btm percentile of RTs. prctile function
+    %creates range for top and bottom percentile
+    topIdx = (RTs >= min(prctile(RTs,[0 50])) & RTs < max(prctile(RTs,[0 50])));
+    btmIdx = (RTs >= min(prctile(RTs,[50.01 100])) & RTs <= max(prctile(RTs,[50.01 100])));
+    %% Create loop for getting hit profiles and putting them in topPros/btmPros matrix
+    for nTrial = 1:length(RTs) %loops through all hit profiles in current session
+        if topIdx(nTrial) == 1 %if current trial is in top half percentile
+            topPros(CounterTop,1:width(hitPros)) = hitPros(nTrial); %place
+            %corresponding hit profile in topPros matrix
+            CounterTop = 1 + height(topPros); %increase height of matrix if a profile gets added
+        elseif btmIdx (nTrial)  == 1 %if current trial is in btm half percentile
+            btmPros(CounterBtm,1:width(hitPros)) = hitPros (nTrial); %place
+            %corresponding hit profile in btmPros matrix
+            CounterBtm =  1 + height(btmPros); %increase height of matrix if a profile gets added
+        end
     end
 end
 end
