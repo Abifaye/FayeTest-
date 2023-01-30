@@ -4,7 +4,6 @@ function [masterRTs] = getmasterRTs(T)
 %   times (RTs) for all sessions + trials and then a histogram that shows
 %   the distribution of reaction times
 %% Create a Vector of the Reaction Times
-load('masterTable.mat'); %loads the file for master table T 
 masterRTs = zeros(); %preallocates vector for all RTs
 RTsCell = [T.stimCorrectRTs]; % creates cell with all the RTs from master table for correct responses
 Counter = 0; %creates a counter for keeping track of where to place the RTS in the masterRTs
