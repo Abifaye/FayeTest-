@@ -18,7 +18,7 @@ tableDates = [T.date]
 %start a counter to indicate where to put hit profiles
 Counter = 0;
 %init location to place hit profiles
-%hitProsLoc = struct();
+% hitProsLoc = struct();
 %loop through each file
 for File = 1:length(matFilesDates)
     if matFilesDates(File) == tableDates(File)
