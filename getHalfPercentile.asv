@@ -23,7 +23,7 @@ for nSession = 1:height(TablewithHitProfiles)
     %Create logical index for the top + btm percentile of RTs. prctile function
     %creates range for top and bottom percentile
     topIdx = (RTs >= min(prctile(RTs,[0 50])) & RTs <= max(prctile(RTs,[0 50])));
-    btmIdx = (RTs > min(prctile(RTs,[50.01 100])) & RTs <= max(prctile(RTs,[50.01 100])));
+    btmIdx = (RTs >= min(prctile(RTs,[50.01 100])) & RTs <= max(prctile(RTs,[50.02 100])));
     %% Create loop for getting hit profiles and putting them in topPros/btmPros matrix
     for nTrial = 1:length(RTs) %loops through all hit profiles in current session
         if topIdx(nTrial) == 1 %if current trial is in top half percentile
