@@ -1,4 +1,4 @@
-function [firstPros,thirdPros] = getthirdPercentile
+function [firstPros,secondPros,thirdPros,fourthPros] = getQuartile
 %Splits RTs into top and bottom half percentile and takes the corresponding
 %hit profiles
 %% Initialize variables
@@ -14,10 +14,12 @@ load('TablewithHitProfiles.mat');
 firstPros = zeros();
 secondPros = zeros();
 thirdPros = zeros();
+fourthPros = zeros();
 %init counters for determining where to put profiles
 Counterfirst = 1;
 Countersecond = 1;
 Counterthird = 1;
+Counterfourth = 1;
 
 %% Create loop for getting hit profiles and putting them in topPros/btmPros matrix
 for nSession = 1:height(TablewithHitProfiles)
@@ -25,9 +27,10 @@ for nSession = 1:height(TablewithHitProfiles)
     hitPros = cell2mat(struct2cell(TablewithHitProfiles.HitProfiles(nSession)));
     %Create logical index for the top + btm percentile of RTs. prctile function
     %creates range for top and bottom percentile
-    firstIdx = (RTs >= min(prctile(RTs,[0 33.33])) & RTs <= max(prctile(RTs,[0 33.33])));
-    secondIdx =(RTs > min(prctile(RTs,[33.34 66.67])) & RTs <= max(prctile(RTs,[33.34 66.67])));
-    thirdIdx = (RTs > min(prctile(RTs,[66.68 100])) & RTs <= max(prctile(RTs,[66.68 100])));
+    firstIdx = (RTs >= min(prctile(RTs,[0 25])) & RTs <= max(prctile(RTs,[0 25])));
+    secondIdx =(RTs > min(prctile(RTs,[25.01 50])) & RTs <= max(prctile(RTs,[25.01 50])));
+    thirdIdx = (RTs > min(prctile(RTs,[50.01 75])) & RTs <= max(prctile(RTs,[50.01 75])));
+    fourthIdx = (RTs > min(prctile(RTs,[75.01 100])) & RTs <= max(prctile(RTs,[75.01 100])));
     for nTrial = 1:length(RTs) %loops through all hit profiles
         if firstIdx(nTrial) == 1 %if current trial is in top half percentile
             firstPros(Counterfirst,1:width(hitPros)) = hitPros(nTrial); %place
@@ -41,6 +44,12 @@ for nSession = 1:height(TablewithHitProfiles)
             thirdPros(Counterthird,1:width(hitPros)) = hitPros(nTrial); %place
             %corresponding hit profile in btmPros matrix
             Counterthird =  1 + height(thirdPros); %increase height of matrix if a profile gets added
+        elseif fourthIdx (nTrial)  == 1 %if current trial is in btm half percentile
+            fourthPros(Counterfourth,1:width(hitPros)) = hitPros(nTrial); %place
+            %corresponding hit profile in btmPros matrix
+            Counterfourth =  1 + height(fourthPros); %increase height of matrix if a profile gets added
         end
     end
 end
+end
+
