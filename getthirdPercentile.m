@@ -25,9 +25,9 @@ for nSession = 1:height(TablewithHitProfiles)
     hitPros = cell2mat(struct2cell(TablewithHitProfiles.HitProfiles(nSession)));
     %Create logical index for the top + btm percentile of RTs. prctile function
     %creates range for top and bottom percentile
-    firstIdx = (RTs >= min(prctile(RTs,[0 33.33])) & RTs < max(prctile(RTs,[0 33.33])));
-    secondIdx =(RTs >= min(prctile(RTs,[33.34 66.67])) & RTs < max(prctile(RTs,[33.34 66.67])));
-    thirdIdx = (RTs >= min(prctile(RTs,[66.68 100])) & RTs <= max(prctile(RTs,[66.68 100])));
+    firstIdx = (RTs >= min(prctile(RTs,[0 33.33])) & RTs <= max(prctile(RTs,[0 33.33])));
+    secondIdx =(RTs > min(prctile(RTs,[33.34 66.67])) & RTs <= max(prctile(RTs,[33.34 66.67])));
+    thirdIdx = (RTs > min(prctile(RTs,[66.68 100])) & RTs <= max(prctile(RTs,[66.68 100])));
     for nTrial = 1:length(RTs) %loops through all hit profiles
         if firstIdx(nTrial) == 1 %if current trial is in top half percentile
             firstPros(Counterfirst,1:width(hitPros)) = hitPros(nTrial); %place
