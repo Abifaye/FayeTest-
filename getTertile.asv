@@ -94,7 +94,7 @@ filterLP = designfilt('lowpassfir', 'PassbandFrequency', 90 / sampleFreqHz, ...
     'StopbandFrequency', 2 * 90 / sampleFreqHz, 'PassbandRipple', 1, 'StopbandAttenuation', 60, ...
     'DesignMethod','equiripple');
 
-bootKernel = bootstrp(1000, @mean,secondTertile(1:size(firstTertile,1),1:size(secondTertile,2)));
+bootKernel = bootstrp(1000, @mean,secondTertile(1:size(firstTertile,2),1:size(secondTertile,2)));
 PCs = prctile(bootKernel, [15.9, 50, 84.1]);              % +/- 1 SEM
 PCMeans = mean(PCs, 2);
 CIs = zeros(3, size(firstTertile, 2));
