@@ -2,11 +2,10 @@ function [hitProsLoc] = gethitProsLoc
 % Inputs into current folder to output RTs of all hit profiles for all
 % trials
 %go to folder where masterTable is
-cd 'E:\School\Psyc 504\FayeTest-';
-%load masterTable file 
-load('masterTable.mat');
-%Go to folder containing hit profiles
-cd 'E:\School\Psyc 504\FayeTest-\Stim Profiles'
+folderPath = uigetdir('','Select Folder Containing Master Table');
+load masterTable.mat; 
+%load('masterTable.mat');
+cd ('C:\FayeTest-\Stim Profiles');
 %create index of all .mat files which contains hit profiles
 matFilesIdx = dir('**/*.mat');
 %tableDates = [T.date];
@@ -24,8 +23,8 @@ for File = 1:length(matFilesIdx)
     end
 end
 %Concatinate struct as a row in master table
-    T.HitProfiles = hitProsLoc(:);
+    %T.HitProfiles = hitProsLoc(:);
     %rename master table to save as a new table
-    TablewithHitProfiles = T;
+   % TablewithHitProfiles = T;
 end
 
