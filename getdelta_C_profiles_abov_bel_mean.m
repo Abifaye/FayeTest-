@@ -1,18 +1,18 @@
-function [leftProfiles, rightProfiles] = getdelta_d_profiles_abov_bel_mean
+function [leftProfiles, rightProfiles] = getdelta_C_profiles_abov_bel_mean
 %loads master table with profiles, gets the function to grab delta
-%dprimes, computes its z-score using sigma and mu from curve fitting, and
+%criterion, computes its z-score using sigma and mu from curve fitting, and
 %sorts them between above and below mean using matrices to place them.
 %Then, bootstraps the two matrices and create a plot with SEM. 
 
 %get delta_d
-delta_d = getdelta_d;
+delta_C = getdelta_C;
 
 %load master table with hit profiles
 load('TablewithProfiles.mat');
 
 %% Curve Fitting delta d'
-d_histcounts = histcounts(delta_d,-5:0.15:5);
-d_range = -4.9:0.15:4.9;
+C_histcounts = histcounts(delta_C,-5:0.15:5);
+C_range = -4.9:0.15:4.9;
 
 %% Profiles Above and Below Mean
 
@@ -20,11 +20,11 @@ d_range = -4.9:0.15:4.9;
 amp =  171.3;
 mu = -0.04869;
 sigma = 0.2824;
-deltaD_zScore = (delta_d - mu) / sigma;
+deltaC_zScore = (delta_C - mu) / sigma;
 
 %Indices 
-leftIdx = deltaD_zScore < 0;
-rightIdx = deltaD_zScore > 0;
+leftIdx = deltaC_zScore < 0;
+rightIdx = deltaC_zScore > 0;
 
 %Init matrices for profiles below (leftprofiles) and above (rightprofiles)
 %mean

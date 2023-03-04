@@ -8,7 +8,7 @@ function [leftProfiles, rightProfiles] = getdelta_d_profiles_sigma_foursparts
 delta_d = getdelta_d;
 
 %load master table with hit profiles
-load('TablewithHitProfiles.mat');
+load('TablewithProfiles.mat');
 
 %% Curve Fitting delta d'
 d_histcounts = histcounts(delta_d,-5:0.15:5);
@@ -36,19 +36,21 @@ mean_to_rSigma_profiles = [];
 rightProfiles = [];
 
 % loop through all sessions
-for nSession = 1:height(TablewithHitProfiles)
-    %get all hit profiles from session
-    hitPros = cell2mat(struct2cell(TablewithHitProfiles.HitProfiles(nSession)));
+for nSession = 1:height(TablewithProfiles)
+   %get all hit & miss profiles from session
+    hitPros = cell2mat(struct2cell(TablewithProfiles.HitProfiles(nSession)));
+    missPros = cell2mat(struct2cell(TablewithProfiles.MissProfiles(nSession)));
+    comboPros = [hitPros;-missPros];
     %determine if delta_d of session is above or below mean and place in
     %appropriate matrix
     if leftSigmaIdx(nSession) == 1
-        leftProfiles = [leftProfiles; hitPros(:,:)];
+        leftProfiles = [leftProfiles; comboPros(:,:)];
     elseif lSigma_to_mean_idx(nSession) == 1
-        lSigma_to_mean_profiles = [lSigma_to_mean_profiles; hitPros(:,:)];
+        lSigma_to_mean_profiles = [lSigma_to_mean_profiles; comboPros(:,:)];
     elseif mean_to_rSigma_idx(nSession) == 1
-        mean_to_rSigma_profiles = [mean_to_rSigma_profiles; hitPros(:,:)];
+        mean_to_rSigma_profiles = [mean_to_rSigma_profiles; comboPros(:,:)];
     elseif rightSigmaIdx(nSession) == 1
-        rightProfiles = [rightProfiles; hitPros(:,:)];
+        rightProfiles = [rightProfiles; comboPros(:,:)];
     end
 end
 
@@ -164,7 +166,7 @@ legend('delta dprimes 1 Sigma Below Mean','', 'delta dprimes Between -1 Sigma an
 ax = gca;
 xlim(ax, [0, bins]);
 ax.XGrid = 'on';
-title('\fontsize{11}Hit Profiles of Delta dprimes for +/- 1 Sigma and Inbetween Mean');
+title('\fontsize{11}Mean Profiles of Delta dprimes for +/- 1 Sigma and Inbetween Mean');
 ax.XTick = [0, 100, 200, 300, 400, 500, 600, 700, 800];
 ax.XTickLabel = {'-400', '-300', '-200', '-100', '0', '100', '200', '300', '400'};
 %ax.YTick = [0.48, 0.49, 0.5, 0.51];
