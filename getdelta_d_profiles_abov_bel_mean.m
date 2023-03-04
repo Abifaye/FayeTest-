@@ -9,7 +9,7 @@ function [leftProfiles, rightProfiles] = getdelta_d_profiles_abov_bel_mean
 delta_d = getdelta_d;
 
 %load master table with hit profiles
-load('TablewithHitProfiles.mat');
+load('TablewithProfiles.mat');
 
 %% Curve Fitting delta d'
 d_histcounts = histcounts(delta_d,-5:0.15:5);
@@ -33,15 +33,17 @@ leftProfiles = [];
 rightProfiles = [];
 
 % loop through all sessions
-for nSession = 1:height(TablewithHitProfiles)
+for nSession = 1:height(TablewithProfiles)
     %get all hit profiles from session
-    hitPros = cell2mat(struct2cell(TablewithHitProfiles.HitProfiles(nSession)));
+    hitPros = cell2mat(struct2cell(TablewithProfiles.HitProfiles(nSession)));
+    missPros = cell2mat(struct2cell(TablewithProfiles.MissProfiles(nSession)));
+    comboPros = [hitPros;-missPros];
     %determine if delta_d of session is above or below mean and place in
     %appropriate matrix
     if leftIdx(nSession) == 1
-        leftProfiles = [leftProfiles; hitPros(:,:)];
+        leftProfiles = [leftProfiles;comboPros(:,:)];
     elseif rightIdx(nSession) == 1
-        rightProfiles = [rightProfiles; hitPros(:,:)];
+        rightProfiles = [rightProfiles;comboPros(:,:)];
     end
 
 end
