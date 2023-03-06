@@ -10,18 +10,17 @@ delta_C = getdelta_C;
 %load master table with hit profiles
 load('TablewithProfiles.mat');
 
-%% Curve Fitting delta d'
+%% Curve Fitting delta C
 C_histcounts = histcounts(delta_C,-5:0.15:5);
 C_range = -4.9:0.15:4.9;
 
-%% Profiles Above and Below Mean
-
 % Z-score
-amp =  171.3;
-mu = -0.04869;
-sigma = 0.2824;
+amp =  325.2;
+mu = 0.06186;
+sigma = 0.1497;
 deltaC_zScore = (delta_C - mu) / sigma;
 
+%% Variables Initiation
 %Indices 
 leftIdx = deltaC_zScore < 0;
 rightIdx = deltaC_zScore > 0;
@@ -37,7 +36,7 @@ for nSession = 1:height(TablewithProfiles)
     hitPros = cell2mat(struct2cell(TablewithProfiles.HitProfiles(nSession)));
     missPros = cell2mat(struct2cell(TablewithProfiles.MissProfiles(nSession)));
     comboPros = [hitPros;-missPros];
-    %determine if delta_d of session is above or below mean and place in
+    %determine if delta_C of session is above or below mean and place in
     %appropriate matrix
     if leftIdx(nSession) == 1
         leftProfiles = [leftProfiles;comboPros(:,:)];
@@ -52,12 +51,12 @@ end
 %below mean
 figure;
 plot(mean(leftProfiles,1))
-title('Mean Hit Profiles Below Mean for Delta dprimes')
+title('Mean Profiles Below Mean for Delta Criterion')
 xticklabels({'-400', '-300', '-200', '-100', '0', '100', '200', '300', '400'});
 %above mean
 figure;
 plot(mean(rightProfiles,1))
-title('Mean Hit Profiles Above Mean for Delta dprimes')
+title('Mean Profiles Above Mean for Delta Criterion')
 xticklabels({'-400', '-300', '-200', '-100', '0', '100', '200', '300', '400'});
 
 % Filter SetUp
@@ -107,11 +106,11 @@ plot(rightx, rightCIs(2, :), 'r', 'LineWidth', 1.5); % This plots the mean of th
 rightfillCI = [rightCIs(1, :), fliplr(rightCIs(3, :))]; % This sets up the fill for the errors
 fill(x2, rightfillCI, 'r', 'lineStyle', '-', 'edgeColor', 'r', 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % adds the fill
 
-legend('delta dprimes Below Mean','', 'delta dprimes Above Mean','Fontsize',7,'Location','southwest');
+legend('delta Criterion Below Mean','', 'delta Criterion Above Mean','Fontsize',7,'Location','southwest');
 ax = gca;
 xlim(ax, [0, bins]);
 ax.XGrid = 'on';
-title('\fontsize{11}Mean Profiles of Delta dprimes for Above and Below Mean');
+title('\fontsize{11}Mean Profiles of Delta Criterion for Above and Below Mean');
 ax.XTick = [0, 100, 200, 300, 400, 500, 600, 700, 800];
 ax.XTickLabel = {'-400', '-300', '-200', '-100', '0', '100', '200', '300', '400'};
 %ax.YTick = [0.48, 0.49, 0.5, 0.51];

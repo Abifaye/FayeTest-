@@ -14,14 +14,13 @@ load('TablewithProfiles.mat');
 d_histcounts = histcounts(delta_d,-5:0.15:5);
 d_range = -4.9:0.15:4.9;
 
-%% Profiles Above and Below Mean
-
 % Z-score
 amp =  171.3;
 mu = -0.04869;
 sigma = 0.2824;
 deltaD_zScore = (delta_d - mu) / sigma;
 
+%% Variables Initiation
 %Indices 
 leftIdx = deltaD_zScore < 0;
 rightIdx = deltaD_zScore > 0;
@@ -31,7 +30,7 @@ rightIdx = deltaD_zScore > 0;
 leftProfiles = [];
 rightProfiles = [];
 
-% loop through all sessions
+%% loop through all sessions
 for nSession = 1:height(TablewithProfiles)
     %get all hit & miss profiles from session
     hitPros = cell2mat(struct2cell(TablewithProfiles.HitProfiles(nSession)));
@@ -52,12 +51,12 @@ end
 %below mean
 figure;
 plot(mean(leftProfiles,1))
-title('Mean Hit Profiles Below Mean for Delta dprimes')
+title('Mean Profiles Below Mean for Delta dprimes')
 xticklabels({'-400', '-300', '-200', '-100', '0', '100', '200', '300', '400'});
 %above mean
 figure;
 plot(mean(rightProfiles,1))
-title('Mean Hit Profiles Above Mean for Delta dprimes')
+title('Mean Profiles Above Mean for Delta dprimes')
 xticklabels({'-400', '-300', '-200', '-100', '0', '100', '200', '300', '400'});
 
 % Filter SetUp
