@@ -1,32 +1,32 @@
-function [leftProfiles, rightProfiles] = getdelta_d_profiles_sigma_foursparts
-%loads master table with the profiles, gets the function to grab delta
-%dprimes, computes its z-score using sigma and mu from curve fitting, and
-%sorts them (delta d<=-1sigma, -1sigma<delta d'<=mean, mean<delta d'<=+1sigma, delta d'>+1sigma) using matrices to place them.
+function [leftProfiles, rightProfiles] = getstimC_profiles_sigma_foursparts
+%loads master table with the profiles, gets the function to grab stimulated
+%Criterion, computes its z-score using sigma and mu from curve fitting, and
+%sorts them (stimC<=-1sigma, -1sigma<stimC<=mean, mean<stimC<=+1sigma, stimC>+1sigma) using matrices to place them.
 %Then, bootstraps the four matrices and create a plot with SEM. 
 
-%get delta_d
-delta_d = getdelta_d;
+%get delta_C
+stimC = [TablewithProfiles.stimC];
 
 %load master table with profiles
 load('TablewithProfiles.mat');
 
-%% Curve Fitting delta d'
-d_histcounts = histcounts(delta_d,-5:0.15:5);
-d_range = -4.9:0.15:4.9;
+%% Curve Fitting stimC
+C_histcounts = histcounts(stimC,-5:0.15:5);
+C_range = -4.9:0.15:4.9;
 
 %% Sorting Profiles
 
 % Z-score
-amp =  171.3;
-mu = -0.04869;
-sigma = 0.2824;
-deltaD_zScore = (delta_d - mu) / sigma;
+amp = 325.2;
+mu =  0.06186;
+sigma = 0.1497;
+stimC_zScore = (stimC - mu) / sigma;
 
 %Indices 
-leftSigmaIdx = deltaD_zScore <= -1;
-lSigma_to_mean_idx = (-1<deltaD_zScore & deltaD_zScore<=0); 
-mean_to_rSigma_idx = (0<deltaD_zScore & deltaD_zScore<=1); 
-rightSigmaIdx = deltaD_zScore > 1;
+leftSigmaIdx = stimC_zScore <= -1;
+lSigma_to_mean_idx = (-1<stimC_zScore & stimC_zScore<=0); 
+mean_to_rSigma_idx = (0<stimC_zScore & stimC_zScore<=1); 
+rightSigmaIdx = stimC_zScore > 1;
 
 %Init matrices for profiles 
 leftProfiles = [];
@@ -40,7 +40,7 @@ for nSession = 1:height(TablewithProfiles)
     hitPros = cell2mat(struct2cell(TablewithProfiles.HitProfiles(nSession)));
     missPros = cell2mat(struct2cell(TablewithProfiles.MissProfiles(nSession)));
     comboPros = [hitPros;-missPros];
-    %determine if delta_d of session is above or below mean and place in
+    %determine if stimC of session is above or below mean and place in
     %appropriate matrix
     if leftSigmaIdx(nSession) == 1
         leftProfiles = [leftProfiles; comboPros(:,:)];
@@ -58,25 +58,25 @@ end
 %below mean
 figure;
 plot(mean(leftProfiles,1))
-title('Mean Hit Profiles 1 Sigma Below of Delta dprimes')
+title('Mean Profiles 1 Sigma Below of Delta dprimes')
 xticklabels({'-400', '-300', '-200', '-100', '0', '100', '200', '300', '400'});
 
 %-1 sigma to mean
 figure;
 plot(mean(lSigma_to_mean_profiles ,1))
-title('delta dprimes Between -1 Sigma and mean of Delta dprimes')
+title('delta Criterion Between -1 Sigma and Mean of Delta dprimes')
 xticklabels({'-400', '-300', '-200', '-100', '0', '100', '200', '300', '400'});
 
 %mean to +1 sigma
 figure;
 plot(mean(mean_to_rSigma_profiles,1))
-title('delta dprimes Between mean and +1 Sigma of Delta dprimes')
+title('delta Criterion Between Mean and +1 Sigma of Delta dprimes')
 xticklabels({'-400', '-300', '-200', '-100', '0', '100', '200', '300', '400'});
 
 %above mean
 figure;
 plot(mean(rightProfiles,1))
-title('Mean Hit Profiles 1 Sigma Above of Delta dprimes')
+title('Mean Profiles 1 Sigma Above of Delta Criterion')
 xticklabels({'-400', '-300', '-200', '-100', '0', '100', '200', '300', '400'});
 
 %% Filter SetUp
@@ -160,16 +160,17 @@ plot(rightx, rightCIs(2, :), 'm', 'LineWidth', 1.5); % This plots the mean of th
 rightfillCI = [rightCIs(1, :), fliplr(rightCIs(3, :))]; % This sets up the fill for the errors
 fill(x2, rightfillCI, 'm', 'lineStyle', '-', 'edgeColor', 'm', 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % adds the fill
 
-legend('delta dprimes 1 Sigma Below Mean','', 'delta dprimes Between -1 Sigma and Mean','', ...
-    'delta dprimes Between mean and +1 Sigma','','delta dprimes 1 Sigma Above Mean','Fontsize',5,'Location','southwest');
+legend('Stimulated Criterion 1 Sigma Below Mean','', 'Stimulated Criterion Between -1 Sigma and Mean','', ...
+    'Stimulated Criterion Between mean and +1 Sigma','','Stimulated Criterion 1 Sigma Above Mean','Fontsize',5,'Location','southwest');
 ax = gca;
 xlim(ax, [0, bins]);
 ax.XGrid = 'on';
-title('\fontsize{11}Mean Profiles of Delta dprimes for +/- 1 Sigma and Inbetween Mean');
+title('\fontsize{11}Mean Profiles of Stimulated Criterion for +/- 1 Sigma and Inbetween Mean');
 ax.XTick = [0, 100, 200, 300, 400, 500, 600, 700, 800];
 ax.XTickLabel = {'-400', '-300', '-200', '-100', '0', '100', '200', '300', '400'};
 %ax.YTick = [0.48, 0.49, 0.5, 0.51];
 ax.FontSize = 11;
 ax.TickDir = "out";
 hold off;
+
 end

@@ -7,7 +7,7 @@ function [leftProfiles, rightProfiles] = getdelta_C_profiles_abov_bel_mean
 %get delta_d
 delta_C = getdelta_C;
 
-%load master table with hit profiles
+%load master table with profiles
 load('TablewithProfiles.mat');
 
 %% Curve Fitting delta C
@@ -59,7 +59,8 @@ plot(mean(rightProfiles,1))
 title('Mean Profiles Above Mean for Delta Criterion')
 xticklabels({'-400', '-300', '-200', '-100', '0', '100', '200', '300', '400'});
 
-% Filter SetUp
+
+%% Filter SetUp
 
 % Set Up Filter for Profiles
 sampleFreqHz = 1000;

@@ -1,32 +1,30 @@
-function [leftProfiles, betweenProfiles, rightProfiles] = getdelta_d_profiles_sigma_threesparts
-%loads master table with the profiles, gets the function to grab delta
-%dprimes, computes its z-score using sigma and mu from curve fitting, and
-%sorts them (delta d<=-1sigma, -1sigma<delta d'<=+1sigma, delta d'>+1sigma) using matrices to place them.
+function [leftProfiles,betweenProfiles, rightProfiles] = getStimC_profiles_sigma_threesparts
+%loads master table with the profiles, gets the function to grab stimulated criterions, computes its z-score using sigma and mu from curve fitting, and
+%sorts them (stimC<=-1sigma, -1sigma<stimC<=+1sigma, stimC>+1sigma) using matrices to place them.
 %Then, bootstraps the three matrices and create a plot with SEM. 
-
-
-%get delta_d
-delta_d = getdelta_d;
 
 %load master table with profiles
 load('TablewithProfiles.mat');
 
-%% Curve Fitting delta d'
-d_histcounts = histcounts(delta_d,-5:0.15:5);
-d_range = -4.9:0.15:4.9;
+%get stimC
+stimC = [TablewithProfiles.stimC];
+
+%% Curve Fitting stimC
+C_histcounts = histcounts(stimC,-5:0.15:5);
+C_range = -4.9:0.15:4.9;
 
 %% Sort Profiles
 
 % Z-score
-amp =  171.3;
-mu = -0.04869;
-sigma = 0.2824;
-deltaD_zScore = (delta_d - mu) / sigma;
+amp = 118.8;
+mu = 0.7188;
+sigma = 0.4119;
+stimC_zScore = (stimC - mu) / sigma;
 
 %Indices 
-leftSigmaIdx = deltaD_zScore <= -1;
-betweenSigmaIdx =(-1<deltaD_zScore & deltaD_zScore<=1); 
-rightSigmaIdx = deltaD_zScore > 1;
+leftSigmaIdx = stimC_zScore <= -1;
+betweenSigmaIdx =(-1<stimC_zScore & stimC_zScore<=1); 
+rightSigmaIdx = stimC_zScore > 1;
 
 %Init matrices for profiles 
 leftProfiles = [];
@@ -39,7 +37,7 @@ for nSession = 1:height(TablewithProfiles)
      hitPros = cell2mat(struct2cell(TablewithProfiles.HitProfiles(nSession)));
     missPros = cell2mat(struct2cell(TablewithProfiles.MissProfiles(nSession)));
     comboPros = [hitPros;-missPros];
-    %determine where delta_d of session is in gaussian distribution and place in
+    %determine where stimC of session is in gaussian distribution and place in
     %appropriate matrix
     if leftSigmaIdx(nSession) == 1
         leftProfiles = [leftProfiles; comboPros(:,:)];
@@ -56,17 +54,17 @@ end
 %below mean
 figure;
 plot(mean(leftProfiles,1))
-title('Mean Profiles 1 Sigma Below for Delta dprimes')
+title('Mean Profiles 1 Sigma Below for Stimulated Criterions')
 xticklabels({'-400', '-300', '-200', '-100', '0', '100', '200', '300', '400'});
 %between mean
 figure;
 plot(mean(betweenProfiles,1))
-title('Mean Profiles Between -1 and +1 Sigma for Delta dprimes')
+title('Mean Profiles Between -1 and +1 Sigma for Stimulated Criterions')
 xticklabels({'-400', '-300', '-200', '-100', '0', '100', '200', '300', '400'});
 %above mean
 figure;
 plot(mean(rightProfiles,1))
-title('Mean Profiles 1 Sigma Above for Delta dprimes')
+title('Mean Profiles 1 Sigma Above for Stimulated Criterions')
 xticklabels({'-400', '-300', '-200', '-100', '0', '100', '200', '300', '400'});
 
 %% Filter SetUp
@@ -133,12 +131,12 @@ plot(rightx, rightCIs(2, :), 'g', 'LineWidth', 1.5); % This plots the mean of th
 rightfillCI = [rightCIs(1, :), fliplr(rightCIs(3, :))]; % This sets up the fill for the errors
 fill(x2, rightfillCI, 'g', 'lineStyle', '-', 'edgeColor', 'g', 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % adds the fill
 
-legend('Delta dprimes 1 Sigma Below Mean','', 'Delta dprimes Between -1 and +1 Sigma','', ...
-    'Delta dprimes 1 Sigma Above Mean','Fontsize',7,'Location','southwest');
+legend('Stimulated Criterions 1 Sigma Below Mean','', 'Stimulated Criterions Between -1 and +1 Sigma','', ...
+    'Stimulated Criterions 1 Sigma Above Mean','Fontsize',7,'Location','southwest');
 ax = gca;
 xlim(ax, [0, bins]);
 ax.XGrid = 'on';
-title('\fontsize{11}Mean Profiles of Delta dprimes for +/- 1 Sigma');
+title('\fontsize{11}Mean Profiles of Stimulated Criterions for +/- 1 Sigma');
 ax.XTick = [0, 100, 200, 300, 400, 500, 600, 700, 800];
 ax.XTickLabel = {'-400', '-300', '-200', '-100', '0', '100', '200', '300', '400'};
 %ax.YTick = [0.48, 0.49, 0.5, 0.51];
