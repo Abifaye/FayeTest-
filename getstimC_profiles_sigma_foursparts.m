@@ -4,22 +4,21 @@ function [leftProfiles, rightProfiles] = getstimC_profiles_sigma_foursparts
 %sorts them (stimC<=-1sigma, -1sigma<stimC<=mean, mean<stimC<=+1sigma, stimC>+1sigma) using matrices to place them.
 %Then, bootstraps the four matrices and create a plot with SEM. 
 
-%get delta_C
+%load master table with profiles
+load(uigetfile());
+
+%get Stimulated Criterions
 stimC = [TablewithProfiles.stimC];
 
-%load master table with profiles
-load('TablewithProfiles.mat');
-
 %% Curve Fitting stimC
-C_histcounts = histcounts(stimC,-5:0.15:5);
-C_range = -4.9:0.15:4.9;
-
+C_histcounts = histcounts(stimC,-5:0.25:5);
+C_range = -4.9:0.25:4.9;
 %% Sorting Profiles
 
 % Z-score
-amp = 325.2;
-mu =  0.06186;
-sigma = 0.1497;
+amp = 190.8;
+mu = 0.6722;
+sigma = 0.4298;
 stimC_zScore = (stimC - mu) / sigma;
 
 %Indices 
@@ -58,25 +57,25 @@ end
 %below mean
 figure;
 plot(mean(leftProfiles,1))
-title('Mean Profiles 1 Sigma Below of Delta dprimes')
+title('Mean Profiles 1 Sigma Below for Stimulated Criterions')
 xticklabels({'-400', '-300', '-200', '-100', '0', '100', '200', '300', '400'});
 
 %-1 sigma to mean
 figure;
 plot(mean(lSigma_to_mean_profiles ,1))
-title('delta Criterion Between -1 Sigma and Mean of Delta dprimes')
+title('delta Criterion Between -1 Sigma and Mean for Stimulated Criterions')
 xticklabels({'-400', '-300', '-200', '-100', '0', '100', '200', '300', '400'});
 
 %mean to +1 sigma
 figure;
 plot(mean(mean_to_rSigma_profiles,1))
-title('delta Criterion Between Mean and +1 Sigma of Delta dprimes')
+title('delta Criterion Between Mean and +1 Sigma for Stimulated Criterions')
 xticklabels({'-400', '-300', '-200', '-100', '0', '100', '200', '300', '400'});
 
 %above mean
 figure;
 plot(mean(rightProfiles,1))
-title('Mean Profiles 1 Sigma Above of Delta Criterion')
+title('Mean Profiles 1 Sigma Above for Stimulated Criterions')
 xticklabels({'-400', '-300', '-200', '-100', '0', '100', '200', '300', '400'});
 
 %% Filter SetUp

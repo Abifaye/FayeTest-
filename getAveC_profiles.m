@@ -1,36 +1,38 @@
-function [leftProfiles, rightProfiles] = getdelta_d_profiles_abov_bel_mean
-%loads master table with profiles, gets the function to grab delta
-%dprimes, computes its z-score using sigma and mu from curve fitting, and
-%sorts them between above and below mean using matrices to place them.
-%Then, bootstraps the two matrices and create a plot with SEM. 
-
-%get delta_d
-delta_d = getdelta_d;
+function [leftProfiles,rightProfiles] = getAveC_profiles
+%UNTITLED2 Summary of this function goes here
 
 %load master table with profiles
 load('TablewithProfiles.mat');
 
-%% Curve Fitting delta d'
-d_histcounts = histcounts(delta_d,-5:0.15:5);
-d_range = -4.9:0.15:4.9;
+%
+stimC = [TablewithProfiles.stimC];
+unStimC = [TablewithProfiles.noStimC];
+aveC = (stimC + unStimC)/2;
+
+%% Get Profiles
+
+%measurements for curve fitting 
+aveC_histcounts = histcounts(aveC,-5:0.17:5);
+aveC_range = -4.9:0.17:4.9;
+
+%curvefitting variables
+amp = 136.7;
+mu = 0.6774;
+sigma = 0.4078;
 
 % Z-score
-amp =  171.3;
-mu = -0.04869;
-sigma = 0.2824;
-deltaD_zScore = (delta_d - mu) / sigma;
+aveC_zScore = (aveC - mu) / sigma;
 
-%% Variables Initiation
-%Indices 
-leftIdx = deltaD_zScore < 0;
-rightIdx = deltaD_zScore > 0;
+%Indices
+leftIdx = aveC_zScore < 0;
+rightIdx = aveC_zScore > 0;
 
 %Init matrices for profiles below (leftprofiles) and above (rightprofiles)
 %mean
 leftProfiles = [];
 rightProfiles = [];
 
-%% loop through all sessions
+% loop through all sessions
 for nSession = 1:height(TablewithProfiles)
     %get all hit & miss profiles from session
     hitPros = cell2mat(struct2cell(TablewithProfiles.HitProfiles(nSession)));
@@ -43,7 +45,5 @@ for nSession = 1:height(TablewithProfiles)
     elseif rightIdx(nSession) == 1
         rightProfiles = [rightProfiles;comboPros(:,:)];
     end
-
 end
-
 end

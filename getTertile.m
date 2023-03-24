@@ -35,18 +35,6 @@ firstTertile = firstTertile/2 + 0.5;
 secondTertile = secondTertile/2 + 0.5;
 thirdTertile = thirdTertile/2 + 0.5;
 
-%% Graphs
-figure;
-hold on
-plot(mean(firstTertile/2 + 0.5,1),color='b')
-plot(mean(secondTertile/2 + 0.5,1),Color='r')
-plot(mean(thirdTertile/2 + 0.5,1),Color='g')
-hold off
-title('Tertile of Mean Hit Profiles')
-legend('First Tertile','Second Tertile',['Third ' ...
-    'Tertile'],'Location','southwest')
-xticklabels({'-400', '-300', '-200', '-100', '0', '100', '200', '300', '400'});
-
 %% Filter SetUp
 
 % Set Up Filter for Profiles
@@ -69,7 +57,7 @@ firstx = 1:size(firstCIs, 2);
 x2 = [firstx, fliplr(firstx)];
 bins = size(firstCIs,2);
 
-%2nd Tertile w/ SEM
+%2nd Tertile
 bootsecond = bootstrp(1000,@mean,secondTertile);
 secondPCs = prctile(bootsecond, [15.9, 50, 84.1]);              % +/- 1 SEM
 secondPCMeans = mean(secondPCs, 2);
@@ -79,7 +67,7 @@ for c = 1:3
 end
 secondx = 1:size(secondCIs, 2);
 
-%3rd Tertile w/ SEM
+%3rd Tertile
 bootthird = bootstrp(1000,@mean,thirdTertile);
 thirdPCs = prctile(bootthird, [15.9, 50, 84.1]);              % +/- 1 SEM
 thirdPCMeans = mean(thirdPCs, 2);
@@ -89,38 +77,139 @@ for c = 1:3
 end
 thirdx = 1:size(thirdCIs, 2);
 
-%% Plot Bootstrap w/ SEM
+%% Get AOK
+
+% Compute first AOK
+bootfirst = bootstrp(100,@mean,firstTertile);
+bootfirst = -(bootfirst);
+for nBoot = 1:size(bootfirst,1)
+    nAOK = sum(bootfirst(nBoot,401:500)); 
+    firstAOK(nBoot) = nAOK;
+end
+
+%second AOK
+bootsecond = bootstrp(100,@mean,secondTertile);
+bootsecond = -(bootsecond);
+for nBoot = 1:size(bootsecond,1)
+    nAOK = sum(bootsecond(nBoot,401:500)); 
+    secondAOK(nBoot) = nAOK;
+end
+
+%third AOK
+bootthird = bootstrp(100,@mean,thirdTertile);
+bootthird = -(bootthird);
+for nBoot = 1:size(bootthird,1)
+    nAOK = sum(bootthird(nBoot,401:500)); 
+    thirdAOK(nBoot) = nAOK;
+end
+
+
+
+%% Plots
+
 figure;
-hold on;
-
-
 % 1st Tertile
+subplot(3,2,1);
+hold on
 plot(firstx, firstCIs(2, :), 'b', 'LineWidth', 1.5); % This plots the mean of the bootstrap
 firstfillCI = [firstCIs(1, :), fliplr(firstCIs(3, :))]; % This sets up the fill for the errors
 fill(x2, firstfillCI, 'b', 'lineStyle', '-', 'edgeColor', 'b', 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % adds the fill
-
-% 2nd Tertile
-plot(secondx, secondCIs(2, :), 'r', 'LineWidth', 1.5); % This plots the mean of the bootstrap
-secondfillCI = [secondCIs(1, :), fliplr(secondCIs(3, :))]; % This sets up the fill for the errors
-fill(x2, secondfillCI, 'r', 'lineStyle', '-', 'edgeColor', 'r', 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % adds the fill
-
-% 3rd Tertile
-plot(thirdx, thirdCIs(2, :), 'g', 'LineWidth', 1.5); % This plots the mean of the bootstrap
-thirdfillCI = [thirdCIs(1, :), fliplr(thirdCIs(3, :))]; % This sets up the fill for the errors
-fill(x2, thirdfillCI, 'g', 'lineStyle', '-', 'edgeColor', 'g', 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % adds the fill
-
-legend('First Tertile','', 'Second Tertile', '', 'Third Tertile',...
-    'Location','southwest');
-
+hold off
 ax = gca;
 xlim(ax, [0, bins]);
 ax.XGrid = 'on';
-title('Tertile of Mean Hit Profiles');
 ax.XTick = [0, 100, 200, 300, 400, 500, 600, 700, 800];
 ax.XTickLabel = {'-400', '-300', '-200', '-100', '0', '100', '200', '300', '400'};
-ax.YTick = [0.48, 0.49, 0.5, 0.51];
-ax.FontSize = 14;
+ax.FontSize = 8;
 ax.TickDir = "out";
-hold off;
+ay = gca;
+ylim(ay, [0.47 0.51]);
+ay.FontSize = 8;
+title('Kernel of First Tertile','FontSize',8);
+
+
+% 2nd Tertile
+subplot(2,3,3);
+hold on
+plot(secondx, secondCIs(2, :), 'r', 'LineWidth', 1.5); % This plots the mean of the bootstrap
+secondfillCI = [secondCIs(1, :), fliplr(secondCIs(3, :))]; % This sets up the fill for the errors
+fill(x2, secondfillCI, 'r', 'lineStyle', '-', 'edgeColor', 'r', 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % add fill
+hold off
+ax = gca;
+xlim(ax, [0, bins]);
+ax.XGrid = 'on';
+ax.XTick = [0, 100, 200, 300, 400, 500, 600, 700, 800];
+ax.XTickLabel = {'-400', '-300', '-200', '-100', '0', '100', '200', '300', '400'};
+ax.FontSize = 8;
+ax.TickDir = "out";
+ay = gca;
+ylim(ay, [0.47 0.51]);
+ay.FontSize = 8;
+title('Kernel of Second Tertile','FontSize',8);
+
+% 3rd Tertile
+subplot(2,3,5);
+hold on
+plot(thirdx, thirdCIs(2, :), 'g', 'LineWidth', 1.5); % This plots the mean of the bootstrap
+thirdfillCI = [thirdCIs(1, :), fliplr(thirdCIs(3, :))]; % This sets up the fill for the errors
+fill(x2, thirdfillCI, 'g', 'lineStyle', '-', 'edgeColor', 'g', 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % adds the fill
+hold off
+ax = gca;
+xlim(ax, [0, bins]);
+ax.XGrid = 'on';
+ax.XTick = [0, 100, 200, 300, 400, 500, 600, 700, 800];
+ax.XTickLabel = {'-400', '-300', '-200', '-100', '0', '100', '200', '300', '400'};
+ax.FontSize = 8;
+ax.TickDir = "out";
+ay = gca;
+ylim(ay, [0.47 0.51]);
+ay.FontSize = 8;
+title('Kernel of Third Tertile','FontSize',8);
+
+
+%AOK
+
+%1st
+subplot(2,3,2);
+histogram(firstAOK,'Normalization','probablity',FaceColor="b")
+title('AoK of First Tertile','FontSize',8);
+ay = gca;
+%ylim(ay, [0 30]);
+ay.FontSize = 8;
+ax = gca;
+%xlim(ax, [48.6, 50.6]);
+%ax.XTick = [-2.5:0.5:2.5];
+%ax.XTickLabel = {'', '-2', '', '-1', '', '0', '', '1', '', '2',''};
+ax.FontSize = 7;
+ax.TickDir = "out";
+
+%2nd
+subplot(2,3,4); 
+histogram (secondAOK,'Normalization','probablity',FaceColor="r")
+title('AoK of Second Tertile','FontSize',8);
+ay = gca;
+%ylim(ay, [0 30]); 
+ay.FontSize = 8;
+ax = gca;
+%xlim(ax, [48.6, 50.6]);
+%ax.XTick = [-2.5:0.5:2.5];
+%ax.XTickLabel = {'', '-2', '', '-1', '', '0', '', '1', '', '2',''};
+ax.FontSize = 7;
+ax.TickDir = "out";
+
+%3rd
+subplot(2,3,6); 
+histogram (thirdAOK,'Normalization','probablity',FaceColor="g")
+title('AoK of Third Tertile','FontSize',8);
+ay = gca;
+%ylim(ay, [0 30]); %adjust to have same y-axis
+ay.FontSize = 8;
+ax = gca;
+%xlim(ax, [48.6, 50.6]);
+%ax.XTick = [-2.5:0.5:2.5];
+%ax.XTickLabel = {'', '-2', '', '-1', '', '0', '', '1', '', '2',''};
+ax.FontSize = 7;
+ax.TickDir = "out";
+
  
 end
