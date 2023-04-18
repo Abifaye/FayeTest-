@@ -4,8 +4,11 @@ function [masterRTs] = getmasterRTs(T)
 %   times (RTs) for all sessions + trials and then a histogram that shows
 %   the distribution of reaction times
 %% Create a Vector of the Reaction Times
+folderPath = uigetdir();
+%load master table with hit profiles file 
+load('TablewithHitProfiles.mat');
 masterRTs = zeros(); %preallocates vector for all RTs
-RTsCell = [T.stimCorrectRTs]; % creates cell with all the RTs from master table for correct responses
+RTsCell = [TablewithHitProfiles.stimCorrectRTs]; % creates cell with all the RTs from master table for correct responses
 Counter = 0; %creates a counter for keeping track of where to place the RTS in the masterRTs
 for nSession = 1:length(RTsCell) %a for loop to loop through all the sessions in RTsCell
     for nTrial = 1:length(RTsCell{nSession}) %a for loop to go loop through all trials in current session
@@ -18,6 +21,7 @@ for nSession = 1:length(RTsCell) %a for loop to loop through all the sessions in
         % correctly in masterRTs
 end
 %% Histogram of Distribution of RTs
+figure;
 DistribRTs = histogram(masterRTs);
 title('Distribution of Reaction Time for Correct Responses')
 xlabel('Reaction Time (ms)')

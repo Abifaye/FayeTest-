@@ -1,19 +1,26 @@
 function [firstTertile,secondTertile,thirdTertile] = getTertile
 %Splits RTs into tertile and takes the corresponding
-%hit profiles and plot it. It then bootsraps each tertile and create a plot
-%of it with SEM
+%hit profiles and plot it. It then bootsraps each tertile and grabs the AOK for each tertile and create a plot
+%of it
+
 %% Initialize variables
+
+%Go to folder with the master table
 folderPath = uigetdir();
+
 %load master table with hit profiles file 
 load('TablewithHitProfiles.mat');
+
 %init locations for profiles in each tertile
 firstTertile= [];
 secondTertile = [];
 thirdTertile = [];
 
 %% Create loop for getting hit profiles and putting them in each Tertile matrix
+
 %loop through all sessions
 for nSession = 1:height(TablewithHitProfiles)
+    
     %create variables for hit profiles and reaction times from the master
     %table
     RTs = cell2mat(TablewithHitProfiles.stimCorrectRTs(nSession));
@@ -24,7 +31,8 @@ for nSession = 1:height(TablewithHitProfiles)
     secondIdx = (RTs > min(prctile(RTs,[33.33 66.67])) & RTs <= max(prctile(RTs,[33.33 66.67])));
     thirdIdx = (RTs > min(prctile(RTs,[66.67 100])) & RTs <= max(prctile(RTs,[66.67 100])));
 
-    %Grabs all trials in current session and appends them to the matrix
+    %Grabs all trials in current session and appends them to the
+    %appropriate matrix
     firstTertile = [firstTertile; hitPros(firstIdx,:)];
     secondTertile = [secondTertile; hitPros(secondIdx,:)];
     thirdTertile = [thirdTertile; hitPros(thirdIdx,:)];
@@ -77,78 +85,87 @@ for c = 1:3
 end
 thirdx = 1:size(thirdCIs, 2);
 
+
+
 %% Get AOK
 
+% Get Kernels for AOK
+firstAOK_KDE = firstTertile(:,401:500)-0.5;
+secondAOK_KDE = secondTertile(:,401:500)-0.5;
+thirdAOK_KDE = thirdTertile(:,501:600)-0.5;
+thirdAOK_KDE_two = thirdTertile(:,401:500)-0.5;
+
 % Compute first AOK
-bootfirst = bootstrp(100,@mean,firstTertile);
-bootfirst = -(bootfirst);
-for nBoot = 1:size(bootfirst,1)
-    nAOK = sum(bootfirst(nBoot,401:500)); 
-    firstAOK(nBoot) = nAOK;
-end
+bootfirst_AOK = bootstrp(100,@mean,firstAOK_KDE);
+bootfirst_AOK = -(bootfirst_AOK); %makes values positive
+firstAOK = sum(bootfirst_AOK,2);
 
 %second AOK
-bootsecond = bootstrp(100,@mean,secondTertile);
-bootsecond = -(bootsecond);
-for nBoot = 1:size(bootsecond,1)
-    nAOK = sum(bootsecond(nBoot,401:500)); 
-    secondAOK(nBoot) = nAOK;
-end
+bootsecond_AOK = bootstrp(100,@mean,secondAOK_KDE);
+bootsecond_AOK = -(bootsecond_AOK);  %makes values positive
+secondAOK = sum(bootsecond_AOK,2);
 
 %third AOK
-bootthird = bootstrp(100,@mean,thirdTertile);
-bootthird = -(bootthird);
-for nBoot = 1:size(bootthird,1)
-    nAOK = sum(bootthird(nBoot,401:500)); 
-    thirdAOK(nBoot) = nAOK;
-end
+bootthird_AOK = bootstrp(100,@mean,thirdAOK_KDE);
+bootthird_AOK = -(bootthird_AOK);  %makes values positive
+thirdAOK = sum(bootthird_AOK,2);
 
+%third AOK 2
+bootthird_AOK_two = bootstrp(100,@mean,thirdAOK_KDE_two);
+bootthird_AOK_two = -(bootthird_AOK_two);  %makes values positive
+thirdAOK_two = sum(bootthird_AOK_two,2);
 
 
 %% Plots
 
+%create tiled layout for all plots
 figure;
+t= tiledlayout(3,2);
+title(t,'Reaction Time Kernels and AOK')
+
 % 1st Tertile
-subplot(3,2,1);
+ax1 = nexttile;
 hold on
 plot(firstx, firstCIs(2, :), 'b', 'LineWidth', 1.5); % This plots the mean of the bootstrap
 firstfillCI = [firstCIs(1, :), fliplr(firstCIs(3, :))]; % This sets up the fill for the errors
 fill(x2, firstfillCI, 'b', 'lineStyle', '-', 'edgeColor', 'b', 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % adds the fill
 hold off
+title('Kernel of First Tertile','FontSize',8);
 ax = gca;
 xlim(ax, [0, bins]);
 ax.XGrid = 'on';
-ax.XTick = [0, 100, 200, 300, 400, 500, 600, 700, 800];
-ax.XTickLabel = {'-400', '-300', '-200', '-100', '0', '100', '200', '300', '400'};
+ax.XMinorGrid = "on";
+ax.XTick = [0:200:800];
+ax.XTickLabel = {'-400', '-200', '0', '600', '800'};
 ax.FontSize = 8;
 ax.TickDir = "out";
 ay = gca;
-ylim(ay, [0.47 0.51]);
-ay.FontSize = 8;
-title('Kernel of First Tertile','FontSize',8);
-
+ylim(ay, [0.47 0.52]);
+ay.FontSize = 8; 
 
 % 2nd Tertile
-subplot(2,3,3);
+ax2 = nexttile(3);
 hold on
 plot(secondx, secondCIs(2, :), 'r', 'LineWidth', 1.5); % This plots the mean of the bootstrap
 secondfillCI = [secondCIs(1, :), fliplr(secondCIs(3, :))]; % This sets up the fill for the errors
 fill(x2, secondfillCI, 'r', 'lineStyle', '-', 'edgeColor', 'r', 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % add fill
 hold off
+title('Kernel of Second Tertile','FontSize',8);
 ax = gca;
 xlim(ax, [0, bins]);
 ax.XGrid = 'on';
-ax.XTick = [0, 100, 200, 300, 400, 500, 600, 700, 800];
-ax.XTickLabel = {'-400', '-300', '-200', '-100', '0', '100', '200', '300', '400'};
+ax.XMinorGrid = "on";
+ax.XTick = [0:200:800];
+ax.XTickLabel = {'-400', '-200', '0', '600', '800'};
 ax.FontSize = 8;
 ax.TickDir = "out";
 ay = gca;
-ylim(ay, [0.47 0.51]);
-ay.FontSize = 8;
-title('Kernel of Second Tertile','FontSize',8);
+ylim(ay, [0.47 0.52]);
+ay.FontSize = 8; 
+
 
 % 3rd Tertile
-subplot(2,3,5);
+ax3 = nexttile (5);
 hold on
 plot(thirdx, thirdCIs(2, :), 'g', 'LineWidth', 1.5); % This plots the mean of the bootstrap
 thirdfillCI = [thirdCIs(1, :), fliplr(thirdCIs(3, :))]; % This sets up the fill for the errors
@@ -157,59 +174,116 @@ hold off
 ax = gca;
 xlim(ax, [0, bins]);
 ax.XGrid = 'on';
-ax.XTick = [0, 100, 200, 300, 400, 500, 600, 700, 800];
-ax.XTickLabel = {'-400', '-300', '-200', '-100', '0', '100', '200', '300', '400'};
+ax.XMinorGrid = "on";
+ax.XTick = [0:200:800];
+title('Kernel of Third Tertile','FontSize',8);
+ax.XTickLabel = {'-400', '-200', '0', '600', '800'};
 ax.FontSize = 8;
 ax.TickDir = "out";
 ay = gca;
-ylim(ay, [0.47 0.51]);
-ay.FontSize = 8;
-title('Kernel of Third Tertile','FontSize',8);
+ylim(ay, [0.47 0.52]);
+ay.FontSize = 8; 
 
+
+%Axes Label
+xlabel([ax1,ax2,ax3],'Time Relative to Stimulus Onset (ms)','FontSize',8)
+ylabel([ax1,ax2,ax3],'Normalized Power','FontSize',8) 
 
 %AOK
 
 %1st
-subplot(2,3,2);
-histogram(firstAOK,'Normalization','probablity',FaceColor="b")
+nexttile;
+histogram(firstAOK,'Normalization','probability',FaceColor="b")
+xline(0,':k')
 title('AoK of First Tertile','FontSize',8);
 ay = gca;
-%ylim(ay, [0 30]);
+ylim(ay, [0 0.4]); 
 ay.FontSize = 8;
+ylabel('Probability','FontSize',8)
 ax = gca;
-%xlim(ax, [48.6, 50.6]);
-%ax.XTick = [-2.5:0.5:2.5];
-%ax.XTickLabel = {'', '-2', '', '-1', '', '0', '', '1', '', '2',''};
+xlim(ax, [-2, 2]);
+ax.XTick = [-2:0.5:2];
+ax.XTickLabel = {'-2', '', '-1', '', '0', '', '1', '', '2'};
 ax.FontSize = 7;
 ax.TickDir = "out";
+xlabel('Area Over the Kernel (normalized power*ms)',FontSize=8)
+
 
 %2nd
-subplot(2,3,4); 
-histogram (secondAOK,'Normalization','probablity',FaceColor="r")
+nexttile; 
+histogram (secondAOK,'Normalization','probability',FaceColor="r")
+xline(0,':k')
 title('AoK of Second Tertile','FontSize',8);
 ay = gca;
-%ylim(ay, [0 30]); 
+ylim(ay, [0 0.4]); =
 ay.FontSize = 8;
+ylabel('Probability','FontSize',8)
 ax = gca;
-%xlim(ax, [48.6, 50.6]);
-%ax.XTick = [-2.5:0.5:2.5];
-%ax.XTickLabel = {'', '-2', '', '-1', '', '0', '', '1', '', '2',''};
+xlim(ax, [-2, 2]);
+ax.XTick = [-2:0.5:2];
+ax.XTickLabel = {'-2', '', '-1', '', '0', '', '1', '', '2'};
 ax.FontSize = 7;
 ax.TickDir = "out";
+xlabel('Area Over the Kernel (normalized power*ms)',FontSize=8)
 
 %3rd
-subplot(2,3,6); 
-histogram (thirdAOK,'Normalization','probablity',FaceColor="g")
+nexttile;
+histogram (thirdAOK,'Normalization','probability',FaceColor="g")
+xline(0,':k')
 title('AoK of Third Tertile','FontSize',8);
 ay = gca;
-%ylim(ay, [0 30]); %adjust to have same y-axis
+ylim(ay, [0 0.4]); =
 ay.FontSize = 8;
+ylabel('Probability','FontSize',8)
 ax = gca;
-%xlim(ax, [48.6, 50.6]);
-%ax.XTick = [-2.5:0.5:2.5];
-%ax.XTickLabel = {'', '-2', '', '-1', '', '0', '', '1', '', '2',''};
+xlim(ax, [-2, 2]);
+ax.XTick = [-2:0.5:2];
+ax.XTickLabel = {'-2', '', '-1', '', '0', '', '1', '', '2'};
 ax.FontSize = 7;
 ax.TickDir = "out";
+xlabel('Area Over the Kernel (normalized power*ms)',FontSize=8)
+
+%3rd tertile 0-100ms vs 100-200ms
+
+%tiled layout
+figure;
+t= tiledlayout(2,1);
+title(t,'AOK of 3rd Tertile: 0-100ms vs 100-200ms')
+
+%0 - 100 ms
+nexttile;
+histogram (thirdAOK_two,'Normalization','probability',FaceColor="#77AC30")
+xline(0,':k')
+title('AoK of Third Tertile from 0-100 ms','FontSize',8);
+ay = gca;
+ylim(ay, [0 0.4]);
+ay.FontSize = 8;
+ylabel('Probability','FontSize',8)
+ax = gca;
+xlim(ax, [-2, 2]);
+ax.XTick = [-2:0.5:2];
+ax.XTickLabel = {'-2', '', '-1', '', '0', '', '1', '', '2'};
+ax.FontSize = 7;
+ax.TickDir = "out";
+xlabel('Area Over the Kernel (normalized power*ms)',FontSize=8)
+
+%100-200 ms
+nexttile;
+histogram (thirdAOK,'Normalization','probability',FaceColor="g")
+xline(0,':k')
+title('AoK of Third Tertile from 100-200 ms','FontSize',8);
+ay = gca;
+ylim(ay, [0 0.4]); \
+ay.FontSize = 8;
+ylabel('Probability','FontSize',8)
+ax = gca;
+xlim(ax, [-2, 2]);
+ax.XTick = [-2:0.5:2];
+ax.XTickLabel = {'-2', '', '-1', '', '0', '', '1', '', '2'};
+ax.FontSize = 7;
+ax.TickDir = "out";
+xlabel('Area Over the Kernel (normalized power*ms)',FontSize=8)
+
 
  
 end

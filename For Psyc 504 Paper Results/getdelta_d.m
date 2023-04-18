@@ -2,6 +2,7 @@ function [delta_d] = getdelta_d
 % Grabs stimulated and non stimulated d' master table and subtract them
 % from each other for each session to calculate the average effect of
 % inhibition in V1. 
+
 %Go to folder containing master table
 folderPath = uigetdir();
 

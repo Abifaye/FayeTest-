@@ -1,10 +1,13 @@
 function [leftProfiles,rightProfiles] = getAveC_profiles
-%UNTITLED2 Summary of this function goes here
+%grabs stimulated and unstimulated criterion from master table, gets their
+%average, and curve fit it using measurements below. Then they are split
+%into 2 groups (above/below mean) using zscore and the corresponding
+%opto stim profiles for each average C were put in separate matrices
 
 %load master table with profiles
 load('TablewithProfiles.mat');
 
-%
+%Get average criterion
 stimC = [TablewithProfiles.stimC];
 unStimC = [TablewithProfiles.noStimC];
 aveC = (stimC + unStimC)/2;
@@ -34,11 +37,11 @@ rightProfiles = [];
 
 % loop through all sessions
 for nSession = 1:height(TablewithProfiles)
-    %get all hit & miss profiles from session
+    %get all hit & miss profiles from session and combine them
     hitPros = cell2mat(struct2cell(TablewithProfiles.HitProfiles(nSession)));
     missPros = cell2mat(struct2cell(TablewithProfiles.MissProfiles(nSession)));
     comboPros = [hitPros;-missPros];
-    %determine if delta_d of session is above or below mean and place in
+    %determine if profile of session is above or below mean and place in
     %appropriate matrix
     if leftIdx(nSession) == 1
         leftProfiles = [leftProfiles;comboPros(:,:)];

@@ -1,6 +1,7 @@
 function [plot_delta_d,plot_delta_C,plot_topUpDPrimes_delta_d,plot_topUpC_delta_C,plot_topUpDPrimes,plot_topUpC] = getcriterions_dprimes_plots
-%UNTITLED Summary of this function goes here
-%   Detailed explanation goes here
+%creates plots for intersted metrics to see how distributions look like
+
+% go to correct folder containing master table
 folderPath = uigetdir();
 
 %load file containing stimulated/non d'
@@ -14,18 +15,18 @@ stimC = [TablewithHitProfiles.stimC];
 noStimC = [TablewithHitProfiles.noStimC];
 topUpC = [TablewithHitProfiles.topUpC];
 
-%% Mean Effect of Inhibition on d'
+%% Mean Effect of Inhibition on d' (delta d')
 delta_d = getdelta_d;
 
-%% Mean Effect of Inhibition on C
+%% Mean Effect of Inhibition on C (delta c')
 for nSession = 1:length(stimC)
     delta_C(nSession,1) = stimC(nSession) - noStimDPrimes(nSession);
 end
 
 
-%% plots (make into another function)
+%% plots 
 
-%mean effect d'
+%mean effect d' 
 figure;
 plot_delta_d = histogram(delta_d);
 title('Distribution of delta dprime')

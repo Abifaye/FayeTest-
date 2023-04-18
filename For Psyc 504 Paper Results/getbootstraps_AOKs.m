@@ -1,8 +1,10 @@
 function [outputArg1,outputArg2] = getbootstraps_AOKs
 %% Summary
+%inserts function for metric of interest to grab its bootstrap and AOK and
+%plots them
 
 %% Define Variable
-[leftProfiles, rightProfiles] = getTopUp_profiles; %replace with function for measurement of interest
+[leftProfiles, rightProfiles] = getAveC_profiles; %replace with function that grabs profiles for metrics of interest
 
 %% Bootstrap
 
@@ -15,8 +17,8 @@ filterLP = designfilt('lowpassfir', 'PassbandFrequency', 90 / sampleFreqHz, ...
 % Bootstrap
 
 % Compute below mean w/ SEM
-bootleft = bootstrp(1000,@mean,leftProfiles);
-leftPCs = prctile(bootleft, [15.9, 50, 84.1]); % +/- 1 SEM
+bootleft_AOK = bootstrp(1000,@mean,leftProfiles);
+leftPCs = prctile(bootleft_AOK, [15.9, 50, 84.1]); % +/- 1 SEM
 leftPCMeans = mean(leftPCs, 2);
 leftCIs = zeros(3, size(leftProfiles, 2));
 for c = 1:3
@@ -27,8 +29,8 @@ x2 = [leftx, fliplr(leftx)];
 bins = size(leftCIs,2);
 
 %above mean w/ SEM
-bootright = bootstrp(1000,@mean,rightProfiles);
-rightPCs = prctile(bootright, [15.9, 50, 84.1]); % +/- 1 SEM
+bootright_AOK = bootstrp(1000,@mean,rightProfiles);
+rightPCs = prctile(bootright_AOK, [15.9, 50, 84.1]); % +/- 1 SEM
 rightPCMeans = mean(rightPCs, 2);
 rightCIs = zeros(3, size(rightProfiles, 2));
 for c = 1:3
@@ -38,46 +40,42 @@ rightx = 1:size(rightCIs, 2);
 
 %% Get AOK
 
+% Get Kernels for AOK
+leftAOK_KDE = leftProfiles(:,401:500);
+rightAOK_KDE = rightProfiles(:,401:500);
+
 % Compute left AOK
-bootleft = bootstrp(100,@mean,leftProfiles);
-bootleft = -(bootleft);
-for nBoot = 1:size(bootleft,1)
-    nAOK = sum(bootleft(nBoot,401:500));
-    leftAOK(nBoot) = nAOK;
-end
+bootleft_AOK = bootstrp(100,@mean,leftAOK_KDE);
+bootleft_AOK = -(bootleft_AOK); %makes values positive
+leftAOK = sum(bootleft_AOK,2);
 
 %right AOK
-bootright = bootstrp(100,@mean,rightProfiles);
-bootright = -(bootright);
-for nBoot = 1:size(bootright,1)
-    nAOK = sum(bootright(nBoot,401:500)); 
-    rightAOK(nBoot) = nAOK;
-end
+bootright_AOK = bootstrp(100,@mean,rightAOK_KDE);
+bootright_AOK = -(bootright_AOK); %makes values positive
+rightAOK = sum(bootright_AOK,2);
 
 %% Plots
 
-%
+%create tiled layout for all plots
 figure;
-t = tiledlayout(2,2);
-ax1 = axes(t);
-xlabel(ax1, 'First Interval') %i was gonna relabel it
-%xlabel(aokgraphs,'Area Over the Kernel (normalized power*ms)')
-%ylabel(aokgraphs,'Probability')
+t= tiledlayout(2,2);
+title(t,'Average Criterion Kernels and AOK') %replace title with correct metric of interest
 
 %Bootstrap w/ SEM
 
 %below mean
 ax1 = nexttile;
 hold on
-plot(leftx, leftCIs(2, :), 'b', 'LineWidth', 1.5); % This plots the mean of the bootstrap
+plot(leftCIs(2, :), 'b', 'LineWidth', 1.5); % This plots the mean of the bootstrap
 leftfillCI = [leftCIs(1, :), fliplr(leftCIs(3, :))]; % This sets up the fill for the errors
 fill(x2, leftfillCI, 'b', 'lineStyle', '-', 'edgeColor', 'b', 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % add fill
 hold off
 ax = gca;
 xlim(ax, [0, bins]);
 ax.XGrid = 'on';
-ax.XTick = [0, 100, 200, 300, 400, 500, 600, 700, 800];
-ax.XTickLabel = {'-400', '-300', '-200', '-100', '0', '100', '200', '300', '400'};
+ax.XMinorGrid = "on";
+ax.XTick = [0:200:800];
+ax.XTickLabel = {'-400', '-200', '0', '600', '800'};
 ax.FontSize = 8;
 ax.TickDir = "out";
 ay = gca;
@@ -86,7 +84,7 @@ ay.FontSize = 8;
 title('Kernel of Below Mean Profiles','FontSize',8);
 
 %above mean
-ax1 = nexttile(3);
+ax2 = nexttile (3);
 hold on
 plot(rightx, rightCIs(2, :), 'r', 'LineWidth', 1.5); % This plots the mean of the bootstrap
 rightfillCI = [rightCIs(1, :), fliplr(rightCIs(3, :))]; % This sets up the fill for the errors
@@ -95,8 +93,9 @@ hold off
 ax = gca;
 xlim(ax, [0, bins]);
 ax.XGrid = 'on';
-ax.XTick = [0, 100, 200, 300, 400, 500, 600, 700, 800];
-ax.XTickLabel = {'-400', '-300', '-200', '-100', '0', '100', '200', '300', '400'};
+ax.XMinorGrid = "on";
+ax.XTick = [0:200:800];
+ax.XTickLabel = {'-400', '-200', '0', '600', '800'};
 ax.FontSize = 8;
 ax.TickDir = "out";
 ay = gca;
@@ -104,44 +103,51 @@ ylim(ay, [-0.04 0.02]);
 ay.FontSize = 8;
 title('Kernel of Above Mean Profiles','FontSize',8); 
 
-xlabel(ax1,'Time Relative to Stimulus Onset (ms)')
-ylabel(ax1,'Normalized Power')
+%Axes Label
+xlabel([ax1 ax2],'Time Relative to Stimulus Onset (ms)','FontSize',8)
+ylabel([ax1 ax2],'Normalized Power','FontSize',8) 
+
+
 
 
 %AOK
 
 %Left
-nexttile 
+nexttile;
 hold on
 histogram(leftAOK,'Normalization','probability',FaceColor="b")
-xline(0,'--k')
+xline(0,':k')
 hold off
 title('AOK of Below Mean Profiles','FontSize',8);
 ay = gca;
-ylim(ay, [0 0.5]); %adjust to have same y-axis
+ylim(ay, [0 0.4]); %adjust to correct limits
 ay.FontSize = 8;
+ylabel('Probability','FontSize',8)
 ax = gca;
-xlim(ax, [-2.5, 2.5]);
-ax.XTick = [-2.5:0.5:2.5];
-ax.XTickLabel = {'', '-2', '', '-1', '', '0', '', '1', '', '2',''};
+xlim(ax, [-4, 4]);
+ax.XTick = [-4:1:4];
+ax.XTickLabel = {'-4', '', '-2', '', '0', '', '2', '', '4'};
 ax.FontSize = 7;
 ax.TickDir = "out";
+xlabel('Area Over the Kernel (normalized power*ms)',FontSize=8)
 
 %Right
-nexttile
+nexttile;
 hold on
 histogram (rightAOK,'Normalization','probability',FaceColor="r")
-xline(0,'--k')
+xline(0,':k')
 hold off
 title('AOK of Above Mean Profiles','FontSize',8);
 ay = gca;
-ylim(ay, [0 0.5]); %adjust to have same y-axis
+ylim(ay, [0 0.4]); %adjust to  correct limits
 ay.FontSize = 8;
+ylabel('Probability',FontSize=8)
 ax = gca;
-xlim(ax, [-2.5, 2.5]);
-ax.XTick = [-2.5:0.5:2.5];
-ax.XTickLabel = {'', '-2', '', '-1', '', '0', '', '1', '', '2',''};
+xlim(ax, [-4, 4]);
+ax.XTick = [-4:1:4];
+ax.XTickLabel = {'-4', '', '-2', '', '0', '', '2', '', '4'};
 ax.FontSize = 7;
 ax.TickDir = "out";
+xlabel('Area Over the Kernel (normalized power*ms)',FontSize=8)
 
 end

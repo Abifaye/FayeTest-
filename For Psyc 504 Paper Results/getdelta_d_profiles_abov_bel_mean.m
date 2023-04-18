@@ -1,42 +1,35 @@
-function [leftProfiles,rightProfiles] = getTopUp_profiles
+function [leftProfiles, rightProfiles] = getdelta_d_profiles_abov_bel_mean
 %loads master table with profiles, gets the function to grab delta
 %dprimes, computes its z-score using sigma and mu from curve fitting, and
 %sorts them between above and below mean using matrices to place them.
-%Then, bootstraps the two matrices and create a plot with SEM. 
 
-%% Initiation
+%get delta_d
+delta_d = getdelta_d;
 
 %load master table with profiles
 load('TablewithProfiles.mat');
 
-% Init variable
-topUp_D = [TablewithProfiles.topUpDPrime]; %Assign the variable Measure" with the quantity you want to use from
-%the master table
- 
-%% Get Profiles
-
-%measurements for curve fitting 
-topUpD_histcounts = histcounts(topUp_D,-5:0.2:5);
-topUpD_range = -4.9:0.2:4.9;
-
-%curvefitting variables
-amp = 81.03;
-mu = 2.552;
-sigma = 0.8123;
+%% Curve Fitting delta d'
+d_histcounts = histcounts(delta_d,-5:0.15:5);
+d_range = -4.9:0.15:4.9;
 
 % Z-score
-topUp_zScore = (topUp_D - mu) / sigma;
+amp =  171.3;
+mu = -0.04869;
+sigma = 0.2824;
+deltaD_zScore = (delta_d - mu) / sigma;
 
-%Indices
-leftIdx = topUp_zScore < 0;
-rightIdx = topUp_zScore > 0;
+%% Variables Initiation
+%Indices 
+leftIdx = deltaD_zScore < 0;
+rightIdx = deltaD_zScore > 0;
 
 %Init matrices for profiles below (leftprofiles) and above (rightprofiles)
 %mean
 leftProfiles = [];
 rightProfiles = [];
 
-% loop through all sessions
+%% loop through all sessions
 for nSession = 1:height(TablewithProfiles)
     %get all hit & miss profiles from session
     hitPros = cell2mat(struct2cell(TablewithProfiles.HitProfiles(nSession)));
@@ -49,5 +42,7 @@ for nSession = 1:height(TablewithProfiles)
     elseif rightIdx(nSession) == 1
         rightProfiles = [rightProfiles;comboPros(:,:)];
     end
+
 end
+
 end
