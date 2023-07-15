@@ -2,7 +2,6 @@ function [leftProfiles, rightProfiles] = getdelta_d_profiles_abov_bel_mean
 %loads master table with profiles, gets the function to grab delta
 %dprimes, computes its z-score using sigma and mu from curve fitting, and
 %sorts them between above and below mean using matrices to place them.
-%Then, bootstraps the two matrices and create a plot with SEM. 
 
 %get delta_d
 delta_d = getdelta_d;

@@ -4,7 +4,7 @@ function [outputArg1,outputArg2] = getbootstraps_AOKs
 %plots them
 
 %% Define Variable
-[leftProfiles, rightProfiles] = getAveC_profiles; %replace with function that grabs profiles for metrics of interest
+[leftProfiles, rightProfiles] = getdelta_d_profiles_abov_bel_mean; %replace with function that grabs profiles for metrics of interest
 
 %% Bootstrap
 
@@ -59,7 +59,7 @@ rightAOK = sum(bootright_AOK,2);
 %create tiled layout for all plots
 figure;
 t= tiledlayout(2,2);
-title(t,'Average Criterion Kernels and AOK') %replace title with correct metric of interest
+title(t,'Delta dprime Kernels and AOK') %replace title with correct metric of interest
 
 %Bootstrap w/ SEM
 
@@ -69,13 +69,14 @@ hold on
 plot(leftCIs(2, :), 'b', 'LineWidth', 1.5); % This plots the mean of the bootstrap
 leftfillCI = [leftCIs(1, :), fliplr(leftCIs(3, :))]; % This sets up the fill for the errors
 fill(x2, leftfillCI, 'b', 'lineStyle', '-', 'edgeColor', 'b', 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % add fill
+yline(0,'--k')
 hold off
 ax = gca;
 xlim(ax, [0, bins]);
 ax.XGrid = 'on';
 ax.XMinorGrid = "on";
 ax.XTick = [0:200:800];
-ax.XTickLabel = {'-400', '-200', '0', '600', '800'};
+ax.XTickLabel = {'-400', '-200', '0', '200', '400'};
 ax.FontSize = 8;
 ax.TickDir = "out";
 ay = gca;
@@ -89,13 +90,14 @@ hold on
 plot(rightx, rightCIs(2, :), 'r', 'LineWidth', 1.5); % This plots the mean of the bootstrap
 rightfillCI = [rightCIs(1, :), fliplr(rightCIs(3, :))]; % This sets up the fill for the errors
 fill(x2, rightfillCI, 'r', 'lineStyle', '-', 'edgeColor', 'r', 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % add fill
+yline(0,'--k')
 hold off
 ax = gca;
 xlim(ax, [0, bins]);
 ax.XGrid = 'on';
 ax.XMinorGrid = "on";
 ax.XTick = [0:200:800];
-ax.XTickLabel = {'-400', '-200', '0', '600', '800'};
+ax.XTickLabel = {'-400', '-200', '0', '200', '400'};
 ax.FontSize = 8;
 ax.TickDir = "out";
 ay = gca;
@@ -116,7 +118,7 @@ ylabel([ax1 ax2],'Normalized Power','FontSize',8)
 nexttile;
 hold on
 histogram(leftAOK,'Normalization','probability',FaceColor="b")
-xline(0,':k')
+xline(0,'--k')
 hold off
 title('AOK of Below Mean Profiles','FontSize',8);
 ay = gca;
@@ -135,7 +137,7 @@ xlabel('Area Over the Kernel (normalized power*ms)',FontSize=8)
 nexttile;
 hold on
 histogram (rightAOK,'Normalization','probability',FaceColor="r")
-xline(0,':k')
+xline(0,'--k')
 hold off
 title('AOK of Above Mean Profiles','FontSize',8);
 ay = gca;

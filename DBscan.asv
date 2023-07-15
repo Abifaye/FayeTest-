@@ -1,0 +1,94 @@
+%% Initializing Variables
+
+%Go to folder with the master table
+cd(uigetdir([],'Select Folder Containing Master Table'));
+
+%% Initialize varibles
+%get all functions that provides data
+masterRollAve = getrollingAverage; %select rewards and allRTs
+masterRollRates = getrollingrates; %select fa, miss, and hit
+
+%concatinate table 
+masterTable = horzcat(masterRollAve,masterRollRates);
+
+%Normalize Data
+normData = normalize(masterTable{:,:},1); %used z-score
+
+%sample
+sampleData = datasample(normData,10,'Replace',false);
+
+save normData
+
+
+%% Attempt to see which epsilon is best (not directly though), just using samples
+holder = [];
+for  nDraw = 1:100
+sampleData = datasample(normData,10000,'Replace',false);
+holder(nDraw) = clusterDBSCAN.estimateEpsilon(sampleData,2,10);
+end
+toc;
+meanEps = mean(holder); 
+
+%% DBscan
+DBStruct = getDBScanner(normData);
+
+delete normData.mat
+
+%% Appending to struct
+
+DBStruct(4).labels = 'Clusters';
+DBStruct(5).labels = 'Outliers';
+DBStruct(6).labels = 'Points per Cluster';
+DBStruct(7).labels = 'Highest Cluster';
+DBStruct(8).labels = 'Data % of Highest Cluster'; 
+
+
+%
+for nData = 1:25
+    DBStruct(4).(strcat('data',num2str(nData))) = max(DBStruct(1).(strcat('data',num2str(nData))));
+    DBStruct(5).(strcat('data',num2str(nData))) = sum(DBStruct(1).(strcat('data',num2str(nData))) == -1);
+end
+
+%
+for nData = 1:25
+    clusterMat = [];
+    for nCluster = 1:DBStruct(4).(strcat('data',num2str(nData)))
+        clusterMat(nCluster) = sum(DBStruct(1).(strcat('data',num2str(nData))) == nCluster);
+    end
+    DBStruct(6).(strcat('data',num2str(nData))) =  clusterMat;
+    DBStruct(7).(strcat('data',num2str(nData))) = find(DBStruct(6).(strcat('data',num2str(nData))) == ...
+        max(DBStruct(6).(strcat('data',num2str(nData)))));
+    DBStruct(8).(strcat('data',num2str(nData))) = max(DBStruct(6).(strcat('data',num2str(nData))))/...
+        sum(DBStruct(6).(strcat('data', num2str(nData))))*100;
+end
+
+save DBStruct
+
+
+plot(DBStruct(1).data25,'Color','b')
+%clusters = dbscan(normData,0.5,50); %using mean eps from sample
+
+
+%% Extra
+F = dbscan(normData,0.5,40); %20 minpts yielded 6 clusters, 30 minpts yielded 
+% 5 clusters, 50 minpts yielded 3 clusters; moving 50 minpts with 0.5
+% instead of 0.48 radius reduced it to 2 clusters, using 0.5 eps for 40
+% trials also yield 2 clusters; I think 0.48 was better
+
+%figure data 27 clustering
+clr = hsv(DBStruct(4).data27); 
+figure;
+gscatter(masterTable.rollinghitrate,masterTable.rollingrewards,DBStruct(1).data27,clr)
+
+%
+%figure data 2 clustering
+clr = hsv(DBStruct(4).data28); 
+figure;
+gscatter(masterTable.rollinghitrate,masterTable.rollingrewards,DBStruct(1).data28,clr)
+
+%% Total Number of Trials
+for nData = 1:size(T,1);
+    SessionSize(nData) = size(T.optoPowerMW{nData,1},2);
+end
+
+totalTrials = sum(SessionSize);

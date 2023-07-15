@@ -6,7 +6,7 @@ function [firstTertile,secondTertile,thirdTertile] = getTertile
 %% Initialize variables
 
 %Go to folder with the master table
-folderPath = uigetdir();
+cd(uigetdir());
 
 %load master table with hit profiles file 
 load('TablewithHitProfiles.mat');
@@ -129,6 +129,7 @@ hold on
 plot(firstx, firstCIs(2, :), 'b', 'LineWidth', 1.5); % This plots the mean of the bootstrap
 firstfillCI = [firstCIs(1, :), fliplr(firstCIs(3, :))]; % This sets up the fill for the errors
 fill(x2, firstfillCI, 'b', 'lineStyle', '-', 'edgeColor', 'b', 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % adds the fill
+yline(0.5,'--k')
 hold off
 title('Kernel of First Tertile','FontSize',8);
 ax = gca;
@@ -136,7 +137,7 @@ xlim(ax, [0, bins]);
 ax.XGrid = 'on';
 ax.XMinorGrid = "on";
 ax.XTick = [0:200:800];
-ax.XTickLabel = {'-400', '-200', '0', '600', '800'};
+ax.XTickLabel = {'-400', '-200', '0', '200', '400'};
 ax.FontSize = 8;
 ax.TickDir = "out";
 ay = gca;
@@ -149,6 +150,7 @@ hold on
 plot(secondx, secondCIs(2, :), 'r', 'LineWidth', 1.5); % This plots the mean of the bootstrap
 secondfillCI = [secondCIs(1, :), fliplr(secondCIs(3, :))]; % This sets up the fill for the errors
 fill(x2, secondfillCI, 'r', 'lineStyle', '-', 'edgeColor', 'r', 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % add fill
+yline(0.5,'--k')
 hold off
 title('Kernel of Second Tertile','FontSize',8);
 ax = gca;
@@ -156,7 +158,7 @@ xlim(ax, [0, bins]);
 ax.XGrid = 'on';
 ax.XMinorGrid = "on";
 ax.XTick = [0:200:800];
-ax.XTickLabel = {'-400', '-200', '0', '600', '800'};
+ax.XTickLabel = {'-400', '-200', '0', '200', '400'};
 ax.FontSize = 8;
 ax.TickDir = "out";
 ay = gca;
@@ -170,6 +172,7 @@ hold on
 plot(thirdx, thirdCIs(2, :), 'g', 'LineWidth', 1.5); % This plots the mean of the bootstrap
 thirdfillCI = [thirdCIs(1, :), fliplr(thirdCIs(3, :))]; % This sets up the fill for the errors
 fill(x2, thirdfillCI, 'g', 'lineStyle', '-', 'edgeColor', 'g', 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % adds the fill
+yline(0.5,'--k')
 hold off
 ax = gca;
 xlim(ax, [0, bins]);
@@ -177,7 +180,7 @@ ax.XGrid = 'on';
 ax.XMinorGrid = "on";
 ax.XTick = [0:200:800];
 title('Kernel of Third Tertile','FontSize',8);
-ax.XTickLabel = {'-400', '-200', '0', '600', '800'};
+ax.XTickLabel = {'-400', '-200', '0', '200', '400'};
 ax.FontSize = 8;
 ax.TickDir = "out";
 ay = gca;
@@ -194,7 +197,7 @@ ylabel([ax1,ax2,ax3],'Normalized Power','FontSize',8)
 %1st
 nexttile;
 histogram(firstAOK,'Normalization','probability',FaceColor="b")
-xline(0,':k')
+xline(0,'--k')
 title('AoK of First Tertile','FontSize',8);
 ay = gca;
 ylim(ay, [0 0.4]); 
@@ -211,11 +214,11 @@ xlabel('Area Over the Kernel (normalized power*ms)',FontSize=8)
 
 %2nd
 nexttile; 
-histogram (secondAOK,'Normalization','probability',FaceColor="r")
-xline(0,':k')
+histogram(secondAOK,'Normalization','probability',FaceColor="r")
+xline(0,'--k')
 title('AoK of Second Tertile','FontSize',8);
 ay = gca;
-ylim(ay, [0 0.4]); =
+ylim(ay, [0 0.4]);
 ay.FontSize = 8;
 ylabel('Probability','FontSize',8)
 ax = gca;
@@ -229,10 +232,10 @@ xlabel('Area Over the Kernel (normalized power*ms)',FontSize=8)
 %3rd
 nexttile;
 histogram (thirdAOK,'Normalization','probability',FaceColor="g")
-xline(0,':k')
+xline(0,'--k')
 title('AoK of Third Tertile','FontSize',8);
 ay = gca;
-ylim(ay, [0 0.4]); =
+ylim(ay, [0 0.4]);
 ay.FontSize = 8;
 ylabel('Probability','FontSize',8)
 ax = gca;
@@ -273,7 +276,7 @@ histogram (thirdAOK,'Normalization','probability',FaceColor="g")
 xline(0,':k')
 title('AoK of Third Tertile from 100-200 ms','FontSize',8);
 ay = gca;
-ylim(ay, [0 0.4]); \
+ylim(ay, [0 0.4]);
 ay.FontSize = 8;
 ylabel('Probability','FontSize',8)
 ax = gca;
