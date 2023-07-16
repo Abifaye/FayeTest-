@@ -34,34 +34,6 @@ DBStruct = getDBScanner(normData);
 
 delete normData.mat
 
-%% Appending to struct
-
-DBStruct(4).labels = 'Clusters';
-DBStruct(5).labels = 'Outliers';
-DBStruct(6).labels = 'Points per Cluster';
-DBStruct(7).labels = 'Highest Cluster';
-DBStruct(8).labels = 'Data % of Highest Cluster'; 
-
-
-%
-for nData = 1:25
-    DBStruct(4).(strcat('data',num2str(nData))) = max(DBStruct(1).(strcat('data',num2str(nData))));
-    DBStruct(5).(strcat('data',num2str(nData))) = sum(DBStruct(1).(strcat('data',num2str(nData))) == -1);
-end
-
-%
-for nData = 1:25
-    clusterMat = [];
-    for nCluster = 1:DBStruct(4).(strcat('data',num2str(nData)))
-        clusterMat(nCluster) = sum(DBStruct(1).(strcat('data',num2str(nData))) == nCluster);
-    end
-    DBStruct(6).(strcat('data',num2str(nData))) =  clusterMat;
-    DBStruct(7).(strcat('data',num2str(nData))) = find(DBStruct(6).(strcat('data',num2str(nData))) == ...
-        max(DBStruct(6).(strcat('data',num2str(nData)))));
-    DBStruct(8).(strcat('data',num2str(nData))) = max(DBStruct(6).(strcat('data',num2str(nData))))/...
-        sum(DBStruct(6).(strcat('data', num2str(nData))))*100;
-end
-
 save DBStruct
 
 
@@ -79,12 +51,30 @@ F = dbscan(normData,0.5,40); %20 minpts yielded 6 clusters, 30 minpts yielded
 clr = hsv(DBStruct(4).data27); 
 figure;
 gscatter(masterTable.rollinghitrate,masterTable.rollingrewards,DBStruct(1).data27,clr)
+title('Data 27')
+xlabel('Rolling Hit Rate')
+ylabel('Rolling Rewards')
 
-%
-%figure data 2 clustering
-clr = hsv(DBStruct(4).data28); 
+%figure data 35 clustering
+clr = hsv(DBStruct(4).data35); 
 figure;
-gscatter(masterTable.rollinghitrate,masterTable.rollingrewards,DBStruct(1).data28,clr)
+gscatter(masterTable.rollinghitrate,masterTable.rollingrewards,DBStruct(1).data35,clr)
+title('Data 35')
+xlabel('Rolling Hit Rate')
+ylabel('Rolling Rewards')
+
+
+%figure data 40 clustering
+clr = ['r','b','g','k','y','c','m']; 
+figure;
+gscatter(masterTable.rollinghitrate,masterTable.rollingrewards,DBStruct(1).data40,clr)
+title('Data 40')
+xlabel('Rolling hit Rate')
+ylabel('Rolling Rewards')
+
+
+
+
 
 %% Total Number of Trials
 for nData = 1:size(T,1);

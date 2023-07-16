@@ -47,15 +47,60 @@ F = dbscan(normData,0.5,40); %20 minpts yielded 6 clusters, 30 minpts yielded
 % instead of 0.48 radius reduced it to 2 clusters, using 0.5 eps for 40
 % trials also yield 2 clusters; I think 0.48 was better
 
-%figure data 27 clustering
-clr = hsv(DBStruct(4).data27); 
+%figure data 5 clustering
+clr = hsv(DBStruct(4).data5); 
 figure;
-gscatter(masterTable.rollinghitrate,masterTable.rollingrewards,DBStruct(1).data27,clr)
+gscatter(masterTable.rollinghitrate,masterTable.rollingrewards,DBStruct(1).data5,clr)
+title('Data 5')
+xlabel('Rolling Hit Rate')
+ylabel('Rolling Rewards')
 
-%figure data 28 clustering
-clr = hsv(DBStruct(4).data28); 
+%figure data 10 clustering
+clr = hsv(DBStruct(4).data10); 
 figure;
-gscatter(masterTable.rollinghitrate,masterTable.rollingrewards,DBStruct(1).data28,clr)
+gscatter(masterTable.rollinghitrate,masterTable.rollingrewards,DBStruct(1).data10,clr)
+title('Data 10')
+xlabel('Rolling Hit Rate')
+ylabel('Rolling Rewards')
+
+%figure data 15 clustering
+clr = ['r','b']; 
+figure;
+gscatter(masterTable.rollinghitrate,masterTable.rollingrewards,DBStruct(1).data15,clr)
+title('Data 15')
+xlabel('Rolling Hit Rate')
+ylabel('Rolling Rewards')
+
+%figure data 20 clustering
+clr = ['r','b','g','k']; 
+figure;
+gscatter(masterTable.rollinghitrate,masterTable.rollingrewards,DBStruct(1).data20,clr)
+title('Data 20')
+xlabel('Rolling hit Rate')
+ylabel('Rolling Rewards')
+
+%figure data 25 clustering
+clr = ['r','b','g']; 
+figure;
+gscatter(masterTable.rollinghitrate,masterTable.rollingrewards,DBStruct(1).data25,clr)
+title('Data 25')
+xlabel('Rolling hit Rate')
+ylabel('Rolling Rewards')
+
+
+
+
+%figure data 40 clustering
+clr = ['r','b','g','k','y','c','m']; 
+figure;
+gscatter(masterTable.rollinghitrate,masterTable.rollingrewards,DBStruct(1).data40,clr)
+title('Data 40')
+xlabel('Rolling hit Rate')
+ylabel('Rolling Rewards')
+
+
+
+
 
 %% Total Number of Trials
 for nData = 1:size(T,1);
