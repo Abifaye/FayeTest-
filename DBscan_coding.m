@@ -87,7 +87,45 @@ title('Data 25')
 xlabel('Rolling hit Rate')
 ylabel('Rolling Rewards')
 
+%figure data 57 clustering
+clr = ['r','g','b']; 
+figure;
+gscatter(masterTable.rollinghitrate,masterTable.rollingrewards,DBStruct(1).data57,clr)
+title('Data 57')
+xlabel('Rolling hit Rate')
+ylabel('Rolling Rewards')
 
+%figure data 63 clustering
+clr = ['r','g']; 
+figure;
+gscatter(masterTable.rollinghitrate,masterTable.rollingrewards,DBStruct(1).data63,clr)
+title('Data 63')
+xlabel('Rolling hit Rate')
+ylabel('Rolling Rewards')
+
+%figure data 63 clustering
+clr = ['r','g']; 
+figure;
+gscatter(masterTable.rollinghitrate,masterTable.rollingrewards,DBStruct(1).data63,clr)
+title('Data 63')
+xlabel('Rolling hit Rate')
+ylabel('Rolling Rewards')
+
+%figure data 64 clustering
+clr = ['r','g','b']; 
+figure;
+gscatter(masterTable.rollinghitrate,masterTable.rollingrewards,DBStruct(1).data64,clr)
+title('Data 64')
+xlabel('Rolling hit Rate')
+ylabel('Rolling Rewards')
+
+%figure data 68 clustering
+clr = ['r','b']; 
+figure;
+gscatter(masterTable.rollinghitrate,masterTable.rollingrewards,DBStruct(1).data68,clr)
+title('Data 68')
+xlabel('Rolling hit Rate')
+ylabel('Rolling Rewards')
 
 
 %figure data 40 clustering
@@ -99,8 +137,6 @@ xlabel('Rolling hit Rate')
 ylabel('Rolling Rewards')
 
 %
-
-
 
 
 %% Total Number of Trials
