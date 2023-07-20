@@ -29,6 +29,23 @@ end
 toc;
 meanEps = mean(holder); 
 
+%more attempts
+A = clusterDBSCAN.estimateEpsilon(normData,50,100);
+B = pdist2(normData,normData,'euclidean');
+logicalMat = triu(ones(500,500));
+C = normData';
+A = triu(pdist2(normData,normData,'euclidean'));
+triu(ones(250000,250000));
+for dp1 = 1:length(normData)
+    for dp2 = 1:length(normData)
+        if logicalMat == 1
+            output = pdist(normData(dp1,:),'euclidean');
+        else
+            continue
+        end
+    end
+end
+
 %% DBscan
 DBStruct = getDBScanner(normData);
 
