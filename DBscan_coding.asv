@@ -129,13 +129,7 @@ title('Data 29 FA')
 xlabel('Rolling RTs')
 ylabel('Rolling FA')
 
-%Something I need to use later on for revising code for rolling averages 
-B = 'no';
-if strcmp(B,'yes')
-    C = 'yay~';
-elseif strcmp(B,'no')
-    C ='aww';
-end
+A 
 
 
 
