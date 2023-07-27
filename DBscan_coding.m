@@ -46,10 +46,12 @@ for dp1 = 1:length(normData)
     end
 end
 
-A = pdist2(normData,normData,'euc','Smallest', 10);
+A = pdist2(normData,normData,'euc','Smallest', 50);
+B = sort(A);
+Vstart = length(B) - length(normData);
 
 figure;
-plot(sort(A(end,:)));
+plot(B);
 ylim([0 3])
 yticks(0:0.1:3)
 grid
@@ -57,7 +59,6 @@ grid
 dp23 = pdist(normData(2:3,:),"euclidean");
 dp13 = pdist(normData([1 3],:),"euclidean");
 dp = dp23/dp13;
-
 
 normData([1 3],:);
 
@@ -145,8 +146,6 @@ if strcmp(B,'yes')
 elseif strcmp(B,'no')
     C ='aww';
 end
-
-
 
 %% Total Number of Trials
 for nData = 1:size(T,1);
