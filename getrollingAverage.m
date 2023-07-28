@@ -11,18 +11,26 @@ load('masterTable_complete.mat');
 selection = listdlg('PromptString',{'Select variable(s) to compute', ...
     'rolling average'},'ListString',T.Properties.VariableNames,'SelectionMode','multiple');
 
-%init variable for rolling averages table 
+%init variable for rolling averages table
 masterRollAve = table();
+
+%Command window dialgoue for how many trials should be used as window
+%length for the rolling averages
+k = input(strcat('Input Window Length for Rolling Average:',32)); %code 32 = space
+
 
 %loop through each selected variable
 for nVar = 1:length(selection)
-
-    %init variable from mastertable
     variable = [T.(T.Properties.VariableNames{selection(nVar)})];
 
-    %Command window dialgoue for how many trials should be used as window
-    %length for the
-    k = input(strcat('Input Window Length for Rolling',T.Properties.VariableNames{selection(nVar)},':',32)); %code 32 = space
+    if strcmp(T.Properties.VariableNames{selection(nVar)},T.Properties.VariableNames{54})
+        tempContainer = [];
+        for nSession = 1:size(T,1)
+            tempContainer = variable{nSession};
+            tempContainer(tempContainer==100000) = 0;
+            variable{nSession} = tempContainer;
+        end
+    end
 
     %init counter and temporary matrix
     counter = 0;
@@ -48,10 +56,10 @@ end
 
 %% in case we ever need a different method to get all trials
 
-  %loop through each session of the variable and compute rolling average
-    %for nSession = 1:length(variable)
-        %masterRollAve(nSession).(strcat('rolling',T.Properties.VariableNames{selection(nVar)})) = movmean(variable{nSession},k);
-    %end
+%loop through each session of the variable and compute rolling average
+%for nSession = 1:length(variable)
+%masterRollAve(nSession).(strcat('rolling',T.Properties.VariableNames{selection(nVar)})) = movmean(variable{nSession},k);
+%end
 
 
 end

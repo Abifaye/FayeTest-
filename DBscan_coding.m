@@ -30,11 +30,11 @@ toc;
 meanEps = mean(holder); 
 
 %more attempts
-A = clusterDBSCAN.estimateEpsilon(normData,50,100);
-B = pdist2(normData,normData,'euclidean');
+kdist = clusterDBSCAN.estimateEpsilon(normData,50,100);
+Vdist = pdist2(normData,normData,'euclidean');
 logicalMat = triu(ones(500,500));
 C = normData';
-A = triu(pdist2(normData,normData,'euclidean'));
+kdist = triu(pdist2(normData,normData,'euclidean'));
 triu(ones(250000,250000));
 for dp1 = 1:length(normData)
     for dp2 = 1:length(normData)
@@ -46,21 +46,69 @@ for dp1 = 1:length(normData)
     end
 end
 
-A = pdist2(normData,normData,'euc','Smallest', 50);
-B = sort(A);
-Vstart = length(B) - length(normData);
+%% Minpt Determination
+%distance of k-nearest neighbours k = 50
+kdist = pdist2(normData,normData,'euc','Smallest', 50);
+%distance of k-nearest neighbours k = 100
+kdist = pdist2(normData,normData,'euc','Smallest', 100);
+%distance of k-nearest neighbours k = 10
+kdist = pdist2(normData,normData,'euc','Smallest', 10);
+%distance of k-nearest neighbours k = 1000
+kdist = pdist2(normData,normData,'euc','Smallest', 1000);
+%all these distances converges with a dp of ~1
 
-figure;
-plot(B);
-ylim([0 3])
-yticks(0:0.1:3)
-grid
+%all kdist data sorted into 1 vector
+Vdist = sort(kdist(:));
+%x-coordinate start of knee
+Vstart = length(Vdist) - length(normData(:));
+%x-coordinate end of knee
+Vstop = length(Vdist);
+%y-coordinate start of knee
+y1 = Vdist(Vstart);
+%y-coordinate end of knee
+y2 = Vdist(Vstop);
+%line going through Vstart and Vstop points
+A1 = (y2-y1)/(Vstop-Vstart);
+B1 = y1-(A1*Vstart);
+LINE = @(x) (A1*x)+B1;
+%Line corresponding to abrupt increase of distances
+A2 = -A1;
+B2 = A1*(Vstart+Vstop)+B1;
+LINE2 = @(x) (A2*x)+B2;
 
-dp23 = pdist(normData(2:3,:),"euclidean");
-dp13 = pdist(normData([1 3],:),"euclidean");
+%find coordinate of point corresponding to abrupt increase of distances
+%estimate equation for Vdist
+f = @(x) interp1(1:length(Vdist),Vdist, x, 'linear');
+%estimate aprox x-coordinate of point
+x0 = 2000000; 
+%find x-coordinate
+intersect_pts = fsolve(@(x) (f(x) - LINE2(x)), x0);
+%y-coordinate 
+y3 = Vdist(int64(intersect_pts));
+
+%combine x and y coordinates and initialize as corresponding pts
+p1 = [Vstart y1];
+p2 = [Vstop y2];
+p3 = [intersect_pts y3];
+
+%distance btwn pt 2 and 3
+dp23 = pdist2(p1,p2,"euclidean");
+%distance btwn pt 1 and 3
+dp13 = pdist2(p1,p3,"euclidean");
+%comparison factor btwn the two distances calculated
 dp = dp23/dp13;
 
-normData([1 3],:);
+%plot
+figure;
+hold on
+plot(Vdist);
+plot(Vstart,y1,'.')
+plot(Vstop,y2,'.')
+plot(intersect_pts,y3,'.')
+grid
+
+%minpt to use?
+round(dp - 0.5)
 
 %minpts
 
@@ -88,6 +136,15 @@ gscatter(masterDataTable.rollinghitrate,masterDataTable.rollingrewards,DBStruct(
 title('Data 5')
 xlabel('Rolling Hit Rate')
 ylabel('Rolling Rewards')
+
+%N
+clr = hsv(max(N)); 
+figure;
+gscatter(masterDataTable.rollinghitrate,masterDataTable.rollingrewards,N,clr)
+title('N')
+xlabel('Rolling Hit Rate')
+ylabel('Rolling Rewards')
+
 
 %figure data 29 clustering
 clr = ['r','b','g','k']; 
@@ -140,10 +197,10 @@ xlabel('Rolling RTs')
 ylabel('Rolling FA')
 
 %Something I need to use later on for revising code for rolling averages 
-B = 'no';
-if strcmp(B,'yes')
+Vdist = 'no';
+if strcmp(Vdist,'yes')
     C = 'yay~';
-elseif strcmp(B,'no')
+elseif strcmp(Vdist,'no')
     C ='aww';
 end
 
