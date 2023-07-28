@@ -72,9 +72,9 @@ kdist = pdist2(normData,normData,'euc','Smallest', 1000);
 %all these distances converges with a dp of ~1
 
 %all kdist data sorted into 1 vector
-Vdist = sort(kdist(:));
+Vdist = sort(kdist(end,:));
 %x-coordinate start of knee
-Vstart = length(Vdist) - length(normData(:));
+Vstart = length(Vdist) - length(normData);%length(normData(:));
 %x-coordinate end of knee
 Vstop = length(Vdist);
 %y-coordinate start of knee
@@ -94,7 +94,7 @@ LINE2 = @(x) (A2*x)+B2;
 %estimate equation for Vdist
 f = @(x) interp1(1:length(Vdist),Vdist, x, 'linear');
 %estimate aprox x-coordinate of point
-x0 = 20000; 
+x0 = 2000000; 
 %find x-coordinate
 intersect_pts = fsolve(@(x) (f(x) - LINE2(x)), x0);
 %y-coordinate 
@@ -104,10 +104,9 @@ y3 = Vdist(int64(intersect_pts));
 p1 = [Vstart y1];
 p2 = [Vstop y2];
 p3 = [intersect_pts y3];
-pt = 
 
 %distance btwn pt 2 and 3
-dp23 = pdist2(p2,p3,"euclidean");
+dp23 = pdist2(p1,p2,"euclidean");
 %distance btwn pt 1 and 3
 dp13 = pdist2(p1,p3,"euclidean");
 %comparison factor btwn the two distances calculated
@@ -120,8 +119,6 @@ plot(Vdist);
 plot(Vstart,y1,'.')
 plot(Vstop,y2,'.')
 plot(intersect_pts,y3,'.')
-xlim([0 13000000])
-ylim([0 32])
 grid
 
 %minpt to use?
