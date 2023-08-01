@@ -47,7 +47,7 @@ for dp1 = 1:length(normData)
 end
 
 %more attempt 2
-kD = pdist2(normData,normData,'euc','Smallest',50);
+kD = pdist2(normData,normData,'euc','Smallest',20);
 
 figure;
 plot(sort(kD(end,:)));
@@ -62,14 +62,22 @@ clusterDBSCAN.estimateEpsilon(normData,50,100)
 
 %% Minpt Determination
 %distance of k-nearest neighbours k = 50
-kdist = pdist2(normData,normData,'euc','Smallest', 50);
+kdist = pdist2(normData,normData,'euc','Smallest', 51); %offset by +1 because smallest dist is against itself (dist = 0)
 %distance of k-nearest neighbours k = 100
-kdist = pdist2(normData,normData,'euc','Smallest', 100);
+kdist = pdist2(normData,normData,'euc','Smallest', 101);
 %distance of k-nearest neighbours k = 10
-kdist = pdist2(normData,normData,'euc','Smallest', 10);
+kdist = pdist2(normData,normData,'euc','Smallest', 11);
 %distance of k-nearest neighbours k = 1000
-kdist = pdist2(normData,normData,'euc','Smallest', 1000);
+kdist = pdist2(normData,normData,'euc','Smallest', 1001);
 %all these distances converges with a dp of ~1
+
+%remove uncessary pts
+for dp1 = 1:length(normData)
+    for dp2 = 1:length(normData)
+        output(dp1,dp2) = pdist2(normData(dp1),normData(dp2),'euclidean');
+    end
+end
+distMat = triu(output);
 
 %all kdist data sorted into 1 vector
 Vdist = sort(kdist(:));
@@ -90,7 +98,8 @@ A2 = -A1;
 B2 = A1*(Vstart+Vstop)+B1;
 LINE2 = @(x) (A2*x)+B2;
 
-%find coordinate of point corresponding to abrupt increase of distances
+%find coordinate of point of intersection between Vdist and LINE2
+
 %estimate equation for Vdist
 f = @(x) interp1(1:length(Vdist),Vdist, x, 'linear');
 %estimate aprox x-coordinate of point
@@ -101,10 +110,11 @@ intersect_pts = fsolve(@(x) (f(x) - LINE2(x)), x0);
 y3 = Vdist(int64(intersect_pts));
 
 %combine x and y coordinates and initialize as corresponding pts
+
 p1 = [Vstart y1];
 p2 = [Vstop y2];
 p3 = [intersect_pts y3];
-pt = 
+pt = [12398475 Vdist(12398475)]; %point very near p3
 
 %distance btwn pt 2 and 3
 dp23 = pdist2(p2,p3,"euclidean");
@@ -112,6 +122,39 @@ dp23 = pdist2(p2,p3,"euclidean");
 dp13 = pdist2(p1,p3,"euclidean");
 %comparison factor btwn the two distances calculated
 dp = dp23/dp13;
+
+%% More attempts for Epsilon 
+
+%line 3: tangent line coming from point 3
+A3 = (pt(2) - p3(2))/(pt(1) - p3(1)); %slope
+B3 = p3(2) - (A3*p3(1)); %intercept
+LINE3 = @(x) (A3*x)+B3;
+
+%delta d: dif btwn values of Vdist and LINE3
+delta_D = @(x) f(x) - LINE3(x);
+%delta d from x-value of p3 to x-value of p2 i.e. x2 = 1, x3 = 3, therefore
+%1:3
+M = delta_D(p3(1):p2(1));
+mean_M = mean(M); %mean of M
+%find x-value of point a (coordinates of mean M)
+%estimate function for M
+Mfunc = @(x) interp1(1:length(M),M, x, 'linear');
+%initial guess for x-coordinate
+x0 = 25657;
+%increase tolerance for finding x-coordinate
+options = optimoptions('fsolve', 'TolX',1e-25); 
+%find x-coordinate
+pAx = fsolve(@(x) (Mfunc(x) - mean_M), x0,options);
+
+epsilon_trial = f(p3(1)+pAx);
+clusterTrial = dbscan(normData,epsilon_trial,50);
+
+figure;
+hold on
+plot(M)
+yline(mean_M)
+plot(Z,mean_M,'.')
+
 
 %plot
 figure;
@@ -159,6 +202,45 @@ gscatter(masterDataTable.rollinghitrate,masterDataTable.rollingrewards,N,clr)
 title('N')
 xlabel('Rolling Hit Rate')
 ylabel('Rolling Rewards')
+
+%R RTs
+clr = ['r','b','g']; 
+figure;
+gscatter(masterDataTable.rollingallRTs,masterDataTable.rollinghitrate,R,clr)
+title('Data R')
+xlabel('Rolling RTs')
+ylabel('Rolling Hit Rate')
+%R rewards
+clr = ['r','b','g']; 
+figure;
+gscatter(masterDataTable.rollinghitrate,masterDataTable.rollingrewards,R,clr)
+title('Data R')
+xlabel('Rolling Hit Rate')
+ylabel('Rolling RTs')
+
+%clusterTrial RTs
+clr = ['r','b','g']; 
+figure;
+gscatter(masterDataTable.rollingallRTs,masterDataTable.rollinghitrate,clusterTrial,clr)
+title('Data R')
+xlabel('Rolling RTs')
+ylabel('Rolling Hit Rate')
+%clusterTrial rewards
+clr = ['r','b','g']; 
+figure;
+gscatter(masterDataTable.rollinghitrate,masterDataTable.rollingrewards,clusterTrial,clr)
+title('Data R')
+xlabel('Rolling Hit Rate')
+ylabel('Rolling RTs')
+
+
+%figure data 19 fa vs hit
+clr = ['r','b','g']; 
+figure;
+gscatter(masterDataTable.rollinghitrate,masterDataTable.rollingfarate,R,clr)
+title('Data R')
+xlabel('Rolling Hit Rate')
+ylabel('Rolling FA Rate')
 
 %figure data 19 RTs
 clr = ['r','b','g','k','y']; 
@@ -256,6 +338,34 @@ title('Data 29 FA')
 xlabel('Rolling RTs')
 ylabel('Rolling FA')
 
+%69
+clr = hsv(DBStruct(4).data69); 
+figure;
+gscatter(masterDataTable.rollingallRTs,masterDataTable.rollinghitrate,DBStruct(1).data69,clr)
+title('Data 69 RTs')
+xlabel('Rolling Rolling RTs')
+ylabel('Rolling Hit Rate')
+
+%78
+clr = ['r','b','g','k'];
+figure;
+gscatter(masterDataTable.rollingallRTs,masterDataTable.rollinghitrate,DBStruct(1).data78,clr)
+title('Data 78 RTs')
+xlabel('Rolling Rolling RTs')
+ylabel('Rolling Hit Rate')
+
+%78
+clr = ['r','b','g','k'];
+figure;
+gscatter(masterDataTable.rollinghitrate,masterDataTable.rollingrewards,DBStruct(1).data78,clr)
+title('Data 78')
+xlabel('Rolling hit Rate')
+ylabel('Rolling Rewards')
+
+%% Total Number of Trials
+for nData = 1:size(T,1);
+    SessionSize(nData) = size(T.optoPowerMW{nData,1},2);
+end
 %Something I need to use later on for revising code for rolling averages 
 Vdist = 'no';
 if strcmp(Vdist,'yes')
@@ -264,9 +374,5 @@ elseif strcmp(Vdist,'no')
     C ='aww';
 end
 
-%% Total Number of Trials
-for nData = 1:size(T,1);
-    SessionSize(nData) = size(T.optoPowerMW{nData,1},2);
-end
 
 totalTrials = sum(SessionSize);
