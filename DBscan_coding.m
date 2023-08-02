@@ -61,8 +61,9 @@ grid
 clusterDBSCAN.estimateEpsilon(normData,50,100)
 
 %% Minpt Determination
+load normData.mat
 %distance of k-nearest neighbours k = 50
-kdist = pdist2(normData,normData,'euc','Smallest', 50);
+kdist = pdist2(normData,normData,'euc','Smallest', 51); %offset by 1 because first dist = 0 (dist against itself)
 %distance of k-nearest neighbours k = 100
 kdist = pdist2(normData,normData,'euc','Smallest', 101);
 %distance of k-nearest neighbours k = 10
@@ -72,44 +73,32 @@ kdist = pdist2(normData,normData,'euc','Smallest', 1001);
 %all these distances converges with a dp of ~1
 
 %
-kthDist = sort(kdist(end,:));
-
-%remove uncessary pts
-for dp1 = 1:length(normData)
-    for dp2 = 1:length(normData)
-        output(dp1,dp2) = pdist2(normData(dp1),normData(dp2),'euclidean');
-    end
-end
-distMat = triu(output);
+kdist1 = kdist(2:end,:)';
 
 %all kdist data sorted into 1 vector
 Vdist = sort(kdist(:));
 %x-coordinate start of knee
-Vstart = length(Vdist) - length(normData(:));
+p1(1) = length(Vdist) - length(normData(:));
 %x-coordinate end of knee
-Vstop = length(Vdist);
+p2(1) = length(Vdist);
 %y-coordinate start of knee
-y1 = Vdist(Vstart);
+p1(2) = Vdist(p1(1));
 %y-coordinate end of knee
-y2 = Vdist(Vstop);
-
-%combine x and y coordinates and initialize as corresponding pts
-p1 = [Vstart y1];
-p2 = [Vstop y2];
+p2(2) = Vdist(p2(1));
 
 %line going through Vstart and Vstop points
-A1 = (y2-y1)/(Vstop-Vstart);
-B1 = y1-(A1*Vstart);
+A1 = (p2(2)-p1(2))/(p2(1)-p1(1));
+B1 = p1(2)-(A1*p1(1));
 LINE = @(x) (A1*x)+B1;
 
 %Line corresponding to abrupt increase of distances
 A2 = -A1;
-B2 = A1*(Vstart+Vstop)+B1;
+B2 = A1*(p1(1)+p2(1))+B1;
 LINE2 = @(x) (A2*x)+B2;
 
 %find coordinate of point of intersection between Vdist and LINE2
 p3 = [];
-for x = 1:1:length(Vdist);
+for x = 1:length(Vdist);
 
     % Calculate the y-coordinate using the line equation
     calculated_y = LINE2(x);
@@ -132,45 +121,35 @@ end
 %y3 = Vdist(int64(intersect_pts));
 %p3 = [intersect_pts y3];
 
-figure;
-hold on
-plot(Vdist)
-plot(Vstart,y1,'.')
-plot(Vstop,y2,'.')
-plot(p3(1,1),p3(1,2),'.')
-plot(LINE(1:length(Vdist)))
-plot(LINE2(1:length(Vdist)),'--')
-ylim([0 y2+5])
-
 %point near p3
-pt = [p3(1,1)+1 Vdist(p3(1,1)+1)]; %point very near p3
+pt = [p3(1)+1 Vdist(p3(1)+1)]; %point very near p3
 
 %line 3: tangent line coming from point 3
 A3 = (pt(2) - p3(2))/(pt(1) - p3(1)); %slope
 B3 = p3(2) - (A3*p3(1)); %intercept
 LINE3 = @(x) (A3*x)+B3;
-
+%% dp point
 %distance btwn pt 2 and 3
-dp23 = pdist2(p2,p3,"euclidean");
+%dp23 = pdist2(p2,p3,"euclidean");
 %distance btwn pt 1 and 3
-dp13 = pdist2(p1,p3,"euclidean");
+%dp13 = pdist2(p1,p3,"euclidean");
 %comparison factor btwn the two distances calculated
-dp = dp23/dp13;
+%dp = dp23/dp13;
 
 %% More attempts for Epsilon 
 
 
 %delta d: dif btwn values of Vdist and LINE3
-delta_D = @(x) Vdist(x) - LINE3(x);
+delta_D = @(x) Vdist(x)-LINE3(x)';
 %delta d from x-value of p3 to x-value of p2 i.e. x2 = 1, x3 = 3, therefore
 %1:3
 M = delta_D(p3(1):p2(1));
 mean_M = mean(M); %mean of M
 %find coordinates of point a (coordinates of mean M)
 pa = [];
-for x = 1:1:length(M);
+for x = 1:length(M);
     % Define a tolerance value to account for floating-point precision errors
-    tolerance = 1e-6;
+    tolerance = 1e-3;
     % Check if the y-coordinates are close (within tolerance) to consider it an intersection point
     if abs(M(x) - mean_M) < tolerance
         pa = [pa; x,M(x)];
@@ -187,8 +166,19 @@ end
 %find x-coordinate
 % pAx = fsolve(@(x) (Mfunc(x) - mean_M), x0,options);
 
-epsilon_trial = Vdist(p3(1)+pa(1,1));
+epsilon_trial = Vdist(p3(1)+pa(1,1)); %note to self: run DBScanner for all pa x values 
 clusterTrial = dbscan(normData,epsilon_trial,50);
+
+
+figure;
+hold on
+plot(Vdist)
+plot(p1(1,1),p1(1,2),'.')
+plot(p2(1,1),p2(1,2),'.')
+plot(p3(1,1),p3(1,2),'.')
+plot(LINE(1:length(Vdist)))
+plot(LINE2(1:length(Vdist)),'--')
+ylim([0 p2(1,2)+5])
 
 %clusterTrial plots
 %
@@ -435,5 +425,12 @@ end
 
 %lapse rate graph against fa and hits
 
+%% remove uncessary pts
+for dp1 = 1:length(normData)
+    for dp2 = 1:length(normData)
+        output(dp1,dp2) = pdist2(normData(dp1),normData(dp2),'euclidean');
+    end
+end
 
+distMat = triu(output);
 totalTrials = sum(SessionSize);
