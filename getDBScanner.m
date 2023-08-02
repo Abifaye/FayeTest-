@@ -8,7 +8,7 @@ function [DBStruct] = getDBScanner(normData)
 %selection dialogue for choosing range of minpts and eps to conduct dbscan
 %with
 tic;
-
+%
 createStruct = input(strcat('Pre-existing DBStruct Available? [Y=1/N=0]:',32));
 while createStruct > 1
     createStruct = input(strcat('You have made an invalid choice. Try again [Y=1/N=0]:',32));
@@ -20,14 +20,6 @@ while createStruct > 1
 end
 
 if createStruct == 0
-    %selection dialogue for choosing range of minpts and eps to conduct dbscan
-    %with
-    epsRange = input(strcat('Select a Range for Epsilon:',32));
-    minptsRange = input(strcat('Select a Range for Minpts:',32)); %code 32 = space
-
-    %initialize empty struct, then create labels for where the data, minpts,
-    %and eps will
-    % be located
     DBStruct = struct([]);
     DBStruct(1).labels = 'Data Cluster Labels';
     DBStruct(2).labels = 'Minpts';
@@ -38,86 +30,57 @@ if createStruct == 0
     DBStruct(7).labels = 'Highest Cluster';
     DBStruct(8).labels = 'Cluster Data % of Highest Cluster';
     DBStruct(9).labels = 'All Data % of Highest Cluster';
-
     counter = 1;
-
-    %
-    load('normData.mat')
-
-    %loop through each eps and minpts and place the dbscan data, corresponding
-    %eps + minpts in the right label place
-    for eps = 1:length(epsRange)
-        for minpts = 1:length(minptsRange)
-
-            %conduct dbscan for corresponding eps and minpts and put it in the struct.
-            % Put the corresponding minpts and eps in the struct then compute the number of clusters and outliers
-            DBStruct(1).(strcat('data',num2str(counter))) = dbscan(normData,epsRange(eps),minptsRange(minpts));
-            DBStruct(2).(strcat('data',num2str(counter))) = minptsRange(minpts);
-            DBStruct(3).(strcat('data',num2str(counter))) = epsRange(eps);
-            DBStruct(4).(strcat('data',num2str(counter))) = max(DBStruct(1).(strcat('data',num2str(counter))));
-            DBStruct(5).(strcat('data',num2str(counter))) = sum(DBStruct(1).(strcat('data',num2str(counter))) == -1);
-
-            %Init matrix for computing # of pts per cluster
-            clusterMat = [];
-
-            %
-            for nCluster = 1:DBStruct(4).(strcat('data',num2str(counter)))
-                clusterMat(nCluster) = sum(DBStruct(1).(strcat('data',num2str(counter))) == nCluster);
-            end
-
-            %
-            DBStruct(6).(strcat('data',num2str(counter))) =  clusterMat;
-            DBStruct(7).(strcat('data',num2str(counter))) = find(DBStruct(6).(strcat('data',num2str(counter))) == ...
-                max(DBStruct(6).(strcat('data',num2str(counter)))));
-            DBStruct(8).(strcat('data',num2str(counter))) = max(DBStruct(6).(strcat('data',num2str(counter))))/...
-                sum(DBStruct(6).(strcat('data', num2str(counter))))*100;
-            DBStruct(9).(strcat('data',num2str(counter))) = max(DBStruct(6).(strcat('data',num2str(counter))))/...
-                (sum(DBStruct(6).(strcat('data', num2str(counter))))+DBStruct(5).(strcat('data',num2str(counter))))*100;
-            counter = counter+1; %extend counter
-        end
-    end
-
-elseif  createStruct == 1
-    epsRange = input(strcat('Select a Range for Epsilon:',32));
-    minptsRange = input(strcat('Select a Range for Minpts:',32)); %code 32 = space
-
+elseif createStruct == 1
     counter = input(strcat('How much data does DBStruct currently have?',32))+1;
-    %
-    load('normData.mat')
+end
 
-    %loop through each eps and minpts and place the dbscan data, corresponding
-    %eps + minpts in the right label place
-    for eps = 1:length(epsRange)
-        for minpts = 1:length(minptsRange)
+%selection dialogue for choosing range of minpts and eps to conduct dbscan
+%with
+epsRange = input(strcat('Select a Range for Epsilon:',32));
+minptsRange = input(strcat('Select a Range for Minpts:',32)); %code 32 = space
 
-            %conduct dbscan for corresponding eps and minpts and put it in the struct.
-            % Put the corresponding minpts and eps in the struct then compute the number of clusters and outliers
-            DBStruct(1).(strcat('data',num2str(counter))) = dbscan(normData,epsRange(eps),minptsRange(minpts));
-            DBStruct(2).(strcat('data',num2str(counter))) = minptsRange(minpts);
-            DBStruct(3).(strcat('data',num2str(counter))) = epsRange(eps);
-            DBStruct(4).(strcat('data',num2str(counter))) = max(DBStruct(1).(strcat('data',num2str(counter))));
-            DBStruct(5).(strcat('data',num2str(counter))) = sum(DBStruct(1).(strcat('data',num2str(counter))) == -1);
+%initialize empty struct, then create labels for where the data, minpts,
+%and eps will
+% be located
 
-            %Init matrix for computing # of pts per cluster
-            clusterMat = [];
+%
+load('normData.mat')
 
-            %
-            for nCluster = 1:DBStruct(4).(strcat('data',num2str(counter)))
-                clusterMat(nCluster) = sum(DBStruct(1).(strcat('data',num2str(counter))) == nCluster);
-            end
+%loop through each eps and minpts and place the dbscan data, corresponding
+%eps + minpts in the right label place
+for eps = 1:length(epsRange)
+    for minpts = 1:length(minptsRange)
 
-            %
-            DBStruct(6).(strcat('data',num2str(counter))) =  clusterMat;
-            DBStruct(7).(strcat('data',num2str(counter))) = find(DBStruct(6).(strcat('data',num2str(counter))) == ...
-                max(DBStruct(6).(strcat('data',num2str(counter)))));
-            DBStruct(8).(strcat('data',num2str(counter))) = max(DBStruct(6).(strcat('data',num2str(counter))))/...
-                sum(DBStruct(6).(strcat('data', num2str(counter))))*100;
-            DBStruct(9).(strcat('data',num2str(counter))) = max(DBStruct(6).(strcat('data',num2str(counter))))/...
-                (sum(DBStruct(6).(strcat('data', num2str(counter))))+DBStruct(5).(strcat('data',num2str(counter))))*100;
-            counter = counter+1; %extend counter
+        %conduct dbscan for corresponding eps and minpts and put it in the struct.
+        % Put the corresponding minpts and eps in the struct then compute the number of clusters and outliers
+        DBStruct(1).(strcat('data',num2str(counter))) = dbscan(normData,epsRange(eps),minptsRange(minpts));
+        DBStruct(2).(strcat('data',num2str(counter))) = minptsRange(minpts);
+        DBStruct(3).(strcat('data',num2str(counter))) = epsRange(eps);
+        DBStruct(4).(strcat('data',num2str(counter))) = max(DBStruct(1).(strcat('data',num2str(counter))));
+        DBStruct(5).(strcat('data',num2str(counter))) = sum(DBStruct(1).(strcat('data',num2str(counter))) == -1);
+
+        %Init matrix for computing # of pts per cluster
+        clusterMat = [];
+
+        %
+        for nCluster = 1:DBStruct(4).(strcat('data',num2str(counter)))
+            clusterMat(nCluster) = sum(DBStruct(1).(strcat('data',num2str(counter))) == nCluster);
         end
+
+        %
+        DBStruct(6).(strcat('data',num2str(counter))) =  clusterMat;
+        DBStruct(7).(strcat('data',num2str(counter))) = find(DBStruct(6).(strcat('data',num2str(counter))) == ...
+            max(DBStruct(6).(strcat('data',num2str(counter)))));
+        DBStruct(8).(strcat('data',num2str(counter))) = max(DBStruct(6).(strcat('data',num2str(counter))))/...
+            sum(DBStruct(6).(strcat('data', num2str(counter))))*100;
+        DBStruct(9).(strcat('data',num2str(counter))) = max(DBStruct(6).(strcat('data',num2str(counter))))/...
+            (sum(DBStruct(6).(strcat('data', num2str(counter))))+DBStruct(5).(strcat('data',num2str(counter))))*100;
+        counter = counter+1; %extend counter
     end
 end
+
+
 
 toc;
 

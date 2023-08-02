@@ -62,7 +62,7 @@ clusterDBSCAN.estimateEpsilon(normData,50,100)
 
 %% Minpt Determination
 %distance of k-nearest neighbours k = 50
-kdist = pdist2(normData,normData,'euc','Smallest', 51); %offset by +1 because smallest dist is against itself (dist = 0)
+kdist = pdist2(normData,normData,'euc','Smallest', 50);
 %distance of k-nearest neighbours k = 100
 kdist = pdist2(normData,normData,'euc','Smallest', 101);
 %distance of k-nearest neighbours k = 10
@@ -70,6 +70,9 @@ kdist = pdist2(normData,normData,'euc','Smallest', 11);
 %distance of k-nearest neighbours k = 1000
 kdist = pdist2(normData,normData,'euc','Smallest', 1001);
 %all these distances converges with a dp of ~1
+
+%
+kthDist = sort(kdist(end,:));
 
 %remove uncessary pts
 for dp1 = 1:length(normData)
@@ -89,32 +92,63 @@ Vstop = length(Vdist);
 y1 = Vdist(Vstart);
 %y-coordinate end of knee
 y2 = Vdist(Vstop);
+
+%combine x and y coordinates and initialize as corresponding pts
+p1 = [Vstart y1];
+p2 = [Vstop y2];
+
 %line going through Vstart and Vstop points
 A1 = (y2-y1)/(Vstop-Vstart);
 B1 = y1-(A1*Vstart);
 LINE = @(x) (A1*x)+B1;
+
 %Line corresponding to abrupt increase of distances
 A2 = -A1;
 B2 = A1*(Vstart+Vstop)+B1;
 LINE2 = @(x) (A2*x)+B2;
 
 %find coordinate of point of intersection between Vdist and LINE2
+p3 = [];
+for x = 1:1:length(Vdist);
 
+    % Calculate the y-coordinate using the line equation
+    calculated_y = LINE2(x);
+
+    % Define a tolerance value to account for floating-point precision errors
+    tolerance = 1e-5;
+    % Check if the y-coordinates are close (within tolerance) to consider it an intersection point
+    if abs(calculated_y - Vdist(x)) < tolerance
+        p3 = [p3; x,Vdist(x)];
+    end
+end
+%another way to possibly compute p3
 %estimate equation for Vdist
-f = @(x) interp1(1:length(Vdist),Vdist, x, 'linear');
+%f = @(x) interp1(1:length(Vdist),Vdist, x, 'linear');
 %estimate aprox x-coordinate of point
-x0 = 20000; 
+% x0 = 20000; 
 %find x-coordinate
-intersect_pts = fsolve(@(x) (f(x) - LINE2(x)), x0);
+% intersect_pts = fsolve(@(x) (f(x) - LINE2(x)), x0);
 %y-coordinate 
-y3 = Vdist(int64(intersect_pts));
+%y3 = Vdist(int64(intersect_pts));
+%p3 = [intersect_pts y3];
 
-%combine x and y coordinates and initialize as corresponding pts
+figure;
+hold on
+plot(Vdist)
+plot(Vstart,y1,'.')
+plot(Vstop,y2,'.')
+plot(p3(1,1),p3(1,2),'.')
+plot(LINE(1:length(Vdist)))
+plot(LINE2(1:length(Vdist)),'--')
+ylim([0 y2+5])
 
-p1 = [Vstart y1];
-p2 = [Vstop y2];
-p3 = [intersect_pts y3];
-pt = [12398475 Vdist(12398475)]; %point very near p3
+%point near p3
+pt = [p3(1,1)+1 Vdist(p3(1,1)+1)]; %point very near p3
+
+%line 3: tangent line coming from point 3
+A3 = (pt(2) - p3(2))/(pt(1) - p3(1)); %slope
+B3 = p3(2) - (A3*p3(1)); %intercept
+LINE3 = @(x) (A3*x)+B3;
 
 %distance btwn pt 2 and 3
 dp23 = pdist2(p2,p3,"euclidean");
@@ -125,30 +159,55 @@ dp = dp23/dp13;
 
 %% More attempts for Epsilon 
 
-%line 3: tangent line coming from point 3
-A3 = (pt(2) - p3(2))/(pt(1) - p3(1)); %slope
-B3 = p3(2) - (A3*p3(1)); %intercept
-LINE3 = @(x) (A3*x)+B3;
 
 %delta d: dif btwn values of Vdist and LINE3
-delta_D = @(x) f(x) - LINE3(x);
+delta_D = @(x) Vdist(x) - LINE3(x);
 %delta d from x-value of p3 to x-value of p2 i.e. x2 = 1, x3 = 3, therefore
 %1:3
 M = delta_D(p3(1):p2(1));
 mean_M = mean(M); %mean of M
-%find x-value of point a (coordinates of mean M)
-%estimate function for M
-Mfunc = @(x) interp1(1:length(M),M, x, 'linear');
-%initial guess for x-coordinate
-x0 = 25657;
-%increase tolerance for finding x-coordinate
-options = optimoptions('fsolve', 'TolX',1e-25); 
-%find x-coordinate
-pAx = fsolve(@(x) (Mfunc(x) - mean_M), x0,options);
+%find coordinates of point a (coordinates of mean M)
+pa = [];
+for x = 1:1:length(M);
+    % Define a tolerance value to account for floating-point precision errors
+    tolerance = 1e-6;
+    % Check if the y-coordinates are close (within tolerance) to consider it an intersection point
+    if abs(M(x) - mean_M) < tolerance
+        pa = [pa; x,M(x)];
+    end
+end
 
-epsilon_trial = f(p3(1)+pAx);
+%another way of computing intersection_pt
+%estimate function for M
+% Mfunc = @(x) interp1(1:length(M),M, x, 'linear');
+%initial guess for x-coordinate
+% x0 = 25657;
+%increase tolerance for finding x-coordinate
+% options = optimoptions('fsolve', 'TolX',1e-25); 
+%find x-coordinate
+% pAx = fsolve(@(x) (Mfunc(x) - mean_M), x0,options);
+
+epsilon_trial = Vdist(p3(1)+pa(1,1));
 clusterTrial = dbscan(normData,epsilon_trial,50);
 
+%clusterTrial plots
+%
+clr = ['r','b','g','k']; 
+figure;
+gscatter(masterDataTable.rollinghitrate,masterDataTable.rollingrewards,clusterTrial,clr)
+title('ClusterTrial')
+xlabel('Rolling Hit Rate')
+ylabel('Rolling Rewards')
+%
+clr = ['r','b','g','k']; 
+figure;
+gscatter(masterDataTable.rollingallRTs,masterDataTable.rollinghitrate,clusterTrial,clr)
+title('ClusterTrial')
+xlabel('Rolling RTs')
+ylabel('Rolling Hit Rate')
+
+
+%%
 figure;
 hold on
 plot(M)
@@ -373,6 +432,8 @@ if strcmp(Vdist,'yes')
 elseif strcmp(Vdist,'no')
     C ='aww';
 end
+
+%lapse rate graph against fa and hits
 
 
 totalTrials = sum(SessionSize);
