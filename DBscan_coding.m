@@ -305,7 +305,6 @@ gscatter(masterDataTable.rollinghitrate,masterDataTable.rollingrewards,DBStruct(
 title('Data 19')
 xlabel('Rolling Hit Rate')
 ylabel('Rolling rewards')
-
 %figure data 19 fa vs hit
 clr = ['r','b','g','k','y']; 
 figure;
@@ -313,6 +312,30 @@ gscatter(masterDataTable.rollinghitrate,masterDataTable.rollingfarate,DBStruct(1
 title('Data 19')
 xlabel('Rolling Hit Rate')
 ylabel('Rolling FA Rate')
+
+
+%figure data 69 RTs
+clr = ['r','b','g']; 
+figure;
+gscatter(masterDataTable.rollingallRTs,masterDataTable.rollinghitrate,DBStruct(1).data69,clr)
+title('Data 69')
+xlabel('Rolling RTs')
+ylabel('Rolling Hit Rate')
+%figure data 69 Rewards
+clr = ['r','b','g']; 
+figure;
+gscatter(masterDataTable.rollinghitrate,masterDataTable.rollingrewards,DBStruct(1).data69,clr)
+title('Data 69')
+xlabel('Rolling Hit Rate')
+ylabel('Rolling rewards')
+%figure data 69 fa vs hit
+clr = ['r','b','g']; 
+figure;
+gscatter(masterDataTable.rollinghitrate,masterDataTable.rollingfarate,DBStruct(1).data69,clr)
+title('Data 69')
+xlabel('Rolling Hit Rate')
+ylabel('Rolling FA Rate')
+
 
 %figure data 20 RTs
 clr = ['r','b','g','k']; 

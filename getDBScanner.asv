@@ -1,4 +1,4 @@
-function [DBStruct] = getDBScanner(normData)
+function [DBStruct] = getDBScanner
 %inputs into normData which contains the normalized values of all trials
 %for each variable of interest. It then conducts multiple dbscans for all selected
 %range of eps and minpts. It returns holder, a struct containing the dbscan
@@ -7,6 +7,7 @@ function [DBStruct] = getDBScanner(normData)
 
 %selection dialogue for choosing range of minpts and eps to conduct dbscan
 %with
+load normData.mat;
 tic;
 %
 createStruct = input(strcat('Pre-existing DBStruct Available? [Y=1/N=0]:',32));
@@ -18,8 +19,9 @@ while createStruct > 1
         break
     end
 end
-
 if createStruct == 0
+    %initialize empty struct, then create labels for where the data, minpts,
+    %and eps will be located
     DBStruct = struct([]);
     DBStruct(1).labels = 'Data Cluster Labels';
     DBStruct(2).labels = 'Minpts';
@@ -31,27 +33,21 @@ if createStruct == 0
     DBStruct(8).labels = 'Cluster Data % of Highest Cluster';
     DBStruct(9).labels = 'All Data % of Highest Cluster';
     counter = 1;
-elseif createStruct == 1
+elseif  createStruct == 1
     counter = input(strcat('How much data does DBStruct currently have?',32))+1;
 end
 
-%selection dialogue for choosing range of minpts and eps to conduct dbscan
-%with
 epsRange = input(strcat('Select a Range for Epsilon:',32));
 minptsRange = input(strcat('Select a Range for Minpts:',32)); %code 32 = space
 
-%initialize empty struct, then create labels for where the data, minpts,
-%and eps will
-% be located
 
-%
-load('normData.mat')
+%selection dialogue for choosing range of minpts and eps to conduct dbscan
+%with
 
 %loop through each eps and minpts and place the dbscan data, corresponding
 %eps + minpts in the right label place
 for eps = 1:length(epsRange)
     for minpts = 1:length(minptsRange)
-
         %conduct dbscan for corresponding eps and minpts and put it in the struct.
         % Put the corresponding minpts and eps in the struct then compute the number of clusters and outliers
         DBStruct(1).(strcat('data',num2str(counter))) = dbscan(normData,epsRange(eps),minptsRange(minpts));
@@ -59,15 +55,12 @@ for eps = 1:length(epsRange)
         DBStruct(3).(strcat('data',num2str(counter))) = epsRange(eps);
         DBStruct(4).(strcat('data',num2str(counter))) = max(DBStruct(1).(strcat('data',num2str(counter))));
         DBStruct(5).(strcat('data',num2str(counter))) = sum(DBStruct(1).(strcat('data',num2str(counter))) == -1);
-
         %Init matrix for computing # of pts per cluster
         clusterMat = [];
-
         %
         for nCluster = 1:DBStruct(4).(strcat('data',num2str(counter)))
             clusterMat(nCluster) = sum(DBStruct(1).(strcat('data',num2str(counter))) == nCluster);
         end
-
         %
         DBStruct(6).(strcat('data',num2str(counter))) =  clusterMat;
         DBStruct(7).(strcat('data',num2str(counter))) = find(DBStruct(6).(strcat('data',num2str(counter))) == ...
@@ -80,8 +73,9 @@ for eps = 1:length(epsRange)
     end
 end
 
-
-
 toc;
 
+
+
 end
+

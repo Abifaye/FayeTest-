@@ -149,3 +149,13 @@ xlim([ax1,ax2,ax3,ax4,ax5,ax6],[0 600])
 %ylabels
 ylim([ax1,ax2,ax3,ax4,ax5,ax6],[0 80]) 
 yticks([ax1,ax2,ax3,ax4,ax5,ax6], [0:20:80])
+%%
+figure;
+hold on
+plot(Vdist)
+plot(p1(1,1),p1(1,2),'.')
+plot(p2(1,1),p2(1,2),'.')
+plot(p3(1,1),p3(1,2),'.')
+plot(LINE(1:length(Vdist)))
+plot(LINE2(1:length(Vdist)),'--')
+ylim([0 p2(1,2)+5])

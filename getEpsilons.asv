@@ -1,4 +1,4 @@
-function [epsilon_range] = getEpsilons
+function [outputArg1,outputArg2] = getEpsilons
 %UNTITLED2 Summary of this function goes here
 %% kdist
 choosek = input(strcat('Choose k:',32)); %32 is code for space
@@ -93,7 +93,16 @@ end
 % pAx = fsolve(@(x) (Mfunc(x) - mean_M), x0,options);
 
 %% Calculate all epsilons for range of pax
-epsilon_range(1:length(pa)) = Vdist(p3(1)+pa(:,1)); %note to self: run DBScanner for all pa x values.NEED TO FIX THIS PART
-save('epsilon_range.mat',"epsilon_range")
+epsilon_trial(1:length(pa)) = Vdist(p3(1)+pa(1)); %note to self: run DBScanner for all pa x values.NEED TO FIX THIS PART 
 
+figure;
+hold on
+plot(Vdist)
+plot(p1(1,1),p1(1,2),'.')
+plot(p2(1,1),p2(1,2),'.')
+plot(p3(1,1),p3(1,2),'.')
+plot(LINE(1:length(Vdist)))
+plot(LINE2(1:length(Vdist)),'--')
+ylim([0 p2(1,2)+5])
+%a
 end
