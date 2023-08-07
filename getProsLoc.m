@@ -1,10 +1,13 @@
-function [hitProsLoc, missProsLoc] = getProsLoc
+function getProsLoc
 % Inputs into current folder to output RTs of all hit andn miss profiles for all
 % trials
+
+%load('masterTable.mat');
+load masterTable_complete.mat
+
 %go to folder where masterTable is
 folderPath = cd(uigetdir());
-%load('masterTable.mat');
-load masterTable.mat; 
+
 %create index of all .mat files which contains hit profiles
 matFilesIdx = dir('**/*.mat');
 %tableDates = [T.date];
@@ -41,6 +44,6 @@ end
     T.HitProfiles = hitProsLoc(:);
     T.MissProfiles = missProsLoc(:);
     %rename master table to save as a new table
-   TablewithProfiles = T;
+  save('masterTable_complete.mat',"T")
 end
 

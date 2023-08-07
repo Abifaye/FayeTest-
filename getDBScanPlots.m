@@ -1,24 +1,47 @@
-function [outputArg1,outputArg2] = getDBScanPlots
+function getDBScanPlots
+load DBStruct.mat
+load masterDataTable.mat
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
-DBdata = DBStruct(1).(strcat('data',num2str(input(strcat('Choose Data Number from DBStruct to create plot for:',32)))));
-input(strcat('Number of clusters:',32));
-%here add a matrix before the input for numbers 1 - 5 clusters, then if
-%statement for if it is greater than 5 (start with the if statement seeing
-clr = ['r','b','g','k']; 
-%if it is 1 - 5 which would apply the matrix, if not use the hsv 
+DBdata = input(strcat('Choose Data Number from DBStruct to create plot for:',32))+1;
+Fields = fieldnames(DBStruct);
 xVar = listdlg('PromptString',{'Select x-var'},'ListString',masterDataTable.Properties.VariableNames,'SelectionMode','single');
 yVar = listdlg('PromptString',{'Select y-var'},'ListString',masterDataTable.Properties.VariableNames,'SelectionMode','single');
+%
+clrMat= flip({['r', 'b', 'g', 'k', 'y', 'c']; [ 'r' 'b' 'g' 'k' 'y']; ['r' 'b' 'g' 'k']; ['r' 'b' 'g']; ['r' 'b']}); 
+%
+clrNum = DBStruct(4).(string(Fields(DBdata)));
+
+if clrNum < 6 
+clr = cell2mat(clrMat(clrNum));
+elseif clrNum > 5
+    clr = hsv(clrNum);
+end
 
 figure;
-gscatter(masterDataTable.xVar,masterDataTable.yVar,DBdata,clr)%check if using xVar and yVar works
-title('Data 29 Hits')
-xlabel('Rolling RTs')
-ylabel('Rolling Hit Rate')
+gscatter(masterDataTable.(xVar),masterDataTable.(yVar),DBStruct(1).(string(Fields(DBdata))),clr)%check if using xVar and yVar works
+title(string(Fields(DBdata)))
+xlabel(masterDataTable.Properties.VariableNames{xVar})
+ylabel(masterDataTable.Properties.VariableNames{yVar})
 
-input(strcat('Create another plot for current data? [Y=1/N=0]:',32));
-%create while loop for every time we say yes it asks for xVar and yVar
-%dialogue again and also make a plot otherwise end the run
+addPlot = input(strcat('Create another plot for current data? [Y=1/N=0]:',32));
 
-masterDataTable.Properties.VariableNames
+while addPlot == 1
+    xVar = listdlg('PromptString',{'Select x-var'},'ListString',masterDataTable.Properties.VariableNames,'SelectionMode','single');
+    yVar = listdlg('PromptString',{'Select y-var'},'ListString',masterDataTable.Properties.VariableNames,'SelectionMode','single');
+    
+   figure;
+gscatter(masterDataTable.(xVar),masterDataTable.(yVar),DBStruct(1).(string(Fields(DBdata))),clr)%check if using xVar and yVar works
+title(string(Fields(DBdata)))
+xlabel(masterDataTable.Properties.VariableNames{xVar})
+ylabel(masterDataTable.Properties.VariableNames{yVar})
+    addPlot = input(strcat('Create another plot for current data? [Y=1/N=0]:',32));
+end
+
+%COUNTINUE HERE uitable('Data', A.labels([1:3 5 6])) this might not work.
+%Instead try going from 2:10 minpts for any of the stuff for eps_range. We
+%need to double check this because the number of outliers are very small
+%for such a large eps (Not sure if this is very good or not. Anyway, it
+%might make very insignificant results if we replot them as kernels
+
 end

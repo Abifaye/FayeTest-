@@ -455,5 +455,20 @@ for dp1 = 1:length(normData)
     end
 end
 
+%% Other extra stuff
 distMat = triu(output);
 totalTrials = sum(SessionSize);
+
+C = T.animal=="2236";
+D = T.date(C); 
+E = TablewithHitProfiles.date(TablewithHitProfiles.animal=="2236");%some trials for each animal may have been taken out
+%
+A = ismember(T.animal,TablewithHitProfiles.animal);
+B = find(A==0); %animal new one may also have been added from 94-124 (on the shorter one not the longer one; 421)
+
+
+
+
+
+
+
