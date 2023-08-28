@@ -1,12 +1,15 @@
 function getDBScanPlots
+
 load DBStruct.mat
-load masterDataTable.mat
+load(uigetfile('','Select Master Data Table File')); %PLS FIX THIS
+
+
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 DBdata = input(strcat('Choose Data Number from DBStruct to create plot for:',32))+1;
 Fields = fieldnames(DBStruct);
-xVar = listdlg('PromptString',{'Select x-var'},'ListString',masterDataTable.Properties.VariableNames,'SelectionMode','single');
-yVar = listdlg('PromptString',{'Select y-var'},'ListString',masterDataTable.Properties.VariableNames,'SelectionMode','single');
+xVar = listdlg('PromptString',{'Select x-var'},'ListString', hitDataTable.Properties.VariableNames,'SelectionMode','single');
+yVar = listdlg('PromptString',{'Select y-var'},'ListString', hitDataTable.Properties.VariableNames,'SelectionMode','single');
 %
 clrMat= flip({['r', 'b', 'g', 'k', 'y', 'c']; [ 'r' 'b' 'g' 'k' 'y']; ['r' 'b' 'g' 'k']; ['r' 'b' 'g']; ['r' 'b']}); 
 %
@@ -19,22 +22,22 @@ elseif clrNum > 5
 end
 
 figure;
-gscatter(masterDataTable.(xVar),masterDataTable.(yVar),DBStruct(1).(string(Fields(DBdata))),clr)%check if using xVar and yVar works
+gscatter(hitDataTable.(xVar),hitDataTable.(yVar),DBStruct(1).(string(Fields(DBdata))),clr)%check if using xVar and yVar works
 title(string(Fields(DBdata)))
-xlabel(masterDataTable.Properties.VariableNames{xVar})
-ylabel(masterDataTable.Properties.VariableNames{yVar})
+xlabel(hitDataTable.Properties.VariableNames{xVar})
+ylabel(hitDataTable.Properties.VariableNames{yVar})
 
 addPlot = input(strcat('Create another plot for current data? [Y=1/N=0]:',32));
 
 while addPlot == 1
-    xVar = listdlg('PromptString',{'Select x-var'},'ListString',masterDataTable.Properties.VariableNames,'SelectionMode','single');
-    yVar = listdlg('PromptString',{'Select y-var'},'ListString',masterDataTable.Properties.VariableNames,'SelectionMode','single');
+    xVar = listdlg('PromptString',{'Select x-var'},'ListString',hitDataTable.Properties.VariableNames,'SelectionMode','single');
+    yVar = listdlg('PromptString',{'Select y-var'},'ListString',hitDataTable.Properties.VariableNames,'SelectionMode','single');
     
    figure;
-gscatter(masterDataTable.(xVar),masterDataTable.(yVar),DBStruct(1).(string(Fields(DBdata))),clr)%check if using xVar and yVar works
+gscatter(hitDataTable.(xVar),hitDataTable.(yVar),DBStruct(1).(string(Fields(DBdata))),clr)%check if using xVar and yVar works
 title(string(Fields(DBdata)))
-xlabel(masterDataTable.Properties.VariableNames{xVar})
-ylabel(masterDataTable.Properties.VariableNames{yVar})
+xlabel(hitDataTable.Properties.VariableNames{xVar})
+ylabel(hitDataTable.Properties.VariableNames{yVar})
     addPlot = input(strcat('Create another plot for current data? [Y=1/N=0]:',32));
 end
 

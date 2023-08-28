@@ -3,47 +3,21 @@ function getProsLoc
 % trials
 
 %load('masterTable.mat');
-load masterTable_complete.mat
+load masterTable_allLuminanceTrials.mat
 
-%go to folder where masterTable is
-folderPath = cd(uigetdir());
+%Select the folder containing stim profiles for SC Luminance
+cd(uigetdir());
 
-%create index of all .mat files which contains hit profiles
-matFilesIdx = dir('**/*.mat');
-%tableDates = [T.date];
-%init location to place hit profiles
-hitProsLoc = struct();
-missProsLoc = struct();
+%Select the folder containing stim profiles (WE MIGHT NOT NEED THIS PART)
+%folderPath = uigetdir();
 
-%% Hits 
-%loop through each file
-for File = 1:length(matFilesIdx)
-    %if date in hit profile file matches date in the master table
-    if erase(matFilesIdx(File).name,'.mat') == T.date(File)
-        %concatinate subfolder name + file name and connect with '/' to access
-        %file path then load file
-        trialFilePath = load([matFilesIdx(File).folder '\' matFilesIdx(File).name]);
-    % Put hit profiles inside the struct
-    hitProsLoc(File).hitProfiles = [trialFilePath.stimProfiles.hitProfiles];
-    end
+for i = 1:size(T,1)
+    trialData = load(append(T.animal(i), '\', T.date(i), '.mat'));
+    T.hitProfiles{i} = [trialData.stimProfiles.hitProfiles];
+    T.missProfiles{i} = [trialData.stimProfiles.missProfiles];
 end
 
-%% Misses
-for File = 1:length(matFilesIdx)
-    %if date in hit profile file matches date in the master table
-    if erase(matFilesIdx(File).name,'.mat') == T.date(File)
-        %concatinate subfolder name + file name and connect with '/' to access
-        %file path then load file
-        trialFilePath = load([matFilesIdx(File).folder '\' matFilesIdx(File).name]);
-    % Put hit profiles inside the struct
-   missProsLoc(File).missProfiles = [trialFilePath.stimProfiles.missProfiles];
-    end
-end
-
-%Concatinate structs as a row in master table
-    T.HitProfiles = hitProsLoc(:);
-    T.MissProfiles = missProsLoc(:);
-    %rename master table to save as a new table
-  save('masterTable_complete.mat',"T")
+  save('masterTable_allLuminanceTrials.mat',"T")
+  
 end
 

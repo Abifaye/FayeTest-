@@ -5,9 +5,11 @@ function [DBStruct] = getDBScanner
 %data, and the corresponding minpts and eps used. THIS FUNCTION CAN TAKE A
 %LONG TIME TO RUN IF FED WITH LONG RANGES OF EPS AND/OR MINPTS. PLEASE USE A HIGH POWER COMPUTER IF POSSIBLE.
 
+%Select which normalized data to use
+normalizedData = cell2mat(struct2cell(load(uigetfile('','Select Normalized Data File'))));
 %selection dialogue for choosing range of minpts and eps to conduct dbscan
 %with
-load normData.mat;
+
 tic;
 %
 createStruct = input(strcat('Pre-existing DBStruct Available? [Y=1/N=0]:',32));
@@ -50,7 +52,7 @@ for eps = 1:length(epsRange)
     for minpts = 1:length(minptsRange)
         %conduct dbscan for corresponding eps and minpts and put it in the struct.
         % Put the corresponding minpts and eps in the struct then compute the number of clusters and outliers
-        DBStruct(1).(strcat('data',num2str(counter))) = dbscan(normData,epsRange(eps),minptsRange(minpts));
+        DBStruct(1).(strcat('data',num2str(counter))) = dbscan(normalizedData,epsRange(eps),minptsRange(minpts));
         DBStruct(2).(strcat('data',num2str(counter))) = minptsRange(minpts);
         DBStruct(3).(strcat('data',num2str(counter))) = epsRange(eps);
         DBStruct(4).(strcat('data',num2str(counter))) = max(DBStruct(1).(strcat('data',num2str(counter))));
@@ -75,6 +77,12 @@ end
 
 toc;
 
+%TO FIX THIS, RENAME THE NEW DBSTRUCT AS SOMETHING ELSE AND THEN APPEND TO
+%THE ORIGINAL DBSTRUCT. THEN SAVE. CAN ALSO MAKE AN OPTION OF WHICH
+%DBSTRUCT TO APPEND TO I.E. ONE FOR HITS ANOTHER FOR MISSES
+
+%% For Saving
+%save('DBStruct.mat',"DBStruct") 
 
 
 end

@@ -2,16 +2,16 @@ function [epsilon_range] = getEpsilons
 %UNTITLED2 Summary of this function goes here
 %% kdist
 choosek = input(strcat('Choose k:',32)); %32 is code for space
-load normData.mat
+load normData_hit.mat
 %distance of k-nearest neighbours k = 50
-kdist = pdist2(normData,normData,'euc','Smallest', choosek+1); %offset by 1 because first dist = 0 (dist against itself)
+kdist = pdist2(normData_hit,normData_hit,'euc','Smallest', choosek+1); %offset by 1 because first dist = 0 (dist against itself)
 %Remove first row which only calculates distance against self (dist = 0)
 kdistminus1st = kdist(2:end,:)';
 %all kdist data sorted into column vector
 Vdist = sort(kdistminus1st(:));
 %% LINE 1 and 2
 %x-coordinate of start of knee
-p1(1) = length(Vdist) - length(normData(:));
+p1(1) = length(Vdist) - length(normData_hit(:));
 %x-coordinate of end of knee
 p2(1) = length(Vdist);
 %y-coordinate of start of knee
@@ -36,7 +36,7 @@ for x = 1:length(Vdist)
     calculated_y = LINE2(x);
 
     % Define a tolerance value to account for floating-point precision errors
-    tolerance = 1e-5;
+    tolerance = 1e-6;
 
     % Check if the y-coordinates are within tolerance to consider
     % it an intersection point between Vdist and LINE2
@@ -71,11 +71,12 @@ delta_D = @(x) Vdist(x)-LINE3(x)';
 %delta_D from x-value of p3 to x-value of p2 (p3x:p2x)
 M = delta_D(p3(1):p2(1));
 mean_M = mean(M); %mean of M
+
 %find coordinates of point a (coordinates of mean M)
 pa = [];
 for x = 1:length(M);
     % Define a tolerance value to account for floating-point precision errors
-    tolerance = 1e-3;
+    tolerance = 1e-5;
     % Check if the y-coordinates are close (within tolerance) to consider it an intersection point
     if abs(M(x) - mean_M) < tolerance
         pa = [pa; x,M(x)];
@@ -94,6 +95,9 @@ end
 
 %% Calculate all epsilons for range of pax
 epsilon_range(1:length(pa)) = Vdist(p3(1)+pa(:,1)); %note to self: run DBScanner for all pa x values.NEED TO FIX THIS PART
-save('epsilon_range.mat',"epsilon_range")
+%save('epsilon_range.mat',"epsilon_range")
 
 end
+
+
+

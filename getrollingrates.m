@@ -4,7 +4,7 @@ function [masterRollRates] = getrollingrates
 %variable
 
 %load master table file
-load('masterTable_complete.mat');
+load('masterTable_allLuminanceCleaned.mat');
 
 %% Variables Init
 %select variables dialogue for selecting variables from master table to
