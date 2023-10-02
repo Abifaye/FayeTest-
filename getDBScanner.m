@@ -1,17 +1,17 @@
-function [DBStruct] = getDBScanner
-%inputs into normData whic]h contains the normalized values of all trials
-%for each variable of interest. It then conducts multiple dbscans for all selected
-%range of eps and minpts. It returns holder, a struct containing the dbscan
-%data, and the corresponding minpts and eps used. THIS FUNCTION CAN TAKE A
-%LONG TIME TO RUN IF FED WITH LONG RANGES OF EPS AND/OR MINPTS. PLEASE USE A HIGH POWER COMPUTER IF POSSIBLE.
+function [DBStructData] = getDBScanner
+%inputs into normData of either hits, misses, or all trials. normData contains the normalized values of trials
+%for each variable of interest. DBScanner then conducts multiple dbscans for all selected
+%range of eps and minpts. It returns a struct containing the dbscan
+%data, and the corresponding minpts and eps used. 
+
+tic;
 
 %Select which normalized data to use
 normalizedData = cell2mat(struct2cell(load(uigetfile('','Select Normalized Data File'))));
-%selection dialogue for choosing range of minpts and eps to conduct dbscan
-%with
 
-tic;
-%
+
+%Prompt for whether or not to append generated data to a pre-exisiting
+%DBStruct
 createStruct = input(strcat('Pre-existing DBStruct Available? [Y=1/N=0]:',32));
 while createStruct > 1
     createStruct = input(strcat('You have made an invalid choice. Try again [Y=1/N=0]:',32));
@@ -21,30 +21,37 @@ while createStruct > 1
         break
     end
 end
+
 if createStruct == 0
     %initialize empty struct, then create labels for where the data, minpts,
     %and eps will be located
-    DBStruct = struct([]);
-    DBStruct(1).labels = 'Data Cluster Labels';
-    DBStruct(2).labels = 'Minpts';
-    DBStruct(3).labels = 'Eps';
-    DBStruct(4).labels = 'Number of Clusters';
-    DBStruct(5).labels = 'Number of Outliers';
-    DBStruct(6).labels = 'Points per Cluster';
-    DBStruct(7).labels = 'Highest Cluster';
-    DBStruct(8).labels = 'Cluster Data % of Highest Cluster';
-    DBStruct(9).labels = 'All Data % of Highest Cluster';
+    DBStructData = struct([]);
+    DBStructData(1).labels = 'Data Cluster Labels';
+    DBStructData(2).labels = 'Minpts';
+    DBStructData(3).labels = 'Eps';
+    DBStructData(4).labels = 'Number of Clusters';
+    DBStructData(5).labels = 'Number of Outliers';
+    DBStructData(6).labels = 'Points per Cluster';
+    DBStructData(7).labels = 'Highest Cluster';
+    DBStructData(8).labels = 'Cluster Data % of Highest Cluster';
+    DBStructData(9).labels = 'All Data % of Highest Cluster';
     counter = 1;
 elseif  createStruct == 1
     counter = input(strcat('How much data does DBStruct currently have?',32))+1;
 end
 
-epsRange = input(strcat('Select a Range for Epsilon:',32));
+%
+chooseEps = input(strcat('Choose file for epsilon range? [Y=1/N=0]:',32));
+if chooseEps == 1
+    epsRange = load(uigetfile('','Select Epsilon Range File'));
+elseif chooseEps == 0
+    epsRange = input(strcat('Select a Range for Epsilon:',32));
+end
+
+%selection dialogue for choosing range of minpts to conduct dbscan
+%with
 minptsRange = input(strcat('Select a Range for Minpts:',32)); %code 32 = space
 
-
-%selection dialogue for choosing range of minpts and eps to conduct dbscan
-%with
 
 %loop through each eps and minpts and place the dbscan data, corresponding
 %eps + minpts in the right label place
@@ -52,25 +59,25 @@ for eps = 1:length(epsRange)
     for minpts = 1:length(minptsRange)
         %conduct dbscan for corresponding eps and minpts and put it in the struct.
         % Put the corresponding minpts and eps in the struct then compute the number of clusters and outliers
-        DBStruct(1).(strcat('data',num2str(counter))) = dbscan(normalizedData,epsRange(eps),minptsRange(minpts));
-        DBStruct(2).(strcat('data',num2str(counter))) = minptsRange(minpts);
-        DBStruct(3).(strcat('data',num2str(counter))) = epsRange(eps);
-        DBStruct(4).(strcat('data',num2str(counter))) = max(DBStruct(1).(strcat('data',num2str(counter))));
-        DBStruct(5).(strcat('data',num2str(counter))) = sum(DBStruct(1).(strcat('data',num2str(counter))) == -1);
+        DBStructData(1).(strcat('data',num2str(counter))) = dbscan(normalizedData,epsRange(eps),minptsRange(minpts), "Distance","mahalanobis");
+        DBStructData(2).(strcat('data',num2str(counter))) = minptsRange(minpts);
+        DBStructData(3).(strcat('data',num2str(counter))) = epsRange(eps);
+        DBStructData(4).(strcat('data',num2str(counter))) = max(DBStructData(1).(strcat('data',num2str(counter))));
+        DBStructData(5).(strcat('data',num2str(counter))) = sum(DBStructData(1).(strcat('data',num2str(counter))) == -1);
         %Init matrix for computing # of pts per cluster
         clusterMat = [];
-        %
-        for nCluster = 1:DBStruct(4).(strcat('data',num2str(counter)))
-            clusterMat(nCluster) = sum(DBStruct(1).(strcat('data',num2str(counter))) == nCluster);
+        %go through each 
+        for nCluster = 1:DBStructData(4).(strcat('data',num2str(counter)))
+            clusterMat(nCluster) = sum(DBStructData(1).(strcat('data',num2str(counter))) == nCluster);
         end
-        %
-        DBStruct(6).(strcat('data',num2str(counter))) =  clusterMat;
-        DBStruct(7).(strcat('data',num2str(counter))) = find(DBStruct(6).(strcat('data',num2str(counter))) == ...
-            max(DBStruct(6).(strcat('data',num2str(counter)))));
-        DBStruct(8).(strcat('data',num2str(counter))) = max(DBStruct(6).(strcat('data',num2str(counter))))/...
-            sum(DBStruct(6).(strcat('data', num2str(counter))))*100;
-        DBStruct(9).(strcat('data',num2str(counter))) = max(DBStruct(6).(strcat('data',num2str(counter))))/...
-            (sum(DBStruct(6).(strcat('data', num2str(counter))))+DBStruct(5).(strcat('data',num2str(counter))))*100;
+        %assign appropriate values for each labels
+        DBStructData(6).(strcat('data',num2str(counter))) =  clusterMat;
+        DBStructData(7).(strcat('data',num2str(counter))) = find(DBStructData(6).(strcat('data',num2str(counter))) == ...
+            max(DBStructData(6).(strcat('data',num2str(counter)))));
+        DBStructData(8).(strcat('data',num2str(counter))) = max(DBStructData(6).(strcat('data',num2str(counter))))/...
+            sum(DBStructData(6).(strcat('data', num2str(counter))))*100;
+        DBStructData(9).(strcat('data',num2str(counter))) = max(DBStructData(6).(strcat('data',num2str(counter))))/...
+            (sum(DBStructData(6).(strcat('data', num2str(counter))))+DBStructData(5).(strcat('data',num2str(counter))))*100;
         counter = counter+1; %extend counter
     end
 end

@@ -10,16 +10,61 @@ cd(uigetdir());
 
 %load master table with hit profiles file
 load('masterTable_allLuminanceTrials.mat')
-load("DBStruct.mat")
-
+load DBHit.mat
+load DBMiss.mat
+load hitDataTable.mat
+load missDataTable.mat
 
 %init locations for profiles in each tertile
 firstCluster= [];
-%secondCluster = [];
+secondCluster = [];
 %thirdCluster = [];
 outliers = [];
 
-%% Create loop for getting hit profiles and putting them in each Tertile matrix
+%Append chosen DBScan generated cluster Labels to MasterDataTable
+hitDataTable.labels = DBHit(1).data5; 
+missDataTable.labels = DBMiss(1).data1;
+
+%% Create loop for creating 2 matrices containing all hits and all miss profiles
+
+%Create 2 matrices containing all hits and all miss profiles
+hitProfiles = cell2mat(T.hitProfiles);
+missProfiles = cell2mat(T.missProfiles);
+
+%hit
+hitProfileLabels = table();
+hitProfileLabels.profiles = hitProfiles;
+hitProfileLabels.labels = hitDataTable.labels(find(strcmp(hitDataTable.trialEnd,"hit") & hitDataTable.optoPower~=0));
+
+%miss
+missProfileLabels = table();
+missProfileLabels.profiles = missProfiles;
+missProfileLabels.labels = missDataTable.labels(find(strcmp(missDataTable.trialEnd,"miss") & missDataTable.optoPower~=0));
+
+%all
+allProfileLabels = table();
+allProfileLabels.profiles = [hitProfileLabels.profiles; -missProfileLabels.profiles];
+allProfileLabels.labels =  [hitProfileLabels.labels; missProfileLabels.labels];
+
+%%
+%1/3
+firstCluster = allProfileLabels.profiles(find(allProfileLabels.labels==1),1:end);
+secondCluster = allProfileLabels.profiles(find(allProfileLabels.labels==2),1:end);
+outliers = allProfileLabels.profiles(find(allProfileLabels.labels==-1),1:end);
+
+
+%
+  
+figure;
+hold on
+plot(mean(firstCluster))
+plot(mean(allProfileLabels.profiles))
+plot(mean(secondCluster))
+plot(mean(outliers))
+legend('First Cluster', 'All Profiles', 'Second Cluster', 'outliers')
+title('Euclidean Eps 0.3 Minpts 50')
+   
+%% Other Stuff
 
 
 %loop through all sessions

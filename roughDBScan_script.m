@@ -196,6 +196,31 @@ figure;
 histogram(rollingFARate)
 title('Rolling False Alarm Rate')
 
+%% Total Number of Trials
+for nData = 1:size(T,1);
+    SessionSize(nData) = size(T.optoPowerMW{nData,1},2);
+end
+
+%lapse rate graph against fa and hits
+
+%% remove uncessary pts
+for dp1 = 1:length(normData)
+    for dp2 = 1:length(normData)
+        output(dp1,dp2) = pdist2(normData(dp1),normData(dp2),'euclidean');
+    end
+end
+
+%% Other extra stuff
+distMat = triu(output);
+totalTrials = sum(SessionSize);
+
+B = T.animal=="2236";
+D = T.date(B); 
+E = TablewithHitProfiles.date(TablewithHitProfiles.animal=="2236");%some trials for each animal may have been taken out
+%
+A = ismember(T.animal,TablewithHitProfiles.animal);
+B = find(A==0); %animal new one may also have been added from 94-124 (on the shorter one not the longer one; 42
+
 
 
 

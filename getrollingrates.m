@@ -8,7 +8,7 @@ load('masterTable_allLuminanceCleaned.mat');
 
 %% Variables Init
 %select variables dialogue for selecting variables from master table to
-%compute rolling rate (i.e. miss,fa,hits)
+%compute rolling rate 
 selection = listdlg('PromptString',{'Select variable(s) to compute', ...
     'rolling rate'},'ListString', ...
     T.Properties.VariableNames,'SelectionMode','multiple');
@@ -36,14 +36,14 @@ for nVar = 1:length(selection)
     %if denominator consists of 2 variables
     if length(denomSelection) == 2
         %create a new logical that considers occurence of either variable
-        %is true, else false
+        %being true, else false
         for nSession = 1:size(T,1)
             denom{nSession} = T.(T.Properties.VariableNames{denomSelection(1)}){nSession} == 1|...
                 T.(T.Properties.VariableNames{denomSelection(2)}){nSession} == 1;
         end
 
         %init temporary matrix and a
-        %counter to help append the next set of trials each session
+        %counter to help append the next set of trials for each session
         counter = 0;
         tempMat = [];
 

@@ -1,29 +1,29 @@
 function [epsilon_range] = getEpsilons
 %UNTITLED2 Summary of this function goes here
 %% kdist
+%
 choosek = input(strcat('Choose k:',32)); %32 is code for space
-load normData_hit.mat
+normalizedData = cell2mat(struct2cell(load(uigetfile('','Select Normalized Data File'))));
+
 %distance of k-nearest neighbours k = 50
-kdist = pdist2(normData_hit,normData_hit,'euc','Smallest', choosek+1); %offset by 1 because first dist = 0 (dist against itself)
+
+kdist = pdist2(normalizedData,normalizedData,'euc','Smallest', choosek+1); %offset by 1 because first dist = 0 (dist against itself)
 %Remove first row which only calculates distance against self (dist = 0)
 kdistminus1st = kdist(2:end,:)';
 %all kdist data sorted into column vector
 Vdist = sort(kdistminus1st(:));
 %% LINE 1 and 2
 %x-coordinate of start of knee
-p1(1) = length(Vdist) - length(normData_hit(:));
+p1(1) = length(Vdist) - length(normalizedData(:));
 %x-coordinate of end of knee
 p2(1) = length(Vdist);
 %y-coordinate of start of knee
 p1(2) = Vdist(p1(1));
 %y-coordinate of end of knee
 p2(2) = Vdist(p2(1));
-
+asdasd
 %line going through p1(1) and p2(1) 
-A1 = (p2(2)-p1(2))/(p2(1)-p1(1));
-B1 = p1(2)-(A1*p1(1));
-LINE = @(x) (A1*x)+B1;
-%Line corresponding to abrupt increase of distances
+A1 = (p2(2)-p1(asdasdadsasdasde of distances
 A2 = -A1;
 B2 = A1*(p1(1)+p2(1))+B1;
 LINE2 = @(x) (A2*x)+B2;
@@ -94,9 +94,20 @@ end
 % pAx = fsolve(@(x) (Mfunc(x) - mean_M), x0,options);
 
 %% Calculate all epsilons for range of pax
-epsilon_range(1:length(pa)) = Vdist(p3(1)+pa(:,1)); %note to self: run DBScanner for all pa x values.NEED TO FIX THIS PART
+epsilon_range(1:length(pa)) = Vdist(p3(1)+pa(:,1)); 
 %save('epsilon_range.mat',"epsilon_range")
-
+chooseSave = input(strcat('Save epsilon range? [Yes=1/No=2]',32)); 
+ if chooseSave == 1
+     selection = listdlg('PromptString',{'Select which file to save it as'},'ListString',{['epsilon_range'],['hitEps'],['missEps']},'SelectionMode','single');
+     if selection == 1
+        save('epsilon_range.mat',"epsilon_range")
+    elseif  selection == 2
+        hitEps = epsilon_range;
+        save('hitEps.mat',"hitEps")
+    elseif selection == 3
+        missEps = epsilon_range;
+         save('missEps.mat',"missEps")
+     end
 end
 
 
