@@ -223,9 +223,6 @@ legend('Third Tertile', 'All Profiles')
 %% t-SNE
 Y = tsne(normData_hit);
 
-figure;
-gscatter(Y(:,1),Y(:,2))
-
 normData_hit(1:10,:);
 
 

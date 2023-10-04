@@ -59,7 +59,7 @@ for eps = 1:length(epsRange)
     for minpts = 1:length(minptsRange)
         %conduct dbscan for corresponding eps and minpts and put it in the struct.
         % Put the corresponding minpts and eps in the struct then compute the number of clusters and outliers
-        DBStructData(1).(strcat('data',num2str(counter))) = dbscan(normalizedData,epsRange(eps),minptsRange(minpts), "Distance","mahalanobis");
+        DBStructData(1).(strcat('data',num2str(counter))) = dbscan(normalizedData,epsRange(eps),minptsRange(minpts), "Distance","euclidean");
         DBStructData(2).(strcat('data',num2str(counter))) = minptsRange(minpts);
         DBStructData(3).(strcat('data',num2str(counter))) = epsRange(eps);
         DBStructData(4).(strcat('data',num2str(counter))) = max(DBStructData(1).(strcat('data',num2str(counter))));
