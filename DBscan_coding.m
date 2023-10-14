@@ -29,7 +29,7 @@ missDataTable = masterDBDataTable(Idx_miss,masterDBDataTable.Properties.Variable
 Idx_hit = find(strcmp(allTrialEnds,"hit"));
 hitDataTable = masterDBDataTable(Idx_hit,masterDBDataTable.Properties.VariableNames([1:7 9]));
 
-
+%Data table saver
 %save('hitDataTable.mat',"hitDataTable")
 %save('missDataTable.mat',"missDataTable")
 
@@ -42,7 +42,8 @@ normData_hit = normalize(hitDataTable{:,5:8},1);
 
 normData_miss = normalize(missDataTable{:,5:7},1);
 
-%save('normData.mat',"normData")
+%normData Saver
+%save('normData.mat',"normData",)
 %save('normData_hit.mat',"normData_hit")
 %save('normData_miss.mat',"normData_miss")
 
@@ -50,46 +51,9 @@ normData_miss = normalize(missDataTable{:,5:7},1);
 %% DBscan
 DBStructData = getDBScanner; %conduct DBScan
 
-%choose whether to append or create a struct for data obtained from the
-%DBScan
-append_DBStruct = input(strcat('Append or Create New DBStruct? [Append=1/Create=2]',32)); 
-
-%% FOR APPEND WE HAVE TO ADD HERE AN EXTRA STEP TO LOAD THE STRUCT (NO THIS GOES BEFORE WE START DBSTRUCT -- 
-% CONFIRMS HOW MANY DATA THERE ARE, better to put it in dbscanner, create a display saying how many data 
-% there are, so we don't need to be asked [using sum of from column 2:end])
-
-%choose which struct to append/create based on data type from DBScan (hit
-%only data, miss only data, or combined)
-selection = listdlg('PromptString',{'Select which Struct to use'},'ListString',{['DBStruct'],['DBHit'],['DBMiss']},'SelectionMode','single');
-
-if append_DBStruct == 1 %if append chosen
-    if selection == 1 %combined
-        load DBStruct.mat
-        names = [fieldnames(DBStruct); fieldnames(DBStructData)]; %obtain fieldnames of dbscan data and previously made struct
-        DBStruct = cell2struct([struct2cell(DBStruct); struct2cell(DBStructData)], names, 1); %concatenate dbscan data and struct
-    elseif  selection == 2 %hit
-        load DBHit.mat
-        names = [fieldnames(DBHit); fieldnames(DBStructData)];
-        DBHit = cell2struct([struct2cell(DBHit); struct2cell(DBStructData)], names, 1);
-    elseif selection == 3 %miss
-        load DBMiss.mat
-        names = [fieldnames(DBMiss); fieldnames(DBStructData)];
-        DBMiss = cell2struct([struct2cell(DBMiss); struct2cell(DBStructData)], names, 1);
-    end
-else append_DBStruct == 2 %if create chosen
-    %init DBScan data as appropriate struct
-    if selection == 1
-        DBStruct = DBStructData;
-    elseif  selection == 2
-        DBHit = DBStructData;
-    elseif selection == 3
-        DBMiss = DBStructData;
-    end
-end
-
-
-%% DBStruct Saver
-%save('DBStruct.mat',"DBStruct") 
+% DBStruct Saver
+%name = 'DBstruct.mat';
+%save(name,'-struct',"DBStruct")  %DOES NOT WORK FIX
 %save('DBHit.mat',"DBHit") 
 %save('DBMiss.mat',"DBMiss") 
 
@@ -221,12 +185,56 @@ plot(mean(all_profiles))
 legend('Third Tertile', 'All Profiles')
 
 %% t-SNE
-Y = tsne(normData_hit);
+%load data files
+load normData_hit.mat
+load normData_miss.mat
+load hitDataTable.mat
+load missDataTable.mat
+
+%create tables so normalized Data has column labels
+Tnorm_hit = array2table(normData_hit,'VariableNames',hitDataTable.Properties.VariableNames(5:8));
+Tnorm_miss = array2table(normData_miss,'VariableNames',missDataTable.Properties.VariableNames(5:7));
+
+%assign groups based on Tertile reaction times
+
+%hits
+firstIdx_hit = (Tnorm_hit.rollingrewards >= min(prctile(Tnorm_hit.rollingrewards,[0 33.33])) & Tnorm_hit.rollingrewards <= max(prctile(Tnorm_hit.rollingrewards,[0 33.33])));
+secondIdx_hit = (Tnorm_hit.rollingrewards > min(prctile(Tnorm_hit.rollingrewards,[33.33 66.67])) & Tnorm_hit.rollingrewards <= max(prctile(Tnorm_hit.rollingrewards,[33.33 66.67])));
+thirdIdx_hit = (Tnorm_hit.rollingrewards > min(prctile(Tnorm_hit.rollingrewards,[66.67 100])) & Tnorm_hit.rollingrewards <= max(prctile(Tnorm_hit.rollingrewards,[66.67 100])));
+
+%misses
+firstIdx_miss = (Tnorm_miss.rollingrewards >= min(prctile(Tnorm_miss.rollingrewards,[0 33.33])) & Tnorm_miss.rollingrewards <= max(prctile(Tnorm_miss.rollingrewards,[0 33.33])));
+secondIdx_miss = (Tnorm_miss.rollingrewards > min(prctile(Tnorm_miss.rollingrewards,[33.33 66.67])) & Tnorm_miss.rollingrewards <= max(prctile(Tnorm_miss.rollingrewards,[33.33 66.67])));
+thirdIdx_miss = (Tnorm_miss.rollingrewards > min(prctile(Tnorm_miss.rollingrewards,[66.67 100])) & Tnorm_miss.rollingrewards <= max(prctile(Tnorm_miss.rollingrewards,[66.67 100])));
+
+% Assign Tertile labels based on idx
+
+%hits
+Tnorm_hit.labels(firstIdx_hit) = 1;
+Tnorm_hit.labels(secondIdx_hit) = 2;
+Tnorm_hit.labels(thirdIdx_hit) = 3;
+
+%miss
+Tnorm_miss.labels(firstIdx_miss) = 1;
+Tnorm_miss.labels(secondIdx_miss) = 2;
+Tnorm_miss.labels(thirdIdx_miss) = 3;
+    
+%t-SNE 
+
+%hits
+tSNE_hit = tsne(normData_hit,"Distance","cityblock");
 
 figure;
-gscatter(Y(:,1),Y(:,2))
+gscatter(tSNE_hit(:,1),tSNE_hit(:,2),Tnorm_hit.labels)
+title('t-SNE Hits: RT Tertile')
 
-normData_hit(1:10,:);
+%miss
+tSNE_miss = tsne(normData_miss,"Distance","cityblock"); % I GET A WARNING WRITE IT DOWN
+
+figure;
+gscatter(tSNE_miss(:,1),tSNE_miss(:,2),Tnorm_miss.labels)
+title('t-SNE Miss: RT Tertile')
+
 
 
 

@@ -5,24 +5,22 @@ function [DBStructData] = getDBScanner
 %data, and the corresponding minpts and eps used. 
 
 tic;
+%% Variable Initialization
+%choose whether to append or create a struct for data obtained from the
+%DBScan
+append_DBStruct = input(strcat('Append or Create New DBStruct? [Append=1/Create=2]',32)); 
 
+%choose which struct to append/create based on data type from DBScan (hit
+%only data, miss only data, or combined)
+%selectStruct = listdlg('PromptString',{'Select which struct to use'},'ListString',{['DBStruct'],['DBHit'],['DBMiss']},'SelectionMode','single');
+%table2struct(struct2table(struct(load(uigetfile('','Select Struct
+%File'))))); %DOES NOT WORK PLEASE FIX
 %Select which normalized data to use
 normalizedData = cell2mat(struct2cell(load(uigetfile('','Select Normalized Data File'))));
 
 
-%Prompt for whether or not to append generated data to a pre-exisiting
-%DBStruct
-createStruct = input(strcat('Pre-existing DBStruct Available? [Y=1/N=0]:',32));
-while createStruct > 1
-    createStruct = input(strcat('You have made an invalid choice. Try again [Y=1/N=0]:',32));
-    if createStruct == 1
-        break
-    elseif createStruct == 0
-        break
-    end
-end
-
-if createStruct == 0
+%Set up the Struct to put in the data
+if append_DBStruct == 2
     %initialize empty struct, then create labels for where the data, minpts,
     %and eps will be located
     DBStructData = struct([]);
@@ -36,8 +34,18 @@ if createStruct == 0
     DBStructData(8).labels = 'Cluster Data % of Highest Cluster';
     DBStructData(9).labels = 'All Data % of Highest Cluster';
     counter = 1;
-elseif  createStruct == 1
-    counter = input(strcat('How much data does DBStruct currently have?',32))+1;
+
+elseif  append_DBStruct == 1
+    if selectStruct == 1 %combined
+        load DBStruct.mat
+        counter = length(fieldnames(DBStruct.mat));
+    elseif  selectStruct == 2 %hit
+        load DBHit.mat
+        counter = length(fieldnames(DBHit.mat));
+    elseif selectStruct == 3 %miss
+        load DBMiss.mat
+        counter = length(fieldnames(DBMiss.mat));
+    end
 end
 
 %
@@ -52,7 +60,7 @@ end
 %with
 minptsRange = input(strcat('Select a Range for Minpts:',32)); %code 32 = space
 
-
+%% jdlaksjdlaskjdalsjd
 %loop through each eps and minpts and place the dbscan data, corresponding
 %eps + minpts in the right label place
 for eps = 1:length(epsRange)
@@ -81,15 +89,33 @@ for eps = 1:length(epsRange)
         counter = counter+1; %extend counter
     end
 end
+%% 
+if append_DBStruct == 1 %if append chosen
+    if selectStruct == 1 %combined
+        load DBStruct.mat
+        names = [fieldnames(DBStruct); fieldnames(DBStructData)]; %obtain fieldnames of dbscan data and previously made struct
+        DBStruct = cell2struct([struct2cell(DBStruct); struct2cell(DBStructData)], names, 1); %concatenate dbscan data and struct
+    elseif  selectStruct == 2 %hit
+        load DBHit.mat
+        names = [fieldnames(DBHit); fieldnames(DBStructData)];
+        DBHit = cell2struct([struct2cell(DBHit); struct2cell(DBStructData)], names, 1);
+    elseif selectStruct == 3 %miss
+        load DBMiss.mat
+        names = [fieldnames(DBMiss); fieldnames(DBStructData)];
+        DBMiss = cell2struct([struct2cell(DBMiss); struct2cell(DBStructData)], names, 1);
+    end
+else append_DBStruct == 2 %if create chosen
+    %init DBScan data as appropriate struct
+    if selectStruct == 1
+        DBStruct = DBStructData;
+    elseif  selectStruct == 2
+        DBHit = DBStructData;
+    elseif selectStruct == 3
+        DBMiss = DBStructData;
+    end
+end
 
 toc;
-
-%TO FIX THIS, RENAME THE NEW DBSTRUCT AS SOMETHING ELSE AND THEN APPEND TO
-%THE ORIGINAL DBSTRUCT. THEN SAVE. CAN ALSO MAKE AN OPTION OF WHICH
-%DBSTRUCT TO APPEND TO I.E. ONE FOR HITS ANOTHER FOR MISSES
-
-%% For Saving
-%save('DBStruct.mat',"DBStruct") 
 
 
 end
