@@ -50,11 +50,6 @@ STD_third = std(masterDBDataTable.rollinghitrate(Clusters==3));
 mHR_fourth =  mean(masterDBDataTable.rollinghitrate(Clusters==4));
 STD_fourth = std(masterDBDataTable.rollinghitrate(Clusters==4));
 
-mHR_first = mean(normData(Clusters==1,3));
-STD_first = std(normData(Clusters==1,3));
-
-mHR_second =  mean(normData(Clusters==2,3));
-STD_second = std(normData(Clusters==1,3));
 
 x = categorical(["First Cluster"; "Second Cluster"]);
 y = [mHR_first mHR_second];

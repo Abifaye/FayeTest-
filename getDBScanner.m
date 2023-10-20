@@ -2,27 +2,23 @@ function [DBStructData] = getDBScanner
 %inputs into normData of either hits, misses, or all trials. normData contains the normalized values of trials
 %for each variable of interest. DBScanner then conducts multiple dbscans for all selected
 %range of eps and minpts. It returns a struct containing the dbscan
-%data, and the corresponding minpts and eps used. 
+%data, and the corresponding minpts and eps used.
 
 tic;
 %% Variable Initialization
-%choose whether to append or create a struct for data obtained from the
+%choose whether to append or create a new struct for data obtained from the
 %DBScan
-append_DBStruct = input(strcat('Append or Create New DBStruct? [Append=1/Create=2]',32)); 
-
-%choose which struct to append/create based on data type from DBScan (hit
-%only data, miss only data, or combined)
-%selectStruct = listdlg('PromptString',{'Select which struct to use'},'ListString',{['DBStruct'],['DBHit'],['DBMiss']},'SelectionMode','single');
-%table2struct(struct2table(struct(load(uigetfile('','Select Struct
-%File'))))); %DOES NOT WORK PLEASE FIX
-%Select which normalized data to use
-normalizedData = cell2mat(struct2cell(load(uigetfile('','Select Normalized Data File'))));
-
+append_struct = input(strcat('Append or Create New DBStruct? [Append=1/Create=2]',32)); %32 codes for space
 
 %Set up the Struct to put in the data
-if append_DBStruct == 2
-    %initialize empty struct, then create labels for where the data, minpts,
-    %and eps will be located
+if append_struct == 1
+    %choose which struct to append to
+    structFile = load(uigetfile('*.mat','Select Struct to Append to')); %loads struct, but nested within 1x1 struct
+    extractedFile = structFile.(string(fieldnames(structFile))); %reassigns structFile as extracted struct
+    counter = length(fieldnames(extractedFile)); %tells where new set of data will go in the struct
+
+elseif  append_struct == 2
+    %initialize the contents of the struct under DBStructData
     DBStructData = struct([]);
     DBStructData(1).labels = 'Data Cluster Labels';
     DBStructData(2).labels = 'Minpts';
@@ -35,88 +31,73 @@ if append_DBStruct == 2
     DBStructData(9).labels = 'All Data % of Highest Cluster';
     counter = 1;
 
-elseif  append_DBStruct == 1
-    if selectStruct == 1 %combined
-        load DBStruct.mat
-        counter = length(fieldnames(DBStruct.mat));
-    elseif  selectStruct == 2 %hit
-        load DBHit.mat
-        counter = length(fieldnames(DBHit.mat));
-    elseif selectStruct == 3 %miss
-        load DBMiss.mat
-        counter = length(fieldnames(DBMiss.mat));
-    end
 end
 
-%
-chooseEps = input(strcat('Choose file for epsilon range? [Y=1/N=0]:',32));
+%Select which normalized data to use
+normalizedData = cell2mat(struct2cell(load(uigetfile('','Select Normalized Data File'))));
+
+%Choose Parameters
+chooseEps = input(strcat('Choose file for epsilon range? [Y=1/N=0]:',32)); %if there is file of calculated eps range or make up own range
 if chooseEps == 1
     epsRange = load(uigetfile('','Select Epsilon Range File'));
 elseif chooseEps == 0
     epsRange = input(strcat('Select a Range for Epsilon:',32));
 end
+minptsRange = input(strcat('Select a Range for Minpts:',32)); %minpts selection
 
-%selection dialogue for choosing range of minpts to conduct dbscan
-%with
-minptsRange = input(strcat('Select a Range for Minpts:',32)); %code 32 = space
-
-%% jdlaksjdlaskjdalsjd
-%loop through each eps and minpts and place the dbscan data, corresponding
-%eps + minpts in the right label place
+%% DBSCan Loop
+%loop through each eps and minpts
 for eps = 1:length(epsRange)
     for minpts = 1:length(minptsRange)
-        %conduct dbscan for corresponding eps and minpts and put it in the struct.
-        % Put the corresponding minpts and eps in the struct then compute the number of clusters and outliers
+        %DBScan
         DBStructData(1).(strcat('data',num2str(counter))) = dbscan(normalizedData,epsRange(eps),minptsRange(minpts), "Distance","euclidean");
+
+        % Put the corresponding minpts and eps in the struct then compute the number of clusters and outliers
         DBStructData(2).(strcat('data',num2str(counter))) = minptsRange(minpts);
         DBStructData(3).(strcat('data',num2str(counter))) = epsRange(eps);
         DBStructData(4).(strcat('data',num2str(counter))) = max(DBStructData(1).(strcat('data',num2str(counter))));
         DBStructData(5).(strcat('data',num2str(counter))) = sum(DBStructData(1).(strcat('data',num2str(counter))) == -1);
+
         %Init matrix for computing # of pts per cluster
         clusterMat = [];
-        %go through each 
+        %go through each cluster
         for nCluster = 1:DBStructData(4).(strcat('data',num2str(counter)))
             clusterMat(nCluster) = sum(DBStructData(1).(strcat('data',num2str(counter))) == nCluster);
         end
-        %assign appropriate values for each labels
         DBStructData(6).(strcat('data',num2str(counter))) =  clusterMat;
+
+        %assign appropriate values for each labels
         DBStructData(7).(strcat('data',num2str(counter))) = find(DBStructData(6).(strcat('data',num2str(counter))) == ...
-            max(DBStructData(6).(strcat('data',num2str(counter)))));
+            max(DBStructData(6).(strcat('data',num2str(counter))))); %cluster with highest num of pts
         DBStructData(8).(strcat('data',num2str(counter))) = max(DBStructData(6).(strcat('data',num2str(counter))))/...
-            sum(DBStructData(6).(strcat('data', num2str(counter))))*100;
+            sum(DBStructData(6).(strcat('data', num2str(counter))))*100; %percent of data belonging to highest cluster, not including outliers
         DBStructData(9).(strcat('data',num2str(counter))) = max(DBStructData(6).(strcat('data',num2str(counter))))/...
-            (sum(DBStructData(6).(strcat('data', num2str(counter))))+DBStructData(5).(strcat('data',num2str(counter))))*100;
+            (sum(DBStructData(6).(strcat('data', num2str(counter))))+DBStructData(5).(strcat('data',num2str(counter))))*100; %percent of data belonging to highest cluster,
+        % including outliers
         counter = counter+1; %extend counter
     end
 end
-%% 
-if append_DBStruct == 1 %if append chosen
-    if selectStruct == 1 %combined
-        load DBStruct.mat
-        names = [fieldnames(DBStruct); fieldnames(DBStructData)]; %obtain fieldnames of dbscan data and previously made struct
-        DBStruct = cell2struct([struct2cell(DBStruct); struct2cell(DBStructData)], names, 1); %concatenate dbscan data and struct
-    elseif  selectStruct == 2 %hit
-        load DBHit.mat
-        names = [fieldnames(DBHit); fieldnames(DBStructData)];
-        DBHit = cell2struct([struct2cell(DBHit); struct2cell(DBStructData)], names, 1);
-    elseif selectStruct == 3 %miss
-        load DBMiss.mat
-        names = [fieldnames(DBMiss); fieldnames(DBStructData)];
-        DBMiss = cell2struct([struct2cell(DBMiss); struct2cell(DBStructData)], names, 1);
-    end
-else append_DBStruct == 2 %if create chosen
-    %init DBScan data as appropriate struct
-    if selectStruct == 1
-        DBStruct = DBStructData;
-    elseif  selectStruct == 2
-        DBHit = DBStructData;
-    elseif selectStruct == 3
-        DBMiss = DBStructData;
+
+%% Save structs
+%choose whether to save data or not
+save_struct = input(strcat('Save struct? [Yes=1/No=0]',32));
+if save_struct==1
+    if append_struct == 1 %append to struct
+        save(fieldnames(structFile)+".mat","DBStructData","-append")
+        %names = [fieldnames(extractedFile); fieldnames(DBStructData)]; %obtain fieldnames of dbscan data and previously made struct
+        %DBStruct = cell2struct([struct2cell(extractedFile); struct2cell(DBStructData)], names, 1); %concatenate dbscan data and struct
+    elseif append_struct == 2 %save new struct
+        clearvars -except DBStructData
+        %Name the New Struct
+        structName = input(strcat('Choose a name for the new struct:',32)); %must have the name under quotations ('') to register as string.
+        % Do NOT include .mat portion
+        A = assignin("base",structName(1:end),DBStructData); %change the name of DBStructData to match new struct
+        clearvars DBStructData structName %clear everything except the new struct
+saveVariablesInFunction(uiputfile()) %save the new struct
     end
 end
-
+saveVariablesInFunction()
 toc;
-
 
 end
 

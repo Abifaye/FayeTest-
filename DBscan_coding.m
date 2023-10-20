@@ -51,11 +51,7 @@ normData_miss = normalize(missDataTable{:,5:7},1);
 %% DBscan
 DBStructData = getDBScanner; %conduct DBScan
 
-% DBStruct Saver
-%name = 'DBstruct.mat';
-%save(name,'-struct',"DBStruct")  %DOES NOT WORK FIX
-%save('DBHit.mat',"DBHit") 
-%save('DBMiss.mat',"DBMiss") 
+save(uiputfile()) %save the new struct
 
 %% Cityblock Distance Distribution
 
