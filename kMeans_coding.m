@@ -7,7 +7,7 @@ load masterDBDataTable.mat
 load normData.mat
 
 %Run Kmeans
-Clusters = kmeans(normData,2);
+Clusters = kmeans(normData,3);
 
 %% figures
 %Create 2 matrices containing all hits and all miss profiles
@@ -35,94 +35,13 @@ legend('First Cluster', 'Second Cluster', 'Third Cluster', 'Fourth Cluster')
 title('kMeans 4 Cluster')
 
 %% Parameters
-% ADD THE ERROR BARS
 
-%mean rolling hit rate
-mHR_first = mean(masterDBDataTable.rollinghitrate(Clusters==1));
-STD_first = std(masterDBDataTable.rollinghitrate(Clusters==1));
+%bar plots
+getKmeanBarPlots(Clusters)
 
-mHR_second =  mean(masterDBDataTable.rollinghitrate(Clusters==2));
-STD_second = std(masterDBDataTable.rollinghitrate(Clusters==2));
+%scatter plots
+getKmeanScatterPlots(Clusters)
 
-mHR_third =  mean(masterDBDataTable.rollinghitrate(Clusters==3));
-STD_third = std(masterDBDataTable.rollinghitrate(Clusters==3));
-
-mHR_fourth =  mean(masterDBDataTable.rollinghitrate(Clusters==4));
-STD_fourth = std(masterDBDataTable.rollinghitrate(Clusters==4));
-
-mHR_first = mean(normData(Clusters==1,3));
-STD_first = std(normData(Clusters==1,3));
-
-mHR_second =  mean(normData(Clusters==2,3));
-STD_second = std(normData(Clusters==1,3));
-
-x = categorical(["First Cluster"; "Second Cluster"]);
-y = [mHR_first mHR_second];
-figure;
-hold on;
-bar(x,y)
-plot([1 1], [mHR_first+STD_first mHR_first-STD_first], 'k');
-scatter([1 1], [mHR_first+STD_first mHR_first-STD_first], "_",'k');
-plot([2 2], [mHR_second+STD_second mHR_second-STD_second], 'k');
-scatter([2 2],[mHR_second+STD_second mHR_second-STD_second], '_', 'k');
-title('Mean Rolling Hit Rate')
-
-
-%mean rolling Miss rate
-mMR_first = mean(masterDBDataTable.rollingmissrate(Clusters==1));
-STD_first = std(masterDBDataTable.rollingmissrate(Clusters==1));
-mMR_second =  mean(masterDBDataTable.rollingmissrate(Clusters==2));
-STD_second =  std(masterDBDataTable.rollingmissrate(Clusters==2));
-
-figure;
-x = categorical(["First Cluster"; "Second Cluster"]);
-y = [mMR_first mMR_second];
-bar(x,y)
-title('Mean Miss Rate')
-
-%mean rolling farate
-mFAR_first = mean(masterDBDataTable.rollingfarate(Clusters==1));
-mFAR_second =  mean(masterDBDataTable.rollingfarate(Clusters==2));
-
-figure;
-x = categorical(["First Cluster"; "Second Cluster"]);
-y = [mFAR_first mFAR_second];
-bar(x,y)
-title('Mean FA Rate')
-
-%mean rolling rewards
-mR_first = mean(masterDBDataTable.rollingrewards(Clusters==1));
-mR_second =  mean(masterDBDataTable.rollingrewards(Clusters==2));
-
-x = categorical(["First Cluster"; "Second Cluster"]);
-y = [mR_first mR_second];
-figure;
-bar(x,y)
-plot([1 1], [mHR_first+STD_first mHR_first-STD_first], 'k');
-scatter([1 1], [mHR_first+STD_first mHR_first-STD_first], "_",'k');
-plot([2 2], [mHR_second+STD_second mHR_second-STD_second], 'k');
-scatter([2 2],[mHR_second+STD_second mHR_second-STD_second], '_', 'k');
-title('Mean Rolling Rewards')
-
-%mean rolling RTs
-mRts_first = mean(masterDBDataTable.rollingallRTs(Clusters==1));
-mRts_second =  mean(masterDBDataTable.rollingallRTs(Clusters==2));
-
-figure;
-x = categorical(["First Cluster"; "Second Cluster"]);
-y = [mRts_first mRts_second];
-bar(x,y)
-title('Mean Rolling RTs')
-
-
-%% additional plots
-gscatter(masterDBDataTable.rollingfarate,masterDBDataTable.rollinghitrate,Clusters)
-
-%
-figure;
-gscatter(tSNE_hit(:,1),tSNE_hit(:,2),Clusters(strcmp(masterDBDataTable.trialEnd,"hit")))
-figure;
-gscatter(tSNE_miss(:,1),tSNE_miss(:,2),Clusters)
 
 
 %% Kmeans and T-SNE combined

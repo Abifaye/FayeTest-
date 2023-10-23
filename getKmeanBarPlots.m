@@ -1,4 +1,4 @@
-function getKmeans_plots(Clusters)
+function getKmeanBarPlots(Clusters)
 %% ADD COMMENTS!!!
 load masterDBDataTable.mat
 
@@ -8,21 +8,13 @@ selectVar = listdlg('PromptString',{'Select variable(s) to create', ...
     masterDBDataTable.Properties.VariableNames,'SelectionMode','multiple');
 meanData = table();
 stdData = table();
-for nVar= 1:length(selectVar)
-    if selectVar(nVar)== 6
-        RTs = mean((masterDBDataTable.(6)(strcmp(masterDBDataTable.trialEnd,"hit"))));
-        for nCluster = 1:clusterNum
-            meanData.(string(masterDBDataTable.Properties.VariableNames(selectVar(nVar))))(nCluster) = mean(RTs(Clusters==nCluster))
-            stdData.(string(masterDBDataTable.Properties.VariableNames(selectVar(nVar))))(nCluster)
-        end
-    end
 
+for nVar= 1:length(selectVar)
     for nCluster = 1:clusterNum
         meanData.(string(masterDBDataTable.Properties.VariableNames(selectVar(nVar))))(nCluster) = mean(masterDBDataTable.(selectVar(nVar))(Clusters==nCluster));
         stdData.(string(masterDBDataTable.Properties.VariableNames(selectVar(nVar))))(nCluster) = std(masterDBDataTable.(selectVar(nVar))(Clusters==nCluster));
     end
 end
-
 
 for nVar= 1:length(selectVar)
     x = categorical(append('Cluster',' ',string((1:clusterNum))));
