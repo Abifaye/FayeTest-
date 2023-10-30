@@ -91,9 +91,9 @@ if save_struct==1
         %Name the New Struct
         structName = input(strcat('Choose a name for the new struct:',32)); %must have the name under quotations ('') to register as string.
         % Do NOT include .mat portion
-        A = assignin("base",structName(1:end),DBStructData); %change the name of DBStructData to match new struct
+        assignin("base",structName(1:end),DBStructData); %change the name of DBStructData to match new struct
         clearvars DBStructData structName %clear everything except the new struct
-saveVariablesInFunction(uiputfile()) %save the new struct
+        saveVariablesInFunction(uiputfile()) %save the new struct
     end
 end
 saveVariablesInFunction()
