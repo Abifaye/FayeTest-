@@ -37,12 +37,15 @@ for nVar = 1:length(selection)
             for nSession = 1:size(T,1)
                 hitIdx = [T.hit{nSession}];
                 tempContainer = variable{nSession};
-                hitEst = 0;
-                while hitEst == 0
+                hitEst = 0;%SHOULD IT START WITH ZERO
+                for nTrial = 1:length(tempContainer)
+                    if hitIdx(nTrial)==1
+                        hitEst = tempContainer(nTrial);
+
                     for nTrial = 1:length(tempContainer)
                         if hitIdx(nTrial)==1 %% left off here!!!
                         hitEst = tempContainer(nTrial);
-                hitEst = 0;%SHOULD IT START WITH ZERO
+                hitEst = 0;
                 for nTrial = 1:length(tempContainer)
                     if hitIdx(nTrial)==1
                         hitEst = tempContainer(nTrial);

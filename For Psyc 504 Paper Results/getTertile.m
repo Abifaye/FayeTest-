@@ -120,8 +120,8 @@ thirdAOK_two = sum(bootthird_AOK_two,2);
 
 %create tiled layout for all plots
 figure;
-t= tiledlayout(3,2);
-title(t,'Reaction Time Kernels and AOK')
+t= tiledlayout(3,1);
+%title(t,'Reaction Time Kernels and AOK')
 
 % 1st Tertile
 ax1 = nexttile;
@@ -131,43 +131,43 @@ firstfillCI = [firstCIs(1, :), fliplr(firstCIs(3, :))]; % This sets up the fill 
 fill(x2, firstfillCI, 'b', 'lineStyle', '-', 'edgeColor', 'b', 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % adds the fill
 yline(0.5,'--k')
 hold off
-title('Kernel of First Tertile','FontSize',8);
+title('Fastest Reaction Times','FontSize',30);
 ax = gca;
 xlim(ax, [0, bins]);
 ax.XGrid = 'on';
 ax.XMinorGrid = "on";
 ax.XTick = [0:200:800];
-ax.XTickLabel = {'-400', '-200', '0', '200', '400'};
-ax.FontSize = 8;
+ax.XTickLabel = {'-400', '', 'Stimulus Onset', '', '400'};
+ax.FontSize = 30;
 ax.TickDir = "out";
 ay = gca;
 ylim(ay, [0.47 0.52]);
-ay.FontSize = 8; 
+ay.FontSize = 30; 
 
 % 2nd Tertile
-ax2 = nexttile(3);
+ax2 = nexttile;
 hold on
 plot(secondx, secondCIs(2, :), 'r', 'LineWidth', 1.5); % This plots the mean of the bootstrap
 secondfillCI = [secondCIs(1, :), fliplr(secondCIs(3, :))]; % This sets up the fill for the errors
 fill(x2, secondfillCI, 'r', 'lineStyle', '-', 'edgeColor', 'r', 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % add fill
 yline(0.5,'--k')
 hold off
-title('Kernel of Second Tertile','FontSize',8);
+title('Middle Reaction Times','FontSize',30);
 ax = gca;
 xlim(ax, [0, bins]);
 ax.XGrid = 'on';
 ax.XMinorGrid = "on";
 ax.XTick = [0:200:800];
-ax.XTickLabel = {'-400', '-200', '0', '200', '400'};
-ax.FontSize = 8;
+ax.XTickLabel = {'-400', '', 'Stimulus Onset', '', '400'};
+ax.FontSize = 30;
 ax.TickDir = "out";
 ay = gca;
 ylim(ay, [0.47 0.52]);
-ay.FontSize = 8; 
+ay.FontSize = 30; 
 
 
 % 3rd Tertile
-ax3 = nexttile (5);
+ax3 = nexttile;
 hold on
 plot(thirdx, thirdCIs(2, :), 'g', 'LineWidth', 1.5); % This plots the mean of the bootstrap
 thirdfillCI = [thirdCIs(1, :), fliplr(thirdCIs(3, :))]; % This sets up the fill for the errors
@@ -179,18 +179,18 @@ xlim(ax, [0, bins]);
 ax.XGrid = 'on';
 ax.XMinorGrid = "on";
 ax.XTick = [0:200:800];
-title('Kernel of Third Tertile','FontSize',8);
-ax.XTickLabel = {'-400', '-200', '0', '200', '400'};
-ax.FontSize = 8;
+title('Slowest Reaction Times','FontSize',30);
+ax.XTickLabel = {'-400', '', 'Stimulus Onset', '', '400'};
+ax.FontSize = 30;
 ax.TickDir = "out";
 ay = gca;
 ylim(ay, [0.47 0.52]);
-ay.FontSize = 8; 
+ay.FontSize = 30; 
 
 
 %Axes Label
-xlabel([ax1,ax2,ax3],'Time Relative to Stimulus Onset (ms)','FontSize',8)
-ylabel([ax1,ax2,ax3],'Normalized Power','FontSize',8) 
+xlabel([ax3],'Time(ms)','FontSize',30)
+ylabel([ax2],'Normalized Power','FontSize',30) 
 
 %AOK
 
