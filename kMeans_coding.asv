@@ -23,14 +23,10 @@ end
 %Run Kmeans, by animals
 Clusters = [];
 Centroids = [];
-masterClusters = [];
-masterCentroids = [];
 animalDataSet = str2double([masterDBDataTable.animal normData]);
-for nAnimal = 1:length(animalLabels)
-    %Clusters = [Clusters; kmeans(animalDataSet(animalDataSet==str2double(animalLabels(nAnimal)),2:6),3)];
-    [Clusters,Centroids] = kmeans(animalDataSet(animalDataSet==str2double(animalLabels(nAnimal)),2:6),2);
-    masterClusters = [masterClusters; Clusters];
-    masterCentroids = [masterCentroids;Centroids];
+for nAnimal = 1:lengt
+    Clusters = [Clusters; kmeans(animalDataSet(animalDataSet==str2double(animalLabels(nAnimal)),2:6),3)];
+    [~,Centroids] = kmean([Clusters; kmeans(animalDataSet(animalDataSet==str2double(animalLabels(nAnimal)),2:6),3)]);
 end
 
 %% figures
@@ -39,8 +35,8 @@ hitProfiles = cell2mat(T.hitProfiles);
 missProfiles = cell2mat(T.missProfiles);
 
 %Take only miss+hits trials with optopower
-optoHitClusters = masterClusters(strcmp(masterDBDataTable.trialEnd,"hit") & masterDBDataTable.optoPower~=0);
-optoMissClusters = masterClusters(strcmp(masterDBDataTable.trialEnd,"miss") & masterDBDataTable.optoPower~=0);
+optoHitClusters = Clusters(strcmp(masterDBDataTable.trialEnd,"hit") & masterDBDataTable.optoPower~=0);
+optoMissClusters = Clusters(strcmp(masterDBDataTable.trialEnd,"miss") & masterDBDataTable.optoPower~=0);
 
 firstProfiles = [hitProfiles(optoHitClusters==1,1:end); -missProfiles(optoMissClusters==1,1:end)];
 secondProfiles = [hitProfiles(optoHitClusters==2,1:end); -missProfiles(optoMissClusters==2,1:end)];
@@ -51,10 +47,10 @@ figure;
 hold on
 plot(mean(firstProfiles))
 plot(mean(secondProfiles))
-%plot(mean(thirdProfiles))
+plot(mean(thirdProfiles))
 %plot(mean(fourthProfiles))
-legend('First Cluster', 'Second Cluster')
-title('kMeans 2 Cluster')
+legend('First Cluster', 'Second Cluster', 'Third Cluster')
+title('kMeans 3 Cluster')
 
 %% Parameters
 

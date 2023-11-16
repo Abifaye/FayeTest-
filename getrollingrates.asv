@@ -21,7 +21,7 @@ masterRollRates = table();
 k = input(strcat('Input Window Length for Rolling Rate:',32)); %code 32 = space
 
 
-trialsOrSessions = input(strcat('Combined rolling average or session by session averages? [combined=0/sessions=1]:',32)); %code 32 = space
+trialsOrSessions = input(strcat('Combined rolling average or session by session averages? [combined=0/sessions=1:',32)); %code 32 = space
 
 %% For Loop for retrieving rolling rates of all trials
 
@@ -49,8 +49,6 @@ for nVar = 1:length(selection)
             %init temporary matrix and a counter to help append the next set of trials for each session
             counter = 0;
             tempMat = [];
-            rollNum = [];
-            rollDenom = [];
             %loop through each session
             for nSession = 1:size(T,1)
                 %calculate rolling sum of numerator and denomenator
@@ -67,10 +65,10 @@ for nVar = 1:length(selection)
             %temporary matrix into the column
             masterRollRates.(strcat('rolling',T.Properties.VariableNames{selection(nVar)},'rate')) = tempMat;
         elseif trialsOrSessions==1
-            for nSession = 1:size(T,1)
+            for nSession = 1:length(variable)
                 rollNum = movsum(num{nSession},30);
                 rollDenom = movsum(denom{nSession},30);
-                masterRollRates.(strcat('rolling',T.Properties.VariableNames{selection(nVar)})){nSession} = (rollNum./rollDenom).*100;
+                masterRollAve(nSession).(strcat('rolling',T.Properties.VariableNames{selection(nVar)})) = (rollNum./rollDenom).*100;
             end
         end
 
@@ -94,7 +92,7 @@ for nVar = 1:length(selection)
             for nSession = 1:size(T,1)
                 rollNum = movsum(num{nSession},30);
                 %use k for denom as all trials are included
-                masterRollRates.(strcat('rolling',T.Properties.VariableNames{selection(nVar)})){nSession} = (rollNum./k).*100;
+                masterRollAve(nSession).(strcat('rolling',T.Properties.VariableNames{selection(nVar)})) = (rollNum./k).*100;
             end
 
         end

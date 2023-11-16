@@ -23,6 +23,7 @@ for nVar = 1:length(selection)
     variable = [T.(T.Properties.VariableNames{selection(nVar)})];
     if strcmp(T.Properties.VariableNames{selection(nVar)},T.Properties.VariableNames{54})
         tempContainer = [];
+        RTsRevised = [];
         subSelect = input(strcat('Use all RTs or only hit RTs [0=all/1=hits]',32));
         if subSelect==0
             for nSession = 1:size(T,1)
@@ -34,7 +35,6 @@ for nVar = 1:length(selection)
             for nSession = 1:size(T,1)
                 hitIdx = [T.hit{nSession}];
                 tempContainer = variable{nSession};
-                RTsRevised = [];
                 hitEst = 0;%SHOULD IT START WITH ZERO
                 for nTrial = 1:length(tempContainer)
                     if hitIdx(nTrial)==1
@@ -51,29 +51,30 @@ for nVar = 1:length(selection)
     counter = 0;
     tempMat = [];
 
-    trialsOrSessions = input(strcat('Combined rolling average or session by session averages? [combined=0/sessions=1:',32)); %code 32 = space
-    if trialsOrSessions==0
-        %loop through each session of the variable and compute rolling average
-        for nSession = 1:length(variable)
-            %place moving average in temporary matrix
-            tempMat(counter+1:counter+length(variable{nSession}),1) = [movmean(variable{nSession},k)];
+    %loop through each session of the variable and compute rolling average
+    for nSession = 1:length(variable)
+        %place moving average in temporary matrix
+        tempMat(counter+1:counter+length(variable{nSession}),1) = [movmean(variable{nSession},k)];
 
-            %adjust counter to extend length of matrix
-            counter = counter +length(variable{nSession});
-        end
-        %create labeled column for corresponding variable and place data from
-        %temporary matrix into the column
-        masterRollAve.(strcat('rolling',T.Properties.VariableNames{selection(nVar)})) = tempMat;
-   
-    elseif trialsOrSessions==1
-        for nSession = 1:length(variable)
-            masterRollAve.(strcat('rolling',T.Properties.VariableNames{selection(nVar)})){nSession} = movmean(variable{nSession},k);
-        end
-
+        %adjust counter to extend length of matrix
+        counter = counter +length(variable{nSession});
     end
+
+    %create labeled column for corresponding variable and place data from
+    %temporary matrix into the column
+    masterRollAve.(strcat('rolling',T.Properties.VariableNames{selection(nVar)})) = tempMat;
+
 end
 end
 
+
+
+%% in case we ever need a different method to get all trials
+
+%loop through each session of the variable and compute rolling average
+%for nSession = 1:length(variable)
+%masterRollAve(nSession).(strcat('rolling',T.Properties.VariableNames{selection(nVar)})) = movmean(variable{nSession},k);
+%end
 
 
 

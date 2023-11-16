@@ -1,6 +1,5 @@
-function getKmeanBarPlots(Clusters)
+function getKmeanBarPlots(Clusters,masterDBDataTable)
 %% ADD COMMENTS!!!
-load masterDBDataTable.mat
 
 clusterNum = max(Clusters);
 selectVar = listdlg('PromptString',{'Select variable(s) to create', ...
