@@ -1,7 +1,7 @@
-function getKmeanBarPlots(Clusters,masterDBDataTable)
+function getKmeanBarPlots(masterClusters,masterDBDataTable)
 %% ADD COMMENTS!!!
 
-clusterNum = max(Clusters);
+clusterNum = max(masterClusters);
 selectVar = listdlg('PromptString',{'Select variable(s) to create', ...
     'graphs for'},'ListString', ...
     masterDBDataTable.Properties.VariableNames,'SelectionMode','multiple');
@@ -10,8 +10,8 @@ stdData = table();
 
 for nVar= 1:length(selectVar)
     for nCluster = 1:clusterNum
-        meanData.(string(masterDBDataTable.Properties.VariableNames(selectVar(nVar))))(nCluster) = mean(masterDBDataTable.(selectVar(nVar))(Clusters==nCluster));
-        stdData.(string(masterDBDataTable.Properties.VariableNames(selectVar(nVar))))(nCluster) = std(masterDBDataTable.(selectVar(nVar))(Clusters==nCluster));
+        meanData.(string(masterDBDataTable.Properties.VariableNames(selectVar(nVar))))(nCluster) = mean(masterDBDataTable.(selectVar(nVar))(masterClusters==nCluster));
+        stdData.(string(masterDBDataTable.Properties.VariableNames(selectVar(nVar))))(nCluster) = std(masterDBDataTable.(selectVar(nVar))(masterClusters==nCluster));
     end
 end
 

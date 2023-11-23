@@ -1,4 +1,4 @@
-function getKmeanScatterPlots(Clusters)
+function getKmeanScatterPlots(masterClusters)
 %% ADD COMMENTS!!!
 
 %% Init Vars
@@ -11,7 +11,7 @@ yVar = listdlg('PromptString',{'Select y-var'},'ListString',masterDBDataTable.Pr
 
 %% Plot
 figure;
-gscatter(masterDBDataTable.(xVar),masterDBDataTable.(yVar),Clusters)%check if using xVar and yVar works
+gscatter(masterDBDataTable.(xVar),masterDBDataTable.(yVar),masterClusters)%check if using xVar and yVar works
 title('Kmean Scatter Plot')
 xlabel(masterDBDataTable.Properties.VariableNames{xVar})
 ylabel(masterDBDataTable.Properties.VariableNames{yVar})
@@ -24,7 +24,7 @@ while addPlot == 1
     yVar = listdlg('PromptString',{'Select y-var'},'ListString',masterDBDataTable.Properties.VariableNames,'SelectionMode','single');
 
     figure;
-    gscatter(masterDBDataTable.(xVar),masterDBDataTable.(yVar),Clusters)
+    gscatter(masterDBDataTable.(xVar),masterDBDataTable.(yVar),masterClusters)
     title('Kmean Scatter Plot')
     xlabel(masterDBDataTable.Properties.VariableNames{xVar})
     ylabel(masterDBDataTable.Properties.VariableNames{yVar})
