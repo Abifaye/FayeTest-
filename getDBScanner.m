@@ -44,6 +44,7 @@ elseif chooseEps == 0
     epsRange = input(strcat('Select a Range for Epsilon:',32));
 end
 minptsRange = input(strcat('Select a Range for Minpts:',32)); %minpts selection
+num2c
 
 %% DBSCan Loop
 %loop through each eps and minpts
@@ -98,6 +99,7 @@ if save_struct==1
 end
 saveVariablesInFunction()
 toc;
-
+C = [1 2 3 4];
+character(C)
 end
 

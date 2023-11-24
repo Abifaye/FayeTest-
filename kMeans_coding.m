@@ -16,40 +16,12 @@ for nTrial = 1:size(masterDBDataTable,1)
         currentAnimal = masterDBDataTable.animal(nTrial);
     end
 end
-%% Starting from here I think we should make this into a function
-%input whether or not to run validation for clusters
-validationRunner = input('Validate clusters? [1=Yes/0=No]: ');
 
-if validationRunner==1
-    %Run Kmeans, all Data Combined
-    %[Clusters Centroids] = kmeans(normData,2);
+grouping = input('Run analysis by animals? [1=Yes/0=No]: '); %runs Kmeans by each animal
 
-    %Run Kmeans, by animals
-    compareClusters = input('Input K range for cluster validation: '); %indicate a range of all possible clusters that you want to run validation on (i.e. 2:6)
-    for nKMeans = 1:length(compareClusters) %reiterate through all indicated Ks
 
-        %Init vars
-        Clusters = []; %for each animals
-        Centroids = [];
-        masterClusters = []; %combines all animals
-        masterCentroids = [];
-        masterInertia = [];
-        animalDataSet = str2double([masterDBDataTable.animal normData]); %combine animal number and data in one matrix
-       
-        for nAnimal = 1:length(animalLabels) %reiterate through each animals
-            [Clusters,Centroids] = kmeans(animalDataSet(animalDataSet==str2double(animalLabels(nAnimal)),2:6),compareClusters(nKMeans)); %get cluster labels and centroids for each animal
-            %
-            masterD = table(); %LEFT OFF HERE, YOU CAN'T SUM ALL IN A TABLE HAVE TO DO IT BY EACH VAR
-            for nCluster = 1:compareClusters(nKMeans)
-            masterD.(nCluster) = pdist2(Clusters(Cluster==nCluster),Centroids(Centroids==nCluster));
-            end
 
-            masterClusters = [masterClusters; Clusters]; %put data for each animal in master matrix
-            masterCentroids = [masterCentroids;Centroids];
-        end
-    end
 
-elseif validationRunner==0
     %Run Kmeans, all Data Combined
     %[Clusters Centroids] = kmeans(normData,2);
 
@@ -64,7 +36,6 @@ elseif validationRunner==0
         masterClusters = [masterClusters; Clusters];
         masterCentroids = [masterCentroids;Centroids];
     end
-end
 
 
 
