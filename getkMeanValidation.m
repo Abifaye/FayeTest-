@@ -60,7 +60,7 @@ x = categorical(str2double(masterInertia.Properties.VariableNames));
 figure;
 hold on
 plot(x,table2array(masterInertia))
-scatter(x,table2array(masterInertia))
+scatter(x,table2array(masterInertia),'filled')
 xlabel('# of Clusters')
 ylabel('Inertia')
 
