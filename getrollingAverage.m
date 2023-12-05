@@ -23,7 +23,7 @@ for nVar = 1:length(selection)
     variable = [T.(T.Properties.VariableNames{selection(nVar)})];
     if strcmp(T.Properties.VariableNames{selection(nVar)},T.Properties.VariableNames{54})
         tempContainer = [];
-        subSelect = input(strcat('Use all RTs or only hit RTs [0=all/1=hits]',32));
+        subSelect = input(strcat('Use all RTs or only hit RTs [0=all/1=hits]:',32));
         if subSelect==0
             for nSession = 1:size(T,1)
                 tempContainer = variable{nSession};
@@ -35,10 +35,11 @@ for nVar = 1:length(selection)
                 hitIdx = [T.hit{nSession}];
                 tempContainer = variable{nSession};
                 RTsRevised = [];
-                hitEst = 0;%SHOULD IT START WITH ZERO
+                hitEst = 0;
                 for nTrial = 1:length(tempContainer)
                     if hitIdx(nTrial)==1
                         hitEst = tempContainer(nTrial);
+                        RTsRevised(RTsRevised==0)= hitEst;
                     end
                     RTsRevised(nTrial) = hitEst;
                 end
@@ -51,7 +52,7 @@ for nVar = 1:length(selection)
     counter = 0;
     tempMat = [];
 
-    trialsOrSessions = input(strcat('Combined rolling average or session by session averages? [combined=0/sessions=1:',32)); %code 32 = space
+    trialsOrSessions = input(strcat('Combined rolling average or session by session averages? [combined=0/sessions=1]:',32)); %code 32 = space
     if trialsOrSessions==0
         %loop through each session of the variable and compute rolling average
         for nSession = 1:length(variable)
@@ -72,10 +73,13 @@ for nVar = 1:length(selection)
 
     end
 end
+%% Extra Stuff for revision of currently existing data
+%masterDBDataTable.rollingallRTs = masterRollAve.rollingallRTs;
+%save("masterDBDataTable_hitsRTs.mat","masterDBDataTable")
+%normData = normalize(masterDBDataTable(:,5:9));
+%save("normData_hitRTs.mat","normData")
+
 end
-
-
-
 
 
 

@@ -41,13 +41,13 @@ end
 
 %Sorted By outcomes
 %A = strcmp(masterDBDataTable.trialEnd,"hit");
-B = strcmp(masterDBDataTable.trialEnd,"miss");
-C = strcmp(masterDBDataTable.trialEnd,"fa");
-figure;
-title('Kmean Scatter Plot: Outcome Sorted')
-gscatter(masterDBDataTable.(xVar)(A|B),masterDBDataTable.(yVar)(A|B),masterDBDataTable.trialEnd(A|B),clr,'.',2)%check if using xVar and yVar works
-title('Kmean Scatter Plot')
-xlabel(masterDBDataTable.Properties.VariableNames{xVar})
-ylabel(masterDBDataTable.Properties.VariableNames{yVar})
+%B = strcmp(masterDBDataTable.trialEnd,"miss");
+%C = strcmp(masterDBDataTable.trialEnd,"fa");
+%figure;
+%title('Kmean Scatter Plot: Outcome Sorted')
+%gscatter(masterDBDataTable.(xVar)(A|B),masterDBDataTable.(yVar)(A|B),masterDBDataTable.trialEnd(A|B),clr,'.',2)%check if using xVar and yVar works
+%title('Kmean Scatter Plot')
+%xlabel(masterDBDataTable.Properties.VariableNames{xVar})
+%ylabel(masterDBDataTable.Properties.VariableNames{yVar})
 
 end
