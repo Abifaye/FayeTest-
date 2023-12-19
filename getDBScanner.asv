@@ -8,7 +8,7 @@ tic;
 %% Variable Initialization
 %choose whether to append or create a new struct for data obtained from the
 %DBScan
-append_struct = input(strcat('Append or Create New DBStruct? [Append=1/Create=2]:',32)); %32 codes for space
+append_struct = input(strcat('Append or Create New DBStruct? [Append=1/Create=2]',32)); %32 codes for space
 
 %Set up the Struct to put in the data
 if append_struct == 1
@@ -34,8 +34,7 @@ elseif  append_struct == 2
 end
 
 %Select which normalized data to use
-normalizedData = struct2cell(load(uigetfile('','Select Normalized Data File')));
-normalizedData = table2array(normalizedData{1});
+normalizedData = cell2mat(struct2cell(load(uigetfile('','Select Normalized Data File'))));
 
 %Choose Parameters
 chooseEps = input(strcat('Choose file for epsilon range? [Y=1/N=0]:',32)); %if there is file of calculated eps range or make up own range
@@ -65,7 +64,6 @@ for eps = 1:length(epsRange)
         for nCluster = 1:DBStructData(4).(strcat('data',num2str(counter)))
             clusterMat(nCluster) = sum(DBStructData(1).(strcat('data',num2str(counter))) == nCluster);
         end
-       
         DBStructData(6).(strcat('data',num2str(counter))) =  clusterMat;
 
         %assign appropriate values for each labels

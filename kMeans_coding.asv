@@ -6,14 +6,17 @@ load masterTable_allLuminanceCleaned.mat
 load(uigetfile('','Select Data table file to use'))
 load(uigetfile('','Select normData file to use'))
 
+normData = table2array(normData); %turn normData into array because kMeans can't have tables
+
 %get animal labels
+%init vars
 animalLabels = [];
-animalLabels = masterDBDataTable.animal(1);
-currentAnimal = masterDBDataTable.animal(1);
-for nTrial = 1:size(masterDBDataTable,1)
-    if strcmp(currentAnimal,masterDBDataTable.animal(nTrial))==0
-        animalLabels = [animalLabels masterDBDataTable.animal(nTrial)];
-        currentAnimal = masterDBDataTable.animal(nTrial);
+animalLabels = masterDBDataTable.animal(1); %get animal number of first animal from master table and put into matrix
+currentAnimal = masterDBDataTable.animal(1);%initializes first animal as the current animal for comparing animal labels
+for nSession = 1:size(masterDBDataTable,1) %loop through each trial
+    if strcmp(currentAnimal,masterDBDataTable.animal(nSession))==0 %compare the animal label for the trial and the label for the current animal. If they are different
+        animalLabels = [animalLabels masterDBDataTable.animal(nSession)]; %add the new animal label to animalLabels
+        currentAnimal = masterDBDataTable.animal(nSession); %set the animal label for the current trial as the new current animal to compare against
     end
 end
 
@@ -59,17 +62,30 @@ fifthProfiles = [hitProfiles(optoHitClusters==5,1:end); -missProfiles(optoMissCl
 %seventhProfiles = [hitProfiles(optoHitClusters==7,1:end); -missProfiles(optoMissClusters==7,1:end)];
 
 figure;
-hold on
-%plot(mean(firstProfiles),'r')
-%plot(mean(secondProfiles),'y')
-%plot(mean(thirdProfiles),'g')
-%plot(mean(fourthProfiles),'b')
+%hold on
+plot(mean(firstProfiles),'r')
+ylim([-0.05 0.05])
+title('First Cluster')
+figure;
+plot(mean(secondProfiles),'y')
+ylim([-0.05 0.05])
+title('Second Cluster')
+figure;
+plot(mean(thirdProfiles),'g')
+ylim([-0.05 0.05])
+title('Third Cluster')
+figure;
+plot(mean(fourthProfiles),'b')
+ylim([-0.05 0.05])
+title('Fourth Cluster')
+figure;
 plot(mean(fifthProfiles),'m')
+ylim([-0.05 0.05])
+title('Fifth Cluster')
 %plot(mean(sixthProfiles))
 %plot(mean(seventhProfiles))
 %legend('First Cluster')
-ylim([-0.05 0.05])
-title('fifth Cluster')
+
 
 %% Parameters
 
@@ -77,25 +93,48 @@ title('fifth Cluster')
 getKmeanBarPlots(Clusters,masterDBDataTable)
 
 %scatter plots
-getKmeanScatterPlots(Clusters)
+getKmeanScatterPlots(masterClusters)
 
 %% Extra Analysis
-
-clusterValues = struct();
-clusterValues(1).values = 'meanRT';
-clusterValues(2).values = 'min RT';
-clusterValues(3).values = 'max RT';
-
-for i = 1:max(masterClusters)
-clusterValues(1).(strcat('cluster',string(i))) = mean(masterDBDataTable.rollingallRTs(masterClusters==i));
-clusterValues(2).(strcat('cluster',string(i))) = min(masterDBDataTable.rollingallRTs(masterClusters==i));
-clusterValues(3).(strcat('cluster',string(i))) = max(masterDBDataTable.rollingallRTs(masterClusters==i));
+for nVar = 5:10
+    figure;
+    boxplot(masterDBDataTable.(nVar),masterClusters)
+    ylabel(masterDBDataTable.Properties.VariableNames(nVar))
+    xlabel('Cluster')
 end
 
+%% Add prestim time to DBDataTable
+load masterTable_allLuminanceCleaned.mat
+tempMat = [];
+for nSession = 1:size(T,1)
+    tempMat = [tempMat; T.preStimMS{nSession}'];
+end
+masterDBDataTable.preStimTime = tempMat;
 
-A = [2 3 4 5 6 7 8 9];
-range(A);
+%save("masterDBDataTable_hitsRTs.mat","masterDBDataTable")
 
+%% Cluster Trial Count
+clusterCount = [];
+for nCluster = 1:max(masterClusters)
+clusterCount(nCluster) = numel(masterClusters(masterClusters==nCluster));
+end
+
+bar(clusterCount)
+xlabel('Cluster')
+ylabel('Trial Count')
+
+
+%% Summing Power
+optoPower = [T.(56){1:end}];
+powerSum = [];
+for nCluster = 1:max(masterClusters)
+powerSum(nCluster) = sum(optoPower(masterClusters==nCluster))/numel(optoPower(masterClusters==nCluster));
+end
+
+figure;
+bar(powerSum)
+xlabel('Cluster')
+ylabel('Power per Trial')
 
 
 

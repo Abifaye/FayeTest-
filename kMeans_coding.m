@@ -9,13 +9,14 @@ load(uigetfile('','Select normData file to use'))
 normData = table2array(normData); %turn normData into array because kMeans can't have tables
 
 %get animal labels
+%init vars
 animalLabels = [];
-animalLabels = masterDBDataTable.animal(1);
-currentAnimal = masterDBDataTable.animal(1);
-for nTrial = 1:size(masterDBDataTable,1)
-    if strcmp(currentAnimal,masterDBDataTable.animal(nTrial))==0
-        animalLabels = [animalLabels masterDBDataTable.animal(nTrial)];
-        currentAnimal = masterDBDataTable.animal(nTrial);
+animalLabels = masterDBDataTable.animal(1); %get animal number of first animal from master table and put into matrix
+currentAnimal = masterDBDataTable.animal(1);%initializes first animal as the current animal for comparing animal labels
+for nSession = 1:size(masterDBDataTable,1) %loop through each trial
+    if strcmp(currentAnimal,masterDBDataTable.animal(nSession))==0 %compare the animal label for the trial and the label for the current animal. If they are different
+        animalLabels = [animalLabels masterDBDataTable.animal(nSession)]; %add the new animal label to animalLabels
+        currentAnimal = masterDBDataTable.animal(nSession); %set the animal label for the current trial as the new current animal to compare against
     end
 end
 
@@ -61,17 +62,30 @@ fifthProfiles = [hitProfiles(optoHitClusters==5,1:end); -missProfiles(optoMissCl
 %seventhProfiles = [hitProfiles(optoHitClusters==7,1:end); -missProfiles(optoMissClusters==7,1:end)];
 
 figure;
-hold on
+%hold on
 plot(mean(firstProfiles),'r')
-%plot(mean(secondProfiles),'y')
-%plot(mean(thirdProfiles),'g')
-%plot(mean(fourthProfiles),'b')
-%plot(mean(fifthProfiles),'m')
+ylim([-0.05 0.05])
+title('First Cluster')
+figure;
+plot(mean(secondProfiles),'y')
+ylim([-0.05 0.05])
+title('Second Cluster')
+figure;
+plot(mean(thirdProfiles),'g')
+ylim([-0.05 0.05])
+title('Third Cluster')
+figure;
+plot(mean(fourthProfiles),'b')
+ylim([-0.05 0.05])
+title('Fourth Cluster')
+figure;
+plot(mean(fifthProfiles),'m')
+ylim([-0.05 0.05])
+title('Fifth Cluster')
 %plot(mean(sixthProfiles))
 %plot(mean(seventhProfiles))
 %legend('First Cluster')
-ylim([-0.05 0.05])
-title('first Cluster')
+
 
 %% Parameters
 
@@ -82,17 +96,56 @@ getKmeanBarPlots(Clusters,masterDBDataTable)
 getKmeanScatterPlots(masterClusters)
 
 %% Extra Analysis
-
-clusterValues = struct();
-clusterValues(1).values = 'meanRT';
-clusterValues(2).values = 'min RT';
-clusterValues(3).values = 'max RT';
-
-for nCluster = 1:max(masterClusters)
-clusterValues(1).(strcat('cluster',string(nCluster))) = mean(masterDBDataTable.rollingallRTs(masterClusters==nCluster));
-clusterValues(2).(strcat('cluster',string(nCluster))) = min(masterDBDataTable.rollingallRTs(masterClusters==nCluster));
-clusterValues(3).(strcat('cluster',string(nCluster))) = max(masterDBDataTable.rollingallRTs(masterClusters==nCluster));
+for nVar = 5:10
+    figure;
+    boxplot(masterDBDataTable.(nVar),masterClusters)
+    ylabel(masterDBDataTable.Properties.VariableNames(nVar))
+    xlabel('Cluster')
 end
+
+%% Add prestim time to DBDataTable
+load masterTable_allLuminanceCleaned.mat
+tempMat = [];
+for nSession = 1:size(T,1)
+    tempMat = [tempMat; T.preStimMS{nSession}'];
+end
+masterDBDataTable.preStimTime = tempMat;
+
+%save("masterDBDataTable_hitsRTs.mat","masterDBDataTable")
+
+%% Cluster Trial Count
+clusterCount = [];
+for nCluster = 1:max(masterClusters)
+clusterCount(nCluster) = numel(masterClusters(masterClusters==nCluster));
+end
+
+bar(clusterCount)
+xlabel('Cluster')
+ylabel('Trial Count')
+
+
+%% Summing Power
+optoPower = [T.(56){1:end}];
+powerSum = [];
+for nCluster = 1:max(masterClusters)
+powerSum(nCluster) = sum(optoPower(masterClusters==nCluster))/numel(optoPower(masterClusters==nCluster));
+end
+
+figure;
+bar(powerSum)
+xlabel('Cluster')
+ylabel('Power per Trial')
+
+profileSum(1) = mean(sum(firstProfiles,2))/length(firstProfiles);
+profileSum(2) = mean(sum(secondProfiles,2))/length(secondProfiles);
+profileSum(3) = mean(sum(thirdProfiles,2))/length(thirdProfiles);
+profileSum(4) = mean(sum(fourthProfiles,2))/length(fourthProfiles);
+profileSum(5) = mean(sum(fifthProfiles,2))/length(fifthProfiles);
+
+figure;
+bar(profileSum)
+xlabel('Cluster')
+ylabel('Sum of Power/trial')
 
 
 
