@@ -11,13 +11,7 @@ tic;
 append_struct = input(strcat('Append or Create New DBStruct? [Append=1/Create=2]:',32)); %32 codes for space
 
 %Set up the Struct to put in the data
-if append_struct == 1
-    %choose which struct to append to
-    structFile = load(uigetfile('*.mat','Select Struct to Append to')); %loads struct, but nested within 1x1 struct
-    extractedFile = structFile.(string(fieldnames(structFile))); %reassigns structFile as extracted struct
-    counter = length(fieldnames(extractedFile)); %tells where new set of data will go in the struct
-
-elseif  append_struct == 2
+if append_struct == 2
     %initialize the contents of the struct under DBStructData
     DBStructData = struct([]);
     DBStructData(1).labels = 'Data Cluster Labels';
@@ -30,6 +24,12 @@ elseif  append_struct == 2
     DBStructData(8).labels = 'Cluster Data % of Highest Cluster';
     DBStructData(9).labels = 'All Data % of Highest Cluster';
     counter = 1;
+elseif append_struct == 1
+    %choose which struct to append to
+    structFile = load(uigetfile('*.mat','Select Struct to Append to')); %loads struct, but nested within 1x1 struct
+    extractedFile = structFile.(string(fieldnames(structFile))); %reassigns structFile as extracted struct
+    counter = length(fieldnames(extractedFile)); %tells where new set of data will go in the struct
+    DBStructData = struct();
 
 end
 
@@ -65,7 +65,7 @@ for eps = 1:length(epsRange)
         for nCluster = 1:DBStructData(4).(strcat('data',num2str(counter)))
             clusterMat(nCluster) = sum(DBStructData(1).(strcat('data',num2str(counter))) == nCluster);
         end
-       
+
         DBStructData(6).(strcat('data',num2str(counter))) =  clusterMat;
 
         %assign appropriate values for each labels
@@ -80,27 +80,17 @@ for eps = 1:length(epsRange)
     end
 end
 
-%% Save structs
-%choose whether to save data or not
-save_struct = input(strcat('Save struct? [Yes=1/No=0]',32));
-if save_struct==1
-    if append_struct == 1 %append to struct
-        save(fieldnames(structFile)+".mat","DBStructData","-append")
-        %names = [fieldnames(extractedFile); fieldnames(DBStructData)]; %obtain fieldnames of dbscan data and previously made struct
-        %DBStruct = cell2struct([struct2cell(extractedFile); struct2cell(DBStructData)], names, 1); %concatenate dbscan data and struct
-    elseif append_struct == 2 %save new struct
-        clearvars -except DBStructData
-        %Name the New Struct
-        structName = input(strcat('Choose a name for the new struct:',32)); %must have the name under quotations ('') to register as string.
-        % Do NOT include .mat portion
-        assignin("base",structName(1:end),DBStructData); %change the name of DBStructData to match new struct
-        clearvars DBStructData structName %clear everything except the new struct
-        saveVariablesInFunction(uiputfile()) %save the new struct
+if append_struct == 1
+    fields = fieldnames(DBStructData);
+    for nField = 1:length(fields)
+        for nElement = 1:length(DBStructData)
+    extractedFile(nElement).(fields{nField}) = [DBStructData(nElement).(fields{nField})];
+        end
     end
+    DBStructData = extractedFile;
 end
-saveVariablesInFunction()
+
 toc;
-C = [1 2 3 4];
-character(C)
+
 end
 

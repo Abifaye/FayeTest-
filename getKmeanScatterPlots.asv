@@ -1,6 +1,4 @@
 function getKmeanScatterPlots(masterClusters)
-%summary: inputs to masterclusters to create a 2D scatter plot of variables
-%from the master table sorted by the cluster numbers
 
 %load master table
 load masterDBDataTable_hitsRTs.mat
@@ -20,16 +18,14 @@ ylabel(masterDBDataTable.Properties.VariableNames{yVar})
 %% Make more plots
 addPlot = input(strcat('Create another plot for current data? [Y=1/N=0]:',32));
 
-while addPlot == 1 % whenever prompt respons is yes, repeat  everything starting from addplot prompt
+while addPlot == 1 % whenever prompt respons is yes, repeat  everything
     xVar = listdlg('PromptString',{'Select x-var'},'ListString',masterDBDataTable.Properties.VariableNames,'SelectionMode','single');
     yVar = listdlg('PromptString',{'Select y-var'},'ListString',masterDBDataTable.Properties.VariableNames,'SelectionMode','single');
-    
     figure;
     gscatter(masterDBDataTable.(xVar),masterDBDataTable.(yVar),masterClusters,clr,'.',2)
     title('Kmean Scatter Plot')
     xlabel(masterDBDataTable.Properties.VariableNames{xVar})
     ylabel(masterDBDataTable.Properties.VariableNames{yVar})
-
     addPlot = input(strcat('Create another plot for current data? [Y=1/N=0]:',32));
 end
 

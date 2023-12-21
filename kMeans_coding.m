@@ -1,4 +1,5 @@
 %% Kmeans_coding
+%code for analyzing data using Kmeans method
 
 %% Kmeans
 %load master data files
@@ -53,6 +54,7 @@ missProfiles = cell2mat(T.missProfiles);
 optoHitClusters = masterClusters(strcmp(masterDBDataTable.trialEnd,"hit") & masterDBDataTable.optoPower~=0);
 optoMissClusters = masterClusters(strcmp(masterDBDataTable.trialEnd,"miss") & masterDBDataTable.optoPower~=0);
 
+%separate the profiles by each cluster
 firstProfiles = [hitProfiles(optoHitClusters==1,1:end); -missProfiles(optoMissClusters==1,1:end)];
 secondProfiles = [hitProfiles(optoHitClusters==2,1:end); -missProfiles(optoMissClusters==2,1:end)];
 thirdProfiles = [hitProfiles(optoHitClusters==3,1:end); -missProfiles(optoMissClusters==3,1:end)];
@@ -116,7 +118,7 @@ masterDBDataTable.preStimTime = tempMat;
 %% Cluster Trial Count
 clusterCount = [];
 for nCluster = 1:max(masterClusters)
-clusterCount(nCluster) = numel(masterClusters(masterClusters==nCluster));
+    clusterCount(nCluster) = numel(masterClusters(masterClusters==nCluster));
 end
 
 bar(clusterCount)
@@ -125,27 +127,35 @@ ylabel('Trial Count')
 
 
 %% Summing Power
-optoPower = [T.(56){1:end}];
-powerSum = [];
-for nCluster = 1:max(masterClusters)
-powerSum(nCluster) = sum(optoPower(masterClusters==nCluster))/numel(optoPower(masterClusters==nCluster));
+
+profilePower = [];
+%get the power per trial for each cluster
+profilePower(1) = mean(sum(firstProfiles,2))/length(firstProfiles); %sum the power in each trial within the cluster (taken from firstProfiles matrix),
+% then get the average power of all trials within the cluster, then divide it by
+% the total number of trials within the cluster
+profilePower(2) = mean(sum(secondProfiles,2))/length(secondProfiles);
+profilePower(3) = mean(sum(thirdProfiles,2))/length(thirdProfiles);
+profilePower(4) = mean(sum(fourthProfiles,2))/length(fourthProfiles);
+profilePower(5) = mean(sum(fifthProfiles,2))/length(fifthProfiles);
+
+%find SEM for each profile
+semData = [];
+semData(1) = (std(sum(firstProfiles,2))/length(firstProfiles))/sqrt(length(firstProfiles));
+semData(2) = (std(sum(secondProfiles,2))/length(secondProfiles))/sqrt(length(secondProfiles));
+semData(3) = (std(sum(thirdProfiles,2))/length(thirdProfiles))/sqrt(length(thirdProfiles));
+semData(4) = (std(sum(fourthProfiles,2))/length(fourthProfiles))/sqrt(length(fourthProfiles));
+semData(5) = (std(sum(fifthProfiles,2))/length(fifthProfiles))/sqrt(length(fifthProfiles));
+
+figure;
+hold on
+  bar(profilePower)
+for i = 1:length(semData)
+    plot([i i], [profilePower(i)+semData(i) profilePower(i)-semData(i)], 'k');
+    scatter([i i],[profilePower(i)+semData(i) profilePower(i)-semData(i)], "_",'k');
 end
-
-figure;
-bar(powerSum)
 xlabel('Cluster')
-ylabel('Power per Trial')
-
-profileSum(1) = mean(sum(firstProfiles,2))/length(firstProfiles);
-profileSum(2) = mean(sum(secondProfiles,2))/length(secondProfiles);
-profileSum(3) = mean(sum(thirdProfiles,2))/length(thirdProfiles);
-profileSum(4) = mean(sum(fourthProfiles,2))/length(fourthProfiles);
-profileSum(5) = mean(sum(fifthProfiles,2))/length(fifthProfiles);
-
-figure;
-bar(profileSum)
-xlabel('Cluster')
-ylabel('Sum of Power/trial')
+ylabel('Sum of Power per Trial (MW)')
+title('Sum of Power per Trial for Each Cluster with SEM')
 
 
 
