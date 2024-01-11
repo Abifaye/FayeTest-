@@ -30,14 +30,14 @@ end
 %Kmeans analysis
 grouping = input('Run kMean analysis by animals? [1=Yes/0=No]: '); %runs Kmeans by each animal
 if grouping==0 %Run Kmeans, all Data Combined
-    masterClusters = kmeans(normData,5); %runs kmeans
+    masterClusters = kmeans(normData,12); %runs kmeans
 elseif grouping==1 %Run Kmeans, by animals
     animalDataSet = str2double([masterDBDataTable.animal normData]); %combine animal number and data in one matrix
     Clusters = []; %for each animals
     masterClusters = []; %combines all animals
 
     for nAnimal = 1:length(animalLabels) %reiterate through each animals
-        Clusters = kmeans(animalDataSet(animalDataSet(:,1)==str2double(animalLabels(nAnimal)),2:6),5); %get cluster labels for each animal
+        Clusters = kmeans(animalDataSet(animalDataSet(:,1)==str2double(animalLabels(nAnimal)),2:6),12); %get cluster labels for each animal
         %distance calculation for each cluster
         %put data for each animal in master matrix]
         masterClusters = [masterClusters; Clusters];

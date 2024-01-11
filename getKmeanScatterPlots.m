@@ -35,10 +35,10 @@ end
 
 %% Extra Plot for sorting by all 12 animals
 %figure;
-%gscatter(masterDBDataTable.(xVar),masterDBDataTable.(yVar),masterDBDataTable.animal,clr,'.',2)%check if using xVar and yVar works
-%title('Kmean Scatter Plot: Animal ID Sorted')
-%xlabel(masterDBDataTable.Properties.VariableNames{xVar})
-%ylabel(masterDBDataTable.Properties.VariableNames{yVar})
+gscatter(masterDBDataTable.(xVar),masterDBDataTable.(yVar),masterDBDataTable.animal,clr,'.',2)%check if using xVar and yVar works
+title('Kmean Scatter Plot: Animal ID Sorted')
+xlabel(masterDBDataTable.Properties.VariableNames{xVar})
+ylabel(masterDBDataTable.Properties.VariableNames{yVar})
 
 %Sorted By outcomes
 %A = strcmp(masterDBDataTable.trialEnd,"hit");
