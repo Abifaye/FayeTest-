@@ -67,8 +67,8 @@ plot(mean(allProfileLabels.profiles))
 plot(mean(secondCluster))
 plot(mean(outliers))
 plot(mean(thirdCluster))
-legend('First Cluster', 'All Profiles', 'Second Cluster', 'outliers', 'Third Cluster')
-title('Miss and hits non-separated Euclidean DBSCAN 0.24 Eps 50 minpts')
+legend('First Cluster', 'All Profiles', 'Second Cluster', 'outliers', 'thirdCluster')
+title('Euclidean Eps 0.3 Minpts 50')
    
 %% Other Stuff
 

@@ -54,8 +54,8 @@ for nVar = 1:length(selection)
             %loop through each session
             for nSession = 1:size(T,1)
                 %calculate rolling sum of numerator and denomenator
-                rollNum = movsum(num{nSession},30);
-                rollDenom = movsum(denom{nSession},30);
+                rollNum = movsum(num{nSession},k);
+                rollDenom = movsum(denom{nSession},k);
                 %calculate rolling rate and input into tempMat
                 tempMat(counter+1:counter+length(num{nSession}),1) =...
                     (rollNum./rollDenom).*100; %sum num/(sum denom) * 100
@@ -68,8 +68,8 @@ for nVar = 1:length(selection)
             masterRollRates.(strcat('rolling',T.Properties.VariableNames{selection(nVar)},'rate')) = tempMat;
         elseif trialsOrSessions==1
             for nSession = 1:size(T,1)
-                rollNum = movsum(num{nSession},30);
-                rollDenom = movsum(denom{nSession},30);
+                rollNum = movsum(num{nSession},k);
+                rollDenom = movsum(denom{nSession},k);
                 masterRollRates.(strcat('rolling',T.Properties.VariableNames{selection(nVar)})){nSession} = (rollNum./rollDenom).*100;
             end
         end
@@ -83,7 +83,7 @@ for nVar = 1:length(selection)
             tempMat = [];
 
             for nSession = 1:size(T,1)
-                rollNum = movsum(num{nSession},30);
+                rollNum = movsum(num{nSession},k);
                 %use k for denom as all trials are included
                 tempMat(counter+1:counter+length(num{nSession}),1) = (rollNum./k).*100;
                 counter = counter + length(num{nSession});
@@ -92,7 +92,7 @@ for nVar = 1:length(selection)
 
         elseif trialsOrSessions==1
             for nSession = 1:size(T,1)
-                rollNum = movsum(num{nSession},30);
+                rollNum = movsum(num{nSession},k);
                 %use k for denom as all trials are included
                 masterRollRates.(strcat('rolling',T.Properties.VariableNames{selection(nVar)})){nSession} = (rollNum./k).*100;
             end

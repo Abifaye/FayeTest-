@@ -19,11 +19,11 @@ masterDBDataTable = horzcat(labelTable,masterRollAve,masterRollRates);
 %all combined trial ends
 allTrialEnds = [labelTable.trialEnd];
 
-%miss only
+%dataset - miss only
 Idx_miss = find(strcmp(allTrialEnds,"miss"));
 missDataTable = masterDBDataTable(Idx_miss,masterDBDataTable.Properties.VariableNames([1:5 8:9]));
 
-%hits only
+%dataset - hits only
 Idx_hit = find(strcmp(allTrialEnds,"hit"));
 hitDataTable = masterDBDataTable(Idx_hit,masterDBDataTable.Properties.VariableNames([1:7 9]));
 
@@ -33,8 +33,8 @@ hitDataTable = masterDBDataTable(Idx_hit,masterDBDataTable.Properties.VariableNa
 
 %Normalize Data 
 normData = normalize(masterDBDataTable{:,5:9},1); %used z-score
-normData_hit = normalize(hitDataTable{:,5:8},1);
-normData_miss = normalize(missDataTable{:,5:7},1);
+normData_hit = normalize(hitDataTable{:,5:8},1); %hits only data
+normData_miss = normalize(missDataTable{:,5:7},1); %miss only data
 
 %normData Saver
 %save('normData_hitRTs.mat',"normData")
