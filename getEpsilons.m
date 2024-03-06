@@ -1,16 +1,20 @@
 function [epsilon_range] = getEpsilons
 %UNTITLED2 Summary of this function goes here
+
 %% kdist
-%
+%choose the k (number of most nearest neighbours in order)
 choosek = input(strcat('Choose k:',32)); %32 is code for space
-normalizedData = cell2mat(struct2cell(load(uigetfile('','Select Normalized Data File'))));
+normalizedData = cell2mat(struct2cell(load(uigetfile('','Select Normalized Data File')))); %init var for the data
 
 %distance of k-nearest neighbours k = 50
 
+%find distance of "k" nearest neighbours in order starting from nearest
 kdist = pdist2(normalizedData,normalizedData,'euc','Smallest', choosek+1); %offset by 1 because first dist = 0 (dist against itself)
+
 %Remove first row which only calculates distance against self (dist = 0)
 kdistminus1st = kdist(2:end,:)';
-%all kdist data sorted into column vector
+
+%all kdist data sorted into a column vector
 Vdist = sort(kdistminus1st(:));
 %% LINE 1 and 2
 %x-coordinate of start of knee
@@ -21,9 +25,13 @@ p2(1) = length(Vdist);
 p1(2) = Vdist(p1(1));
 %y-coordinate of end of knee
 p2(2) = Vdist(p2(1));
-asdasd
+
 %line going through p1(1) and p2(1) 
-A1 = (p2(2)-p1(asdasdadsasdasde of distances
+A1 = (p2(2)-p1(2))/(p2(1)-p1(1));
+B1 = p1(2)-(A1*p1(1));
+LINE = @(x) (A1*x)+B1;
+
+%Line corresponding to abrupt increase of distances
 A2 = -A1;
 B2 = A1*(p1(1)+p2(1))+B1;
 LINE2 = @(x) (A2*x)+B2;

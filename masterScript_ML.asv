@@ -1,0 +1,84 @@
+%% Machine Learning Master Script
+
+%Go to folder with the master table
+load(uigetfile('','Select Data table file to use'))
+
+%% Initialize variables (FIND THE CODE THAT GENERATED THE OPTOPOWER OR RECREATE IT)
+%get all functions that provides data
+masterRollAve = getrollingAverage; %select rewards and allRTs
+masterRollRates = getrollingrates; %select fa, miss, and hit
+labelTable = getLabelTable; %generates mouse, date, and trial outcome labels for each trial
+
+%% Testing for Patterns in Individual Variables 
+%generate temporary master table with rolling 
+%select variables dialogue for selecting variables to look at from master table
+selection = listdlg('PromptString',{'Select variable(s) to compute','rolling rate'},'ListString', ...
+    masterDBDataTable.Properties.VariableNames,'SelectionMode','multiple');
+%loop through each variable of interest in the table
+for nVar = 1:length(selection)
+    var = masterDBDataTable.(masterDBDataTable.Properties.VariableNames{selection(nVar)});
+
+    %random num picker every 100th session the animal does
+    total_range = length(var);% Define the total range
+    step_size = 100; % Define the step size
+    numIterations = 5;%define how many numbers you want to iterate
+    randNums = [];%init var for random numbres
+    % Generate 5 random numbers within each 100th range
+    for nIteration = 1:5
+        % Calculate the start and end of each range
+        start_range = (nIteration - 1) * step_size + 1;
+        end_range = nIteration * step_size;
+        %if the end range goes beyond the total nunber of sessions default
+        %it as the last session
+        if end_range>=400
+            end_range = length(var);
+        end
+        % Generate a random number within the current range
+        randNums(nIteration) = randi([start_range end_range], 1, 1);
+    end
+
+    %loop through sessions indicated by the random picker
+    for nSession = 1:length(randNums)
+        %convert session cell to matrix to see all trials
+        session_matrix = cell2mat(var(randNums(nSession)));
+    end
+end
+%plot
+        figure;
+        scatter(1:length(session_matrix),session_matrix,'.')
+        title(strcat(masterDBDataTable.Properties.VariableNames{selection(nVar)},' session',append(' ',string(randNums(nSession)))))
+
+        %concatinate table 
+masterDBDataTable = table();
+masterDBDataTable = horzcat(labelTable,masterRollAve,masterRollRates);
+%save('[insertfilename].mat',"masterDBDataTable")
+
+%% Separate hits and miss trials
+
+%all combined trial ends
+allTrialEnds = [labelTable.trialEnd];
+
+%dataset - miss only
+Idx_miss = find(strcmp(allTrialEnds,"miss"));
+missDataTable = masterDBDataTable(Idx_miss,masterDBDataTable.Properties.VariableNames([1:5 8:9]));
+
+%dataset - hits only
+Idx_hit = find(strcmp(allTrialEnds,"hit"));
+hitDataTable = masterDBDataTable(Idx_hit,masterDBDataTable.Properties.VariableNames([1:7 9]));
+
+%Data table saver
+%save('hitDataTable.mat',"hitDataTable")
+%save('missDataTable.mat',"missDataTable")
+
+%Normalize Data 
+normData = normalize(masterDBDataTable{:,5:9},1); %used z-score
+normData_hit = normalize(hitDataTable{:,5:8},1); %hits only data
+normData_miss = normalize(missDataTable{:,5:7},1); %miss only data
+
+%normData Saver
+%save('normData_hitRTs.mat',"normData")
+%save('[insertfilename].mat',"normData_hit")
+%save('[insertfilename].mat',"normData_miss")
+
+
+

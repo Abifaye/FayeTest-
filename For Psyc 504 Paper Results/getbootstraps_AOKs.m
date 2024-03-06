@@ -1,10 +1,10 @@
-function [outputArg1,outputArg2] = getbootstraps_AOKs
+function getbootstraps_AOKs
 %% Summary
 %inserts function for metric of interest to grab its bootstrap and AOK and
 %plots them
 
 %% Define Variable
-[leftProfiles, rightProfiles] = getdelta_d_profiles_abov_bel_mean; %replace with function that grabs profiles for metrics of interest
+[leftProfiles, rightProfiles] = getAveC_profiles; %replace with function that grabs profiles for metrics of interest
 
 %% Bootstrap
 
@@ -59,7 +59,7 @@ rightAOK = sum(bootright_AOK,2);
 %create tiled layout for all plots
 figure;
 t= tiledlayout(2,2);
-title(t,'Delta dprime Kernels and AOK') %replace title with correct metric of interest
+title(t,'Average Criterion Kernels and AOK') %replace title with correct metric of interest
 
 %Bootstrap w/ SEM
 

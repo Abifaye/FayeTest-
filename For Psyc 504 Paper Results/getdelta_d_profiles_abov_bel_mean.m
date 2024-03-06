@@ -20,13 +20,12 @@ sigma = 0.2824;
 deltaD_zScore = (delta_d - mu) / sigma;
 
 %% Variables Initiation
-%Indices asf
+%Indices
 leftIdx = deltaD_zScore < 0;
 rightIdx = deltaD_zScore > 0;
-asfasfasf
 %Init matrices for profiles below (leftprofiles) and above (rightprofiles)
 %meanadfasfasf
-leftProfiles = [];afsasfasf
+leftProfiles = [];
 rightProfiles = [];
 
 %% loop through all sessions
