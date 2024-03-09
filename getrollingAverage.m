@@ -4,7 +4,7 @@ function [masterRollAve] = getrollingAverage
 %variable
 
 %load master table
-load('masterTable_allLuminanceCleaned.mat');
+load(uigetfile('Choose Master Table Containing Raw Data')); 
 
 %select variables dialogue for selecting variables from master table to
 %compute rolling average (i.e. rewards, allrts)

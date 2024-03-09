@@ -1,7 +1,7 @@
 %% Machine Learning Master Script
 
 %Go to folder with the master table
-load(uigetfile('','Select Data table file to use'))
+%load(uigetfile('','Select Data table file to use'))
 %% Testing for Patterns in Individual Variables
 %add the function for this
 %% Initialize variables (FIND THE CODE THAT GENERATED THE OPTOPOWER OR RECREATE IT)
@@ -38,7 +38,7 @@ normData_hit = normalize(hitDataTable{:,5:8},1); %hits only data
 normData_miss = normalize(missDataTable{:,5:7},1); %miss only data
 
 %normData Saver
-%save('normData_hitRTs.mat',"normData")
+%save('[insertfilename].mat',"normData")
 %save('[insertfilename].mat',"normData_hit")
 %save('[insertfilename].mat',"normData_miss")
 

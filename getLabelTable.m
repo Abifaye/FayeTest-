@@ -3,8 +3,8 @@ function [labelTable] = getLabelTable
 %luminance trials and sessions
 
 %% Create Labels for Data
-%load table containing all luminance trials
-load masterTable_allLuminanceCleaned.mat
+%load master table
+load(uigetfile('Choose Master Table Containing Raw Data')); 
 
 %% Init vars
 labelTable= table();
