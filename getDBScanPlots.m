@@ -53,6 +53,8 @@ end
 %% kernels of clusters
 gen_kernels = input('Generate kernels for each cluster? [Yes=1/0=No]: '); %decide whether to generate kernel graphs for clusters
 if gen_kernels==1
+    DBdata = input(strcat('Choose Data Number from DBStruct to create plot for:',32))+1;
+    Fields = fieldnames(DBStruct_data);
     %Create 2 matrices containing all hits and all miss profiles
     hitProfiles = cell2mat(T.hitProfiles);
     missProfiles = cell2mat(T.missProfiles);
@@ -83,46 +85,43 @@ profiles_struct = struct('firstProfiles',firstProfiles,'secondProfiles',secondPr
 profile_names = fieldnames(profiles_struct);
 clr = 'rkgbm';
 %Actual Graphs
-one_or_all = input('Generate graphs for each profile separately or together [together=0/separately=1]: ');
-if one_or_all==1
-    % Plot each profile w/ SEM
-    for nProfiles = 1:length(profile_names)
-        boot = bootstrp(1000,@mean,profiles_struct.(string(profile_names(nProfiles))));
-        PCs = prctile(boot, [15.9, 50, 84.1]);              % +/- 1 SEM
-        PCMeans = mean(PCs, 2);
-        CIs = zeros(3, size(profiles_struct.(string(profile_names(nProfiles))), 2));
+% Plot each profile w/ SEM
+for nProfiles = 1:length(profile_names)
+    boot = bootstrp(1000,@mean,profiles_struct.(string(profile_names(nProfiles))));
+    PCs = prctile(boot, [15.9, 50, 84.1]);              % +/- 1 SEM
+    PCMeans = mean(PCs, 2);
+    CIs = zeros(3, size(profiles_struct.(string(profile_names(nProfiles))), 2));
 
-        for c = 1:3
-            CIs(c,:) = filtfilt(filterLP, PCs(c,:) - PCMeans(c)) + PCMeans(c);
-        end
-
-        x = 1:size(CIs, 2);
-        x2 = [x, fliplr(x)];
-        bins = size(CIs,2);
-
-        %plots
-        figure;
-        hold on
-        plot(x, CIs(2, :), clr(nProfiles), 'LineWidth', 1.5); % This plots the mean of the bootstrap
-        fillCI = [CIs(1, :), fliplr(CIs(3, :))]; % This sets up the fill for the errors
-        fill(x2, fillCI, clr(nProfiles), 'lineStyle', '-', 'edgeColor', clr(nProfiles), 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % adds the fill
-        yline(0,'--k')
-        hold off
-        title(string(profile_names(nProfiles)))
-        set(gca,"FontSize",16)
-        ax = gca;
-        ax.XGrid = 'on';
-        ax.XMinorGrid = "on";
-        ax.XTick = [0:200:800];
-        ax.XTickLabel = {'-400', '', '0', '', '400'};
-        ax.TickDir = "out";
-        ay = gca;
-        ay.YLim = [-.22 0.22];
-        ay.YTick = [-.22:0.11:0.22];
-        ay.YTickLabel = {'-0.22','', '0','','0.22'};
-        xlabel('Time (ms)')
-        ylabel('Normalized Power')
+    for c = 1:3
+        CIs(c,:) = filtfilt(filterLP, PCs(c,:) - PCMeans(c)) + PCMeans(c);
     end
+
+    x = 1:size(CIs, 2);
+    x2 = [x, fliplr(x)];
+    bins = size(CIs,2);
+
+    %plots
+    figure;
+    hold on
+    plot(x, CIs(2, :), clr(nProfiles), 'LineWidth', 1.5); % This plots the mean of the bootstrap
+    fillCI = [CIs(1, :), fliplr(CIs(3, :))]; % This sets up the fill for the errors
+    fill(x2, fillCI, clr(nProfiles), 'lineStyle', '-', 'edgeColor', clr(nProfiles), 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % adds the fill
+    yline(0,'--k')
+    hold off
+    title(string(profile_names(nProfiles)))
+    set(gca,"FontSize",16)
+    ax = gca;
+    ax.XGrid = 'on';
+    ax.XMinorGrid = "on";
+    ax.XTick = [0:200:800];
+    ax.XTickLabel = {'-400', '', '0', '', '400'};
+    ax.TickDir = "out";
+    ay = gca;
+    ay.YLim = [-.22 0.22];
+    ay.YTick = [-.22:0.11:0.22];
+    ay.YTickLabel = {'-0.22','', '0','','0.22'};
+    xlabel('Time (ms)')
+    ylabel('Normalized Power')
 end
 
 %% Extra
