@@ -3,6 +3,7 @@ function getKmeanKernels_Boxplots
 load('masterTable_allLuminanceTrials.mat')
 load("normData_hitRTs.mat")
 load("masterDBDataTable_hitsRTs.mat")
+load('FiveClusterKmeansLabels.mat')
 %% Set up kernel profiles
     %Create 2 matrices containing all hits and all miss profiles
     hitProfiles = cell2mat(T.hitProfiles);
@@ -37,8 +38,8 @@ clr = 'rkgbm'; %colours of each cluster
 
 %create tiled layout for all plots
 figure('Position',[1 1 750 1500]);
-t= tiledlayout(5,1);
-title(t,'Comparison of Kernels Across the Five Clusters',"FontSize",12)
+t= tiledlayout(3,2);
+title(t,'Comparison of Kernels Across the Five Clusters',"FontSize",15)
 % Compute each profile w/ SEM
 for nProfiles = 1:length(profile_names)
     boot = bootstrp(1000,@mean,profiles_struct.(string(profile_names(nProfiles))));
@@ -64,7 +65,7 @@ for nProfiles = 1:length(profile_names)
     hold off
     ylim([-0.06 0.05])
     title(string(profile_names(nProfiles)))
-    set(gca,"FontSize",12)
+    set(gca,"FontSize",15)
     ax = gca;
     ax.XGrid = 'on';
     ax.XMinorGrid = "on";
@@ -75,8 +76,15 @@ for nProfiles = 1:length(profile_names)
     ylabel('Normalized Power')
 end
 
-%Axes Label
-%xlabel([ax3],'Time(ms)','FontSize',30)
-%ylabel([ax2],'Normalized Power','FontSize',30)
-
+%% Boxplots
+figure('Position',[1 1 750 1500]);
+t= tiledlayout(2,3);
+title(t,'Comparison of Variables Boxplots Across the Five Clusters',"FontSize",14)
+for nVar = 5:9
+    nexttile;
+    boxplot(masterDBDataTable.(nVar),masterClusters,'Colors','rkgbm')
+    ylabel(masterDBDataTable.Properties.VariableNames(nVar))
+    xlabel('Cluster')
+    title(strcat(masterDBDataTable.Properties.VariableNames(nVar),' by Clusters'))
+    set(gca,"FontSize",14)
 end

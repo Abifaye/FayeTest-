@@ -66,22 +66,13 @@ if gen_figs==1
     if gen_scatterplots==1
         getKmeanScatterPlots(masterClusters)
     end
+end
 
     %% Box plots
     gen_boxplots = input('Generate boxplots of each variable with all clusters? [Yes=1/0=No]: '); %decide whether to generate boxplots to compare each cluster on all variables
     if gen_boxplots==1
-        for nVar = 5:10
-            figure;
-            boxplot(masterDBDataTable.(nVar),masterClusters,'Colors','rkgbm')
-            ylabel(masterDBDataTable.Properties.VariableNames(nVar))
-            xlabel('Cluster')
-            title(strcat(masterDBDataTable.Properties.VariableNames(nVar),' by Clusters'))
-            set(gca,"FontSize",16)
-        end
-
+%insert function here
     end
-
-end
 
 
 %% Add prestim time to DBDataTable
