@@ -1,6 +1,6 @@
 function [tSNE_hit,tSNE_miss] = getTSNE
 %% T_SNE Code
-%% SEPARATE THE T-SNE WITH THE GRAPH PORTION
+%% Label each Data Point Using Percentile of Specified Variable
 %load data files
 load normData_hit.mat
 load normData_miss.mat
@@ -60,17 +60,21 @@ elseif percentile == 2 %assign groups based on Tertile (first third, second thir
     Tnorm_miss.labels(thirdIdx_miss) = 3;
 end
   
-%t-SNE 
+%% t-SNE 
 
 %hits
-tSNE_hit = tsne(normData_hit,"Distance","cityblock");
+%tSNE_hit = tsne(normData_hit,"Distance","cityblock");
+tSNE_hit = tsne(normData_hit);
 
+%miss
+%tSNE_miss = tsne(normData_miss,"Distance","cityblock");
+tSNE_miss = tsne(normData_miss);
+
+%% Plots
 figure;
 gscatter(tSNE_hit(:,1),tSNE_hit(:,2),Tnorm_hit.labels)
 title(append('t-SNE Hits:',' ',Tnorm_hit.Properties.VariableNames(hitVar),' ',percChoice(percentile),' ','percentile'))
 
-%miss
-tSNE_miss = tsne(normData_miss,"Distance","cityblock");
 
 figure;
 gscatter(tSNE_miss(:,1),tSNE_miss(:,2),Tnorm_miss.labels)

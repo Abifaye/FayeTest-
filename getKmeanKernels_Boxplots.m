@@ -4,6 +4,7 @@ load('masterTable_allLuminanceTrials.mat')
 load("normData_hitRTs.mat")
 load("masterDBDataTable_hitsRTs.mat")
 load('FiveClusterKmeansLabels.mat')
+
 %% Set up kernel profiles
     %Create 2 matrices containing all hits and all miss profiles
     hitProfiles = cell2mat(T.hitProfiles);
@@ -40,6 +41,7 @@ clr = 'rkgbm'; %colours of each cluster
 figure('Position',[1 1 750 1500]);
 t= tiledlayout(3,2);
 title(t,'Comparison of Kernels Across the Five Clusters',"FontSize",15)
+tileOrder = [2 5 3 4 1]; %places the graphs in right place
 % Compute each profile w/ SEM
 for nProfiles = 1:length(profile_names)
     boot = bootstrp(1000,@mean,profiles_struct.(string(profile_names(nProfiles))));
@@ -56,7 +58,7 @@ for nProfiles = 1:length(profile_names)
     bins = size(CIs,2);
 
     %plots
-    nexttile;
+    nexttile(tileOrder(nProfiles));
     hold on
     plot(x, CIs(2, :), clr(nProfiles), 'LineWidth', 1.5); % This plots the mean of the bootstrap
     fillCI = [CIs(1, :), fliplr(CIs(3, :))]; % This sets up the fill for the errors
@@ -78,13 +80,18 @@ end
 
 %% Boxplots
 figure('Position',[1 1 750 1500]);
-t= tiledlayout(2,3);
+t= tiledlayout(3,3);
 title(t,'Comparison of Variables Boxplots Across the Five Clusters',"FontSize",14)
-for nVar = 5:9
-    nexttile;
-    boxplot(masterDBDataTable.(nVar),masterClusters,'Colors','rkgbm')
-    ylabel(masterDBDataTable.Properties.VariableNames(nVar))
+tileOrder = [1 2 4 5 7 8]; %places the graphs in right place
+Vars = 5:9; %vars in masterDBTable to reiterate through
+for nVar = 1:length(Vars)
+    nexttile(tileOrder(nVar));
+    boxplot(masterDBDataTable.(Vars(nVar)),masterClusters,'Colors','rkgbm','Symbol','.' )
+    ylabel(masterDBDataTable.Properties.VariableNames(Vars(nVar)))
     xlabel('Cluster')
-    title(strcat(masterDBDataTable.Properties.VariableNames(nVar),' by Clusters'))
+    title(strcat(masterDBDataTable.Properties.VariableNames(Vars(nVar)),' by Clusters'))
     set(gca,"FontSize",14)
+    b.JitterOutliers = 'on';
+b.MarkerStyle = '.';
 end
+
