@@ -80,8 +80,12 @@ filterLP = designfilt('lowpassfir', 'PassbandFrequency', 90 / sampleFreqHz, ...
     'StopbandFrequency', 2 * 90 / sampleFreqHz, 'PassbandRipple', 1, 'StopbandAttenuation', 60, ...
     'DesignMethod','equiripple');
 
+%create tiled layout for all plots
+figure('Position',[1 1 750 1500]);
+t= tiledlayout(2,2);
+title(t,'Comparison of Kernels Across the Five Clusters',"FontSize",15)
 % Bootstrap
-profiles_struct = struct('firstProfiles',firstProfiles,'secondProfiles',secondProfiles,'thirdProfiles',thirdProfiles,'outliers',outliers,'allProfiles',allProfiles);
+profiles_struct = struct('firstProfiles',firstProfiles,'secondProfiles',secondProfiles,'thirdProfiles',thirdProfiles,'outliers',outliers);
 profile_names = fieldnames(profiles_struct);
 clr = 'rkgbm';
 %Actual Graphs
@@ -101,7 +105,7 @@ for nProfiles = 1:length(profile_names)
     bins = size(CIs,2);
 
     %plots
-    figure;
+    nexttile;
     hold on
     plot(x, CIs(2, :), clr(nProfiles), 'LineWidth', 1.5); % This plots the mean of the bootstrap
     fillCI = [CIs(1, :), fliplr(CIs(3, :))]; % This sets up the fill for the errors
@@ -117,9 +121,9 @@ for nProfiles = 1:length(profile_names)
     ax.XTickLabel = {'-400', '', '0', '', '400'};
     ax.TickDir = "out";
     ay = gca;
-    ay.YLim = [-.22 0.22];
-    ay.YTick = [-.22:0.11:0.22];
-    ay.YTickLabel = {'-0.22','', '0','','0.22'};
+    ay.YLim = [-.23 0.23];
+    ay.YTick = [-.23:0.11:0.23];
+    ay.YTickLabel = {'-0.23','', '','','0.23'};
     xlabel('Time (ms)')
     ylabel('Normalized Power')
 end

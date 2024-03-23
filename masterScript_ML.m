@@ -44,3 +44,5 @@ normData_miss = normalize(missDataTable{:,5:7},1); %miss only data
 
 
 
+
+
