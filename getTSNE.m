@@ -45,7 +45,7 @@ if percentile == 1%assign groups based on half percentile (top half, bottom half
 
     %hits
     %tSNE_hit = tsne(normData_hit,"Distance","cityblock");
-    tSNE_hit = tsne(normData_hit);
+    tSNE_hit = tsne(normData_hit,Perplexity=50);
 
     %miss
     %tSNE_miss = tsne(normData_miss,"Distance","cityblock");
