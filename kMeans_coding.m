@@ -7,7 +7,7 @@ load masterTable_allLuminanceCleaned.mat
 load(uigetfile('','Select Data table file to use'))
 load(uigetfile('','Select normData file to use'))
 
-normData = table2array(normData); %turn normData into array because kMeans can't have tables
+%normData = table2array(normData); %turn normData into array because kMeans can't have tables
 
 %get animal labels
 %init vars
@@ -38,13 +38,13 @@ elseif grouping==1 %Run Kmeans, by animals
     masterClusters = []; %combines all animals
 
     for nAnimal = 1:length(animalLabels) %reiterate through each animals
-        Clusters = kmeans(animalDataSet(animalDataSet(:,1)==str2double(animalLabels(nAnimal)),2:6),k); %get cluster labels for each animal
+        Clusters = kmeans(animalDataSet(animalDataSet(:,1)==str2double(animalLabels(nAnimal)),2:5),k); %get cluster labels for each animal
         %distance calculation for each cluster
         %put data for each animal in master matrix]
         masterClusters = [masterClusters; Clusters];
     end
 end
-%save('[insertfilename].mat',"masterClusters")
+%save('masterClusters_noRTs.mat',"masterClusters")
 %% Figures 
 gen_figs= input('Generate Figures? [Yes=1/0=No]: '); %decide whether to generate any graphs
 if gen_figs==1
@@ -66,6 +66,7 @@ if gen_figs==1
     if gen_scatterplots==1
         getKmeanScatterPlots(masterClusters)
     end
+    
 end
 
     %% Box plots
@@ -130,7 +131,6 @@ if gen_extra==1
     title('Sum of Power per Trial for Each Cluster with SEM')
 
 end
-
 
 
 

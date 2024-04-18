@@ -83,7 +83,7 @@ elseif grouping==2
         kInertia = [];
 
         for nAnimal = 1:length(animalLabels) %reiterate through each animals
-            [Clusters,Centroids] = kmeans(animalDataSet(animalDataSet(:,1)==str2double(animalLabels(nAnimal)),2:6),compareClusters(nKMeans)); %get cluster labels and centroids for each animal
+            [Clusters,Centroids] = kmeans(animalDataSet(animalDataSet(:,1)==str2double(animalLabels(nAnimal)),2:5),compareClusters(nKMeans)); %get cluster labels and centroids for each animal
             %distance calculation for each cluster
             tempMat = [];%for allocating distances for each cluster
             animalIntertia = [];%for allocating total inertia for each animal
