@@ -3,8 +3,11 @@ function getbootstraps_AOKs
 %inserts function for metric of interest to grab its bootstrap and AOK and
 %plots them
 
+%Go to folder containing master table
+folderPath = uigetdir('', 'Go to folder containing master table');
+
 %% Define Variable
-[leftProfiles, rightProfiles] = getAveC_profiles; %replace with function that grabs profiles for metrics of interest
+[leftProfiles, rightProfiles] = getdelta_d_profiles_abov_bel_mean; %replace with function that grabs profiles for metric of interest
 
 %% Bootstrap
 
@@ -25,8 +28,8 @@ for c = 1:3
     leftCIs(c,:) = filtfilt(filterLP, leftPCs(c,:) - leftPCMeans(c)) + leftPCMeans(c);
 end
 leftx = 1:size(leftCIs, 2);
-x2 = [leftx, fliplr(leftx)];
-bins = size(leftCIs,2);
+leftx2 = [leftx, fliplr(leftx)];
+leftbins = size(leftCIs,2);
 
 %above mean w/ SEM
 bootright_AOK = bootstrp(1000,@mean,rightProfiles);
@@ -37,6 +40,8 @@ for c = 1:3
     rightCIs(c,:) = filtfilt(filterLP, rightPCs(c,:) - rightPCMeans(c)) + rightPCMeans(c);
 end
 rightx = 1:size(rightCIs, 2);
+rightx2 = [rightx, fliplr(rightx)];
+rightbins = size(rightCIs,2);
 
 %% Get AOK
 
@@ -59,20 +64,18 @@ rightAOK = sum(bootright_AOK,2);
 %create tiled layout for all plots
 figure;
 t= tiledlayout(2,2);
-title(t,'Average Criterion Kernels and AOK') %replace title with correct metric of interest
-
-%Bootstrap w/ SEM
+title(t,append(input('Name of metric of interest: ',"s"),' Kernels and AOK in ',input('Name of brain area and task type: ',"s")))
 
 %below mean
 ax1 = nexttile;
 hold on
 plot(leftCIs(2, :), 'b', 'LineWidth', 1.5); % This plots the mean of the bootstrap
 leftfillCI = [leftCIs(1, :), fliplr(leftCIs(3, :))]; % This sets up the fill for the errors
-fill(x2, leftfillCI, 'b', 'lineStyle', '-', 'edgeColor', 'b', 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % add fill
+fill(leftx2, leftfillCI, 'b', 'lineStyle', '-', 'edgeColor', 'b', 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % add fill
 yline(0,'--k')
 hold off
 ax = gca;
-xlim(ax, [0, bins]);
+xlim(ax, [0, leftbins]);
 ax.XGrid = 'on';
 ax.XMinorGrid = "on";
 ax.XTick = [0:200:800];
@@ -89,11 +92,11 @@ ax2 = nexttile (3);
 hold on
 plot(rightx, rightCIs(2, :), 'r', 'LineWidth', 1.5); % This plots the mean of the bootstrap
 rightfillCI = [rightCIs(1, :), fliplr(rightCIs(3, :))]; % This sets up the fill for the errors
-fill(x2, rightfillCI, 'r', 'lineStyle', '-', 'edgeColor', 'r', 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % add fill
+fill(rightx2, rightfillCI, 'r', 'lineStyle', '-', 'edgeColor', 'r', 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % add fill
 yline(0,'--k')
 hold off
 ax = gca;
-xlim(ax, [0, bins]);
+xlim(ax, [0, rightbins]);
 ax.XGrid = 'on';
 ax.XMinorGrid = "on";
 ax.XTick = [0:200:800];
@@ -108,8 +111,6 @@ title('Kernel of Above Mean Profiles','FontSize',8);
 %Axes Label
 xlabel([ax1 ax2],'Time Relative to Stimulus Onset (ms)','FontSize',8)
 ylabel([ax1 ax2],'Normalized Power','FontSize',8) 
-
-
 
 
 %AOK

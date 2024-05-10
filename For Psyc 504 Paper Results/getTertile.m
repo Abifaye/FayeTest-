@@ -1,4 +1,4 @@
-function [firstTertile,secondTertile,thirdTertile] = getTertile
+function [firstTertile,secondTertile,thirdTertile] = getTertile(T)
 %Splits RTs into tertile and takes the corresponding
 %hit profiles and plot it. It then bootsraps each tertile and grabs the AOK for each tertile and create a plot
 %of it
@@ -6,10 +6,10 @@ function [firstTertile,secondTertile,thirdTertile] = getTertile
 %% Initialize variables
 
 %Go to folder with the master table
-cd(uigetdir());
+cd(uigetdir('', 'Choose folder containing master table'));
 
-%load master table with hit profiles file 
-load('TablewithHitProfiles.mat');
+%load master table of interest
+load(uigetfile('','Choose master table of interest'));
 
 %init locations for profiles in each tertile
 firstTertile= [];
@@ -19,12 +19,12 @@ thirdTertile = [];
 %% Create loop for getting hit profiles and putting them in each Tertile matrix
 
 %loop through all sessions
-for nSession = 1:height(TablewithHitProfiles)
+for nSession = 1:height(T)
     
     %create variables for hit profiles and reaction times from the master
     %table
-    RTs = cell2mat(TablewithHitProfiles.stimCorrectRTs(nSession));
-    hitPros = cell2mat(struct2cell(TablewithHitProfiles.HitProfiles(nSession)));
+    RTs = cell2mat(T.stimCorrectRTs(nSession));
+    hitPros = cell2mat(T.hitProfiles(nSession)); 
    
     %creates range for each tertile
     firstIdx = (RTs >= min(prctile(RTs,[0 33.33])) & RTs <= max(prctile(RTs,[0 33.33])));
@@ -120,8 +120,8 @@ thirdAOK_two = sum(bootthird_AOK_two,2);
 
 %create tiled layout for all plots
 figure;
-t= tiledlayout(3,1);
-%title(t,'Reaction Time Kernels and AOK')
+t= tiledlayout(3,2);
+title(t,append('Reaction Time Kernels and AOK in ',input('Name of brain area and task type: ',"s"))) %change title as needed
 
 % 1st Tertile
 ax1 = nexttile;
@@ -131,43 +131,43 @@ firstfillCI = [firstCIs(1, :), fliplr(firstCIs(3, :))]; % This sets up the fill 
 fill(x2, firstfillCI, 'b', 'lineStyle', '-', 'edgeColor', 'b', 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % adds the fill
 yline(0.5,'--k')
 hold off
-title('Fastest Reaction Times','FontSize',30);
+title('First Tertile','FontSize',8);
 ax = gca;
 xlim(ax, [0, bins]);
 ax.XGrid = 'on';
 ax.XMinorGrid = "on";
 ax.XTick = [0:200:800];
-ax.XTickLabel = {'-400', '', 'Stimulus Onset', '', '400'};
-ax.FontSize = 30;
+ax.XTickLabel = {'-400', '', '0', '', '400'};
+ax.FontSize = 8;
 ax.TickDir = "out";
 ay = gca;
 ylim(ay, [0.47 0.52]);
-ay.FontSize = 30; 
+ay.FontSize = 8; 
 
 % 2nd Tertile
-ax2 = nexttile;
+ax2 = nexttile(3);
 hold on
 plot(secondx, secondCIs(2, :), 'r', 'LineWidth', 1.5); % This plots the mean of the bootstrap
 secondfillCI = [secondCIs(1, :), fliplr(secondCIs(3, :))]; % This sets up the fill for the errors
 fill(x2, secondfillCI, 'r', 'lineStyle', '-', 'edgeColor', 'r', 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % add fill
 yline(0.5,'--k')
 hold off
-title('Middle Reaction Times','FontSize',30);
+title('Second Tertile','FontSize',8);
 ax = gca;
 xlim(ax, [0, bins]);
 ax.XGrid = 'on';
 ax.XMinorGrid = "on";
 ax.XTick = [0:200:800];
-ax.XTickLabel = {'-400', '', 'Stimulus Onset', '', '400'};
-ax.FontSize = 30;
+ax.XTickLabel = {'-400', '', '0', '', '400'};
+ax.FontSize = 8;
 ax.TickDir = "out";
 ay = gca;
 ylim(ay, [0.47 0.52]);
-ay.FontSize = 30; 
+ay.FontSize = 8; 
 
 
 % 3rd Tertile
-ax3 = nexttile;
+ax3 = nexttile(5);
 hold on
 plot(thirdx, thirdCIs(2, :), 'g', 'LineWidth', 1.5); % This plots the mean of the bootstrap
 thirdfillCI = [thirdCIs(1, :), fliplr(thirdCIs(3, :))]; % This sets up the fill for the errors
@@ -179,18 +179,18 @@ xlim(ax, [0, bins]);
 ax.XGrid = 'on';
 ax.XMinorGrid = "on";
 ax.XTick = [0:200:800];
-title('Slowest Reaction Times','FontSize',30);
-ax.XTickLabel = {'-400', '', 'Stimulus Onset', '', '400'};
-ax.FontSize = 30;
+title('Third Tertile','FontSize',8);
+ax.XTickLabel = {'-400', '', '0', '', '400'};
+ax.FontSize = 8;
 ax.TickDir = "out";
 ay = gca;
 ylim(ay, [0.47 0.52]);
-ay.FontSize = 30; 
+ay.FontSize = 8; 
 
 
 %Axes Label
-xlabel([ax3],'Time(ms)','FontSize',30)
-ylabel([ax2],'Normalized Power','FontSize',30) 
+xlabel([ax3],'Time(ms)','FontSize',8)
+ylabel([ax2],'Normalized Power','FontSize',8) 
 
 %AOK
 
@@ -207,7 +207,7 @@ ax = gca;
 xlim(ax, [-2, 2]);
 ax.XTick = [-2:0.5:2];
 ax.XTickLabel = {'-2', '', '-1', '', '0', '', '1', '', '2'};
-ax.FontSize = 7;
+ax.FontSize = 8;
 ax.TickDir = "out";
 xlabel('Area Over the Kernel (normalized power*ms)',FontSize=8)
 
@@ -225,7 +225,7 @@ ax = gca;
 xlim(ax, [-2, 2]);
 ax.XTick = [-2:0.5:2];
 ax.XTickLabel = {'-2', '', '-1', '', '0', '', '1', '', '2'};
-ax.FontSize = 7;
+ax.FontSize = 8;
 ax.TickDir = "out";
 xlabel('Area Over the Kernel (normalized power*ms)',FontSize=8)
 
@@ -242,7 +242,7 @@ ax = gca;
 xlim(ax, [-2, 2]);
 ax.XTick = [-2:0.5:2];
 ax.XTickLabel = {'-2', '', '-1', '', '0', '', '1', '', '2'};
-ax.FontSize = 7;
+ax.FontSize = 8;
 ax.TickDir = "out";
 xlabel('Area Over the Kernel (normalized power*ms)',FontSize=8)
 
