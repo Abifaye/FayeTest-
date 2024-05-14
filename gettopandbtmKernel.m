@@ -115,7 +115,7 @@ ax2 = nexttile;
 hold on
 plot(btmx, btmCIs(2, :), 'r', 'LineWidth', 1.5); % This plots the mean of the bootstrap
 btmfillCI = [btmCIs(1, :), fliplr(btmCIs(3, :))]; % This sets up the fill for the errors
-fill(btmx2, btmfillCI, 'r', 'lineStyle', '-', 'edgeColor', 'r', 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % add fill
+fill(btmx2, btmfillCI, 'r', 'lineStyle', '-', 'edgeColor', 'r', 'edgeAlpha', 0.5, 'faceAlpha', 0.10); %add fill
 yline(0,'--k')
 hold off
 ax = gca;
