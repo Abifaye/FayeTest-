@@ -26,44 +26,50 @@ FAorNot = input('include FAs or not? [1=Yes/0=No]: '); %if want to include FAs u
 for nSession = 1:length(hitTrials)
 
     %init temp matrix for each session
-    sessOutcomes = []; %for trials
+    sessHits = []; %for trials
+    sessMiss = []; %for trials
     sessStreaks = []; % for hit streaks
 
-    if FAorNot==1 %include FAs I AM CURRENTLY FIXING THIS PART
-        sessOutcomes = missTrials{nSession};
+    if FAorNot==1 %include FAs
+        sessHits = hitTrials{nSession};
+        sessMiss = missTrials{nSession};
+
         %init streak counter for counting consecutive hits
         streakCounter = 0;
 
-
         %loop through each trial
-        for nTrial = 1:length(sessOutcomes)
+        for nTrial = 1:length(sessHits)
 
             %add to the hit streaks in the session matrix if there is a hit (or
             %hits + FAs)
-            if sessOutcomes(nTrial)==1 %if including FAs enter 0
-                streakCounter = streakCounter+1;
+            if sessHits(nTrial)==1 %if hit outcome
+                streakCounter = streakCounter+1; % add to streak count
                 sessStreaks(nTrial) = streakCounter;
                 %reset the hit streaks to zero if the outcome is not a hit (or
                 %if it is a miss when considering FAs)
-            else
-                streakCounter = 0;
+            elseif sessMiss(nTrial)==0 && sessHits(nTrial)==0 %if FA outcome
+                sessStreaks(nTrial) = 0; %label trial as zero, but do not restart streak count
+
+            else %if miss
+                streakCounter = 0; %restart streak count to zero
                 sessStreaks(nTrial) = streakCounter;
             end
 
         end
+
     else %do not include FAs
-        sessOutcomes = hitTrials{nSession};
+        sessHits = hitTrials{nSession};
 
         %init streak counter for counting consecutive hits
         streakCounter = 0;
 
 
         %loop through each trial
-        for nTrial = 1:length(sessOutcomes)
+        for nTrial = 1:length(sessHits)
 
             %add to the hit streaks in the session matrix if there is a hit (or
             %hits + FAs)
-            if sessOutcomes(nTrial)==1 %if including FAs enter 0
+            if sessHits(nTrial)==1
                 streakCounter = streakCounter+1;
                 sessStreaks(nTrial) = streakCounter;
                 %reset the hit streaks to zero if the outcome is not a hit (or
@@ -76,8 +82,6 @@ for nSession = 1:length(hitTrials)
         end
 
     end
-
-
 
     %add entire session streak counts to the streak cell
     streaksCell{nSession} = sessStreaks;
@@ -121,7 +125,7 @@ hitStreakMat = cell2mat(hitStreakCell);
 %streaks, etc)
 streakCount = input('How many consecutive hit streaks: ');
 %combine hit and inverse miss profiles
-comboPros = (hitProsMat(hitStreakMat<=streakCount,:))/2 + 0.5; %missProsMat(misstreakMat>=streakCount) OR -missProsMat OR /2 + 0.5;
+comboPros = (hitProsMat(hitStreakMat>=streakCount,:))/2 + 0.5; %missProsMat(misstreakMat>=streakCount) OR -missProsMat OR /2 + 0.5;
 
 %Plot
 figure;

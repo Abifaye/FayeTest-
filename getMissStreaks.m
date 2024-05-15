@@ -89,7 +89,7 @@ comboPros = (-missProsMat(misstreakMat<=streakCount,:))/2 + 0.5;
 %Plot
 figure;
 plot(mean(comboPros))
-title(strcat(string(streakCount),' or Less Miss Streak')) %copy paste " with FA" exactly if want to add with FA
+title(strcat(string(streakCount),' or More Miss Streak')) %copy paste " with FA" exactly if want to add with FA
 
 
 end
