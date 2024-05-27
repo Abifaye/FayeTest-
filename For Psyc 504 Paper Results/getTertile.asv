@@ -56,7 +56,7 @@ filterLP = designfilt('lowpassfir', 'PassbandFrequency', 90 / sampleFreqHz, ...
     'DesignMethod','equiripple');
 
 % Compute 1st Tertile w/ SEM
-bootfirst = bootstrp(1000,@mean,firstTertile);
+bootfirst = bootstrp(10,@mean,firstTertile);
 firstPCs = prctile(bootfirst, [15.9, 50, 84.1]);              % +/- 1 SEM
 firstPCMeans = mean(firstPCs, 2);
 firstCIs = zeros(3, size(firstTertile, 2));
@@ -68,7 +68,7 @@ x2 = [firstx, fliplr(firstx)];
 bins = size(firstCIs,2);
 
 %2nd Tertile
-bootsecond = bootstrp(1000,@mean,secondTertile);
+bootsecond = bootstrp(10,@mean,secondTertile);
 secondPCs = prctile(bootsecond, [15.9, 50, 84.1]);              % +/- 1 SEM
 secondPCMeans = mean(secondPCs, 2);
 secondCIs = zeros(3, size(secondTertile, 2));
@@ -78,7 +78,7 @@ end
 secondx = 1:size(secondCIs, 2);
 
 %3rd Tertile
-bootthird = bootstrp(1000,@mean,thirdTertile);
+bootthird = bootstrp(10,@mean,thirdTertile);
 thirdPCs = prctile(bootthird, [15.9, 50, 84.1]);              % +/- 1 SEM
 thirdPCMeans = mean(thirdPCs, 2);
 thirdCIs = zeros(3, size(thirdTertile, 2));
@@ -115,7 +115,7 @@ third_total = size(thirdTertile,1);
 % Bootstrap over each bin
 
 %init number of boostraps desired
-bootSamps = 1000;
+bootSamps = 10;
 
 % Init Archives For BootStrap Samples
 firstBootsAOK = zeros(bootSamps, 800);
@@ -215,7 +215,7 @@ plot(firstx, firstCIs(2, :), 'b', 'LineWidth', 1.5); % This plots the mean of th
 firstfillCI = [firstCIs(1, :), fliplr(firstCIs(3, :))]; % This sets up the fill for the errors
 fill(x2, firstfillCI, 'b', 'lineStyle', '-', 'edgeColor', 'b', 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % adds the fill
 yline(0.5,'--k')
-scatter(1:800,p_first==1,'_')
+scatter(1:800,p_first=,'_')
 hold off
 title('First Tertile','FontSize',8);
 ax = gca;
@@ -227,8 +227,8 @@ ax.XTickLabel = {'-400', '', '0', '', '400'};
 ax.FontSize = 8;
 ax.TickDir = "out";
 ay = gca;
-%ylim(ay, [0.47 0.52]);
-%ay.FontSize = 8; 
+ylim(ay, [0.47 0.52]);
+ay.FontSize = 8; 
 
 % 2nd Tertile
 ax2 = nexttile;
@@ -249,8 +249,8 @@ ax.XTickLabel = {'-400', '', '0', '', '400'};
 ax.FontSize = 8;
 ax.TickDir = "out";
 ay = gca;
-%ylim(ay, [0.47 0.52]);
-%ay.FontSize = 8; 
+ylim(ay, [0.47 0.52]);
+ay.FontSize = 8; 
 
 
 % 3rd Tertile
@@ -272,8 +272,8 @@ ax.XTickLabel = {'-400', '', '0', '', '400'};
 ax.FontSize = 8;
 ax.TickDir = "out";
 ay = gca;
-%ylim(ay, [0.47 0.52]);
-%ay.FontSize = 8; 
+ylim(ay, [0.47 0.52]);
+ay.FontSize = 8; 
 
 
 %Axes Label
