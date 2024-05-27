@@ -34,25 +34,4 @@ aveC_zScore = (aveC - mu) / sigma;
 leftIdx = aveC_zScore < 0;
 rightIdx = aveC_zScore > 0;
 
-%Init matrices for profiles below (leftprofiles) and above (rightprofiles)
-%mean
-leftProfiles = [];
-rightProfiles = [];
-
-% loop through all sessions
-for nSession = 1:height(T)
-    %get all hit & miss profiles from session and combine them
-    hitPros = cell2mat(T.hitProfiles(nSession)); 
-    missPros = cell2mat(T.missProfiles(nSession)); 
-    comboPros = [hitPros;-missPros];
-    %determine if profile of session is above or below mean and place in
-    %appropriate matrix
-    if leftIdx(nSession) == 1
-        leftProfiles = [leftProfiles;comboPros(:,:)];
-    elseif rightIdx(nSession) == 1
-        rightProfiles = [rightProfiles;comboPros(:,:)];
-    end
-end
-
-
 end

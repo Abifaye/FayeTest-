@@ -1,4 +1,4 @@
-function [leftProfiles, rightProfiles] = getdelta_d_profiles_abov_bel_mean
+function [leftIdx, rightIdx] = getdelta_d_profiles_abov_bel_mean
 %loads master table with profiles, gets the function to grab delta
 %dprimes, computes its z-score using sigma and mu from curve fitting, and
 %sorts them between above and below mean using matrices to place them.
@@ -23,25 +23,5 @@ deltaD_zScore = (delta_d - mu) / sigma;
 %Indices
 leftIdx = deltaD_zScore < 0;
 rightIdx = deltaD_zScore > 0;
-%Init matrices for profiles below (leftprofiles) and above (rightprofiles)
-%meanadfasfasf
-leftProfiles = [];
-rightProfiles = [];
-
-%% loop through all sessions
-for nSession = 1:height(T)
-    %get all hit & miss profiles from session
-    hitPros = cell2mat(T.hitProfiles(nSession)); 
-    missPros = cell2mat(T.missProfiles(nSession)); 
-    comboPros = [hitPros;-missPros];
-    %determine if delta_d of session is above or below mean and place in
-    %appropriate matrix
-    if leftIdx(nSession) == 1
-        leftProfiles = [leftProfiles;comboPros(:,:)];
-    elseif rightIdx(nSession) == 1
-        rightProfiles = [rightProfiles;comboPros(:,:)];
-    end
-
-end
 
 end

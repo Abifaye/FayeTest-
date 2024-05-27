@@ -87,6 +87,8 @@ for c = 1:3
 end
 thirdx = 1:size(thirdCIs, 2);
 
+
+
 % 25 ms timebin bootstrap
 
 analysisDurMS = 25; %The duration of significance test window
@@ -155,7 +157,7 @@ for binNum = analysisStartBin:analysisEndBin
     startBin = startBin+1;
 end
  
-%% Find Bins with Significant AOK
+% Find Bins with Significant AOK
  
 p_first = zeros(1, 800);
 p_second = zeros(1, 800);
@@ -215,7 +217,11 @@ plot(firstx, firstCIs(2, :), 'b', 'LineWidth', 1.5); % This plots the mean of th
 firstfillCI = [firstCIs(1, :), fliplr(firstCIs(3, :))]; % This sets up the fill for the errors
 fill(x2, firstfillCI, 'b', 'lineStyle', '-', 'edgeColor', 'b', 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % adds the fill
 yline(0.5,'--k')
-scatter(1:800,p_first==1,'_')
+for nBin = 1:800
+    if p_first==1
+        scatter(nBin,0.52,'_')
+    end
+end
 hold off
 title('First Tertile','FontSize',8);
 ax = gca;
@@ -227,8 +233,8 @@ ax.XTickLabel = {'-400', '', '0', '', '400'};
 ax.FontSize = 8;
 ax.TickDir = "out";
 ay = gca;
-%ylim(ay, [0.47 0.52]);
-%ay.FontSize = 8; 
+ylim(ay, [0.47 0.52]);
+ay.FontSize = 8; 
 
 % 2nd Tertile
 ax2 = nexttile;
@@ -237,7 +243,11 @@ plot(secondx, secondCIs(2, :), 'r', 'LineWidth', 1.5); % This plots the mean of 
 secondfillCI = [secondCIs(1, :), fliplr(secondCIs(3, :))]; % This sets up the fill for the errors
 fill(x2, secondfillCI, 'r', 'lineStyle', '-', 'edgeColor', 'r', 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % add fill
 yline(0.5,'--k')
-scatter(1:800,p_second,'_')
+for nBin = 1:800
+    if p_second==1
+        scatter(nBin,0.52,'_')
+    end
+end
 hold off
 title('Second Tertile','FontSize',8);
 ax = gca;
@@ -249,8 +259,8 @@ ax.XTickLabel = {'-400', '', '0', '', '400'};
 ax.FontSize = 8;
 ax.TickDir = "out";
 ay = gca;
-%ylim(ay, [0.47 0.52]);
-%ay.FontSize = 8; 
+ylim(ay, [0.47 0.52]);
+ay.FontSize = 8; 
 
 
 % 3rd Tertile
@@ -260,7 +270,11 @@ plot(thirdx, thirdCIs(2, :), 'g', 'LineWidth', 1.5); % This plots the mean of th
 thirdfillCI = [thirdCIs(1, :), fliplr(thirdCIs(3, :))]; % This sets up the fill for the errors
 fill(x2, thirdfillCI, 'g', 'lineStyle', '-', 'edgeColor', 'g', 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % adds the fill
 yline(0.5,'--k')
-scatter(1:800,p_third,'_')
+for nBin = 1:800
+    if p_third==1
+        scatter(nBin,0.52,'_')
+    end
+end
 hold off
 ax = gca;
 xlim(ax, [0, bins]);
@@ -272,8 +286,8 @@ ax.XTickLabel = {'-400', '', '0', '', '400'};
 ax.FontSize = 8;
 ax.TickDir = "out";
 ay = gca;
-%ylim(ay, [0.47 0.52]);
-%ay.FontSize = 8; 
+ylim(ay, [0.47 0.52]);
+ay.FontSize = 8; 
 
 
 %Axes Label
@@ -281,7 +295,7 @@ xlabel([ax3],'Time(ms)','FontSize',8)
 ylabel([ax2],'Normalized Power','FontSize',8) 
 
 %AOK
-
+if aokChoice==1
 %1st
 nexttile;
 histogram(firstAOK,'Normalization','probability',FaceColor="b")
@@ -374,6 +388,6 @@ ax.XTickLabel = {'-2', '', '-1', '', '0', '', '1', '', '2'};
 ax.FontSize = 7;
 ax.TickDir = "out";
 xlabel('Area Over the Kernel (normalized power*ms)',FontSize=8)
-
+end
 
 end

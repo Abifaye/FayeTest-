@@ -5,9 +5,36 @@ function getbootstraps_AOKs
 
 %Go to folder containing master table
 folderPath = uigetdir('', 'Go to folder containing master table');
+load(uigetfile('','Select desired master table'));
 
 %% Define Variable
-[leftProfiles, rightProfiles] = getdelta_d_profiles_abov_bel_mean; %replace with function that grabs profiles for metric of interest
+[leftIdx, rightIdx] = getdelta_d_profiles_abov_bel_mean; %replace with function that grabs profiles for metric of interest
+
+%Init matrices for profiles below (leftprofiles) and above (rightprofiles)
+%mean
+leftProfiles = [];
+rightProfiles = [];
+%init matrices for hit profiles for left and right of mean
+hitsLeft = [];
+hitsRight = [];
+
+% loop through all sessions
+for nSession = 1:height(T)
+    %get all hit & miss profiles from session
+    hitPros = cell2mat(T.hitProfiles(nSession));
+    missPros = cell2mat(T.missProfiles(nSession));
+    comboPros = [hitPros;-missPros];
+    %determine if delta_d of session is above or below mean and place in
+    %appropriate matrix
+    if leftIdx(nSession) == 1
+        leftProfiles = [leftProfiles;comboPros(:,:)];
+        hitsLeft = [hitsLeft;hitPros(:,:)];
+    elseif rightIdx(nSession) == 1
+        rightProfiles = [rightProfiles;comboPros(:,:)];
+        hitsRight = [hitsRight;hitPros(:,:)];
+    end
+
+end
 
 %% Bootstrap
 
@@ -20,7 +47,7 @@ filterLP = designfilt('lowpassfir', 'PassbandFrequency', 90 / sampleFreqHz, ...
 % Bootstrap
 
 % Compute below mean w/ SEM
-bootleft_AOK = bootstrp(1000,@mean,leftProfiles);
+bootleft_AOK = bootstrp(3,@mean,leftProfiles);
 leftPCs = prctile(bootleft_AOK, [15.9, 50, 84.1]); % +/- 1 SEM
 leftPCMeans = mean(leftPCs, 2);
 leftCIs = zeros(3, size(leftProfiles, 2));
@@ -32,7 +59,7 @@ leftx2 = [leftx, fliplr(leftx)];
 leftbins = size(leftCIs,2);
 
 %above mean w/ SEM
-bootright_AOK = bootstrp(1000,@mean,rightProfiles);
+bootright_AOK = bootstrp(3,@mean,rightProfiles);
 rightPCs = prctile(bootright_AOK, [15.9, 50, 84.1]); % +/- 1 SEM
 rightPCMeans = mean(rightPCs, 2);
 rightCIs = zeros(3, size(rightProfiles, 2));
@@ -43,27 +70,90 @@ rightx = 1:size(rightCIs, 2);
 rightx2 = [rightx, fliplr(rightx)];
 rightbins = size(rightCIs,2);
 
+% 25 ms timebin bootstrap
+
+analysisDurMS = 25; %The duration of significance test window
+analysisStartBin = 26; %this is a rolling average centered on the test bin, we look backwards in time so we cant start on the first bin.
+analysisEndBin   = 775; %Similarly we cant test past the end of the vector so when our rolling average gets near the end we stop
+
+% How Many of Each Outcome Type to control bootstrapping to match
+% experimental proportions
+left_nHit = size(hitsLeft,1);
+left_total = size(leftProfiles,1);
+right_nHit = size(hitsRight,1);
+right_total = size(rightProfiles,1);
+
+% Bootstrap over each bin
+
+%init number of boostraps desired
+bootSamps = 3;
+
+% Init Archives For BootStrap Samples
+leftBootsAOK = zeros(bootSamps, 800);
+rightBootsAOK = zeros(bootSamps, 800);
+
+% Bin to Start Computing AOK
+lookBack = floor(analysisDurMS/2); %This puts the center of the rolling analysis window on the bin being tested
+startBin = analysisStartBin-lookBack;  %note the difference between "analysisStartBin" and the "StartBin". startBin is set before the loop and then gets iterated with each loop to advance the window whereas analysisStartBin is set once to fix the beginning of the testing window.
+
+for binNum = analysisStartBin:analysisEndBin
+    for bootNum = 1:bootSamps
+        % Samps For This Round of BootStrapping
+        leftSamps = [randsample(left_nHit,left_nHit,true)'...
+            randsample([left_nHit+1:left_total],left_total-left_nHit,true)]';
+        rightSamps = [randsample(right_nHit,right_nHit,true)'...
+            randsample([right_nHit+1:right_total],right_total-right_nHit,true)]';
+        % Take Samples w/ replacement
+        leftBoot = leftProfiles(leftSamps,:);
+        rightBoot = rightProfiles(rightSamps,:);
+
+        %bootstrapped AOK for each kernel
+        leftBootsAOK(bootNum,binNum) = sum(mean(-1*leftBoot(:,startBin:startBin+analysisDurMS-1)));
+        rightBootsAOK(bootNum,binNum) = sum(mean(-1*rightBoot(:,startBin:startBin+analysisDurMS-1)));
+
+
+    end
+
+    % Advance Start Bin
+    startBin = startBin+1;
+end
+
+% Find Bins with Significant AOK
+
+p_left = zeros(1, 800);
+p_right = zeros(1, 800);
+
+for binNum = analysisStartBin:analysisEndBin
+    p_left(1,binNum) = (size(leftBootsAOK,1) - sum(leftBootsAOK(:,binNum)>0))/size(leftBootsAOK,1);
+    p_right(1,binNum) = (size(rightBootsAOK,1) - sum(rightBootsAOK(:,binNum)>0))/size(rightBootsAOK,1);
+end
+
+
 %% Get AOK
+aokChoice = input('Get AOK? [1=Yes/0=No]: ');
+if aokChoice==1
 
 % Get Kernels for AOK
 leftAOK_KDE = leftProfiles(:,401:500);
 rightAOK_KDE = rightProfiles(:,401:500);
 
 % Compute left AOK
-bootleft_AOK = bootstrp(100,@mean,leftAOK_KDE);
+bootleft_AOK = bootstrp(3,@mean,leftAOK_KDE);
 bootleft_AOK = -(bootleft_AOK); %makes values positive
 leftAOK = sum(bootleft_AOK,2);
 
 %right AOK
-bootright_AOK = bootstrp(100,@mean,rightAOK_KDE);
+bootright_AOK = bootstrp(3,@mean,rightAOK_KDE);
 bootright_AOK = -(bootright_AOK); %makes values positive
 rightAOK = sum(bootright_AOK,2);
+
+end
 
 %% Plots
 
 %create tiled layout for all plots
 figure;
-t= tiledlayout(2,2);
+t= tiledlayout(2,1);
 title(t,append(input('Name of metric of interest: ',"s"),' Kernels and AOK in ',input('Name of brain area and task type: ',"s")))
 
 %below mean
@@ -73,6 +163,11 @@ plot(leftCIs(2, :), 'b', 'LineWidth', 1.5); % This plots the mean of the bootstr
 leftfillCI = [leftCIs(1, :), fliplr(leftCIs(3, :))]; % This sets up the fill for the errors
 fill(leftx2, leftfillCI, 'b', 'lineStyle', '-', 'edgeColor', 'b', 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % add fill
 yline(0,'--k')
+for nBin = 1:800
+    if p_left(nBin)==1
+        scatter(nBin,0.02,'_','r')
+    end
+end
 hold off
 ax = gca;
 xlim(ax, [0, leftbins]);
@@ -88,12 +183,17 @@ ay.FontSize = 8;
 title('Kernel of Below Mean Profiles','FontSize',8);
 
 %above mean
-ax2 = nexttile (3);
+ax2 = nexttile;
 hold on
 plot(rightx, rightCIs(2, :), 'r', 'LineWidth', 1.5); % This plots the mean of the bootstrap
 rightfillCI = [rightCIs(1, :), fliplr(rightCIs(3, :))]; % This sets up the fill for the errors
 fill(rightx2, rightfillCI, 'r', 'lineStyle', '-', 'edgeColor', 'r', 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % add fill
 yline(0,'--k')
+for nBin = 1:800
+    if p_right==1
+        scatter(nBin,0.02,'_')
+    end
+end
 hold off
 ax = gca;
 xlim(ax, [0, rightbins]);
@@ -106,15 +206,15 @@ ax.TickDir = "out";
 ay = gca;
 ylim(ay, [-0.04 0.02]);
 ay.FontSize = 8;
-title('Kernel of Above Mean Profiles','FontSize',8); 
+title('Kernel of Above Mean Profiles','FontSize',8);
 
 %Axes Label
 xlabel([ax1 ax2],'Time Relative to Stimulus Onset (ms)','FontSize',8)
-ylabel([ax1 ax2],'Normalized Power','FontSize',8) 
+ylabel([ax1 ax2],'Normalized Power','FontSize',8)
 
 
 %AOK
-
+if aokChoice==1
 %Left
 nexttile;
 hold on
@@ -152,5 +252,7 @@ ax.XTickLabel = {'-4', '', '-2', '', '0', '', '2', '', '4'};
 ax.FontSize = 7;
 ax.TickDir = "out";
 xlabel('Area Over the Kernel (normalized power*ms)',FontSize=8)
+
+end
 
 end
