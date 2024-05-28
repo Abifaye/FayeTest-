@@ -86,11 +86,16 @@ right_total = size(rightProfiles,1);
 % Bootstrap over each bin
 
 %init number of boostraps desired
-bootSamps = 3;
+bootSamps = 1000;
+
+%convert tertiles into gpuArray for accelerated processing
+LeftProfiles_gpu = gpuArray(leftProfiles);
+rightProfiles_gpu = gpuArray(rightProfiles);
+
 
 % Init Archives For BootStrap Samples
-leftBootsAOK = zeros(bootSamps, 800);
-rightBootsAOK = zeros(bootSamps, 800);
+leftBootsAOK_gpu = gpuArray.zeros(bootSamps, 800);
+rightBootsAOK_gpu = gpuArray.zeros(bootSamps, 800);
 
 % Bin to Start Computing AOK
 lookBack = floor(analysisDurMS/2); %This puts the center of the rolling analysis window on the bin being tested
@@ -103,23 +108,34 @@ for binNum = analysisStartBin:analysisEndBin
             randsample([left_nHit+1:left_total],left_total-left_nHit,true)]';
         rightSamps = [randsample(right_nHit,right_nHit,true)'...
             randsample([right_nHit+1:right_total],right_total-right_nHit,true)]';
+         
+        % Convert samples to gpuArray
+        leftSamps_gpu = gpuArray(leftSamps);
+        rightSamps_gpu = gpuArray(rightSamps);
+
         % Take Samples w/ replacement
-        leftBoot = leftProfiles(leftSamps,:);
-        rightBoot = rightProfiles(rightSamps,:);
+        leftBoot = LeftProfiles_gpu(leftSamps_gpu,:);
+        rightBoot = rightProfiles_gpu(rightSamps_gpu,:);
 
         %bootstrapped AOK for each kernel
-        leftBootsAOK(bootNum,binNum) = sum(mean(-1*leftBoot(:,startBin:startBin+analysisDurMS-1)));
-        rightBootsAOK(bootNum,binNum) = sum(mean(-1*rightBoot(:,startBin:startBin+analysisDurMS-1)));
+        leftBootsAOK_gpu(bootNum,binNum) = sum(mean(-1*leftBoot(:,startBin:startBin+analysisDurMS-1)));
+        rightBootsAOK_gpu(bootNum,binNum) = sum(mean(-1*rightBoot(:,startBin:startBin+analysisDurMS-1)));
 
 
     end
 
     % Advance Start Bin
     startBin = startBin+1;
+
+    %to track the iteration of boostraps
+    disp(binNum)
 end
 
-% Find Bins with Significant AOK
+% Gather results back to the CPU
+leftBootsAOK = gather(leftBootsAOK_gpu);
+rightBootsAOK = gather(rightBootsAOK_gpu);
 
+% Find Bins with Significant AOK
 p_left = zeros(1, 800);
 p_right = zeros(1, 800);
 
