@@ -1,13 +1,10 @@
-function [leftIdx, rightIdx] = getdelta_d_profiles_abov_bel_mean
+function [leftIdx, rightIdx] = getdelta_d_profiles_abov_bel_mean(T)
 %loads master table with profiles, gets the function to grab delta
 %dprimes, computes its z-score using sigma and mu from curve fitting, and
 %sorts them between above and below mean using matrices to place them.
 
 %get delta_d
-delta_d = getdelta_d;
-
-%load master table with profiles
-load(uigetfile('','Select desired master table'));
+delta_d = getdelta_d(T);
 
 %% Curve Fitting delta d'
 d_histcounts = histcounts(delta_d,-5:0.15:5);

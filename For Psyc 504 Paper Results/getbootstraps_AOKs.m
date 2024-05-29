@@ -8,22 +8,22 @@ folderPath = uigetdir('', 'Go to folder containing master table');
 load(uigetfile('','Select desired master table'));
 
 %% Define Variable
-[leftIdx, rightIdx] = getdelta_d_profiles_abov_bel_mean; %replace with function that grabs profiles for metric of interest
+[leftIdx, rightIdx] = getdelta_d_profiles_abov_bel_mean(T); %replace with function that grabs profiles for metric of interest
 
 %Init matrices for profiles below (leftprofiles) and above (rightprofiles)
 %mean
-leftProfiles = [];
-rightProfiles = [];
+leftProfiles = gpuArray();
+rightProfiles = gpuArray();
 %init matrices for hit profiles for left and right of mean
-hitsLeft = [];
-hitsRight = [];
+hitsLeft = gpuArray();
+hitsRight = gpuArray();
 
 % loop through all sessions
 for nSession = 1:height(T)
     %get all hit & miss profiles from session
-    hitPros = cell2mat(T.hitProfiles(nSession));
-    missPros = cell2mat(T.missProfiles(nSession));
-    comboPros = [hitPros;-missPros];
+    hitPros = gpuArray(cell2mat(T.hitProfiles(nSession)));
+    missPros = gpuArray(cell2mat(T.missProfiles(nSession)));
+    comboPros = gpuArray([hitPros;-missPros]);
     %determine if delta_d of session is above or below mean and place in
     %appropriate matrix
     if leftIdx(nSession) == 1
@@ -36,7 +36,7 @@ for nSession = 1:height(T)
 
 end
 
-%% Bootstrap
+%% Kernel ootstrap
 
 % Filter SetUp
 sampleFreqHz = 1000;
@@ -47,7 +47,7 @@ filterLP = designfilt('lowpassfir', 'PassbandFrequency', 90 / sampleFreqHz, ...
 % Bootstrap
 
 % Compute below mean w/ SEM
-bootleft_AOK = bootstrp(3,@mean,leftProfiles);
+bootleft_AOK = bootstrp(1000,@mean,leftProfiles);
 leftPCs = prctile(bootleft_AOK, [15.9, 50, 84.1]); % +/- 1 SEM
 leftPCMeans = mean(leftPCs, 2);
 leftCIs = zeros(3, size(leftProfiles, 2));
@@ -70,7 +70,7 @@ rightx = 1:size(rightCIs, 2);
 rightx2 = [rightx, fliplr(rightx)];
 rightbins = size(rightCIs,2);
 
-% 25 ms timebin bootstrap
+%% 25 ms timebin bootstrap
 
 analysisDurMS = 25; %The duration of significance test window
 analysisStartBin = 26; %this is a rolling average centered on the test bin, we look backwards in time so we cant start on the first bin.
@@ -88,14 +88,10 @@ right_total = size(rightProfiles,1);
 %init number of boostraps desired
 bootSamps = 1000;
 
-%convert tertiles into gpuArray for accelerated processing
-LeftProfiles_gpu = gpuArray(leftProfiles);
-rightProfiles_gpu = gpuArray(rightProfiles);
-
 
 % Init Archives For BootStrap Samples
-leftBootsAOK_gpu = gpuArray.zeros(bootSamps, 800);
-rightBootsAOK_gpu = gpuArray.zeros(bootSamps, 800);
+leftBootsAOK = gpuArray.zeros(bootSamps, 800);
+rightBootsAOK = gpuArray.zeros(bootSamps, 800);
 
 % Bin to Start Computing AOK
 lookBack = floor(analysisDurMS/2); %This puts the center of the rolling analysis window on the bin being tested
@@ -114,12 +110,12 @@ for binNum = analysisStartBin:analysisEndBin
         rightSamps_gpu = gpuArray(rightSamps);
 
         % Take Samples w/ replacement
-        leftBoot = LeftProfiles_gpu(leftSamps_gpu,:);
-        rightBoot = rightProfiles_gpu(rightSamps_gpu,:);
+        leftBoot = leftProfiles(leftSamps_gpu,:);
+        rightBoot = rightProfiles(rightSamps_gpu,:);
 
         %bootstrapped AOK for each kernel
-        leftBootsAOK_gpu(bootNum,binNum) = sum(mean(-1*leftBoot(:,startBin:startBin+analysisDurMS-1)));
-        rightBootsAOK_gpu(bootNum,binNum) = sum(mean(-1*rightBoot(:,startBin:startBin+analysisDurMS-1)));
+        leftBootsAOK(bootNum,binNum) = sum(mean(-1*leftBoot(:,startBin:startBin+analysisDurMS-1)));
+        rightBootsAOK(bootNum,binNum) = sum(mean(-1*rightBoot(:,startBin:startBin+analysisDurMS-1)));
 
 
     end
@@ -132,16 +128,18 @@ for binNum = analysisStartBin:analysisEndBin
 end
 
 % Gather results back to the CPU
-leftBootsAOK = gather(leftBootsAOK_gpu);
-rightBootsAOK = gather(rightBootsAOK_gpu);
+leftBootsAOK = gather(leftBootsAOK);
+rightBootsAOK = gather(rightBootsAOK);
+
+
 
 % Find Bins with Significant AOK
 p_left = zeros(1, 800);
 p_right = zeros(1, 800);
 
 for binNum = analysisStartBin:analysisEndBin
-    p_left(1,binNum) = (size(leftBootsAOK,1) - sum(leftBootsAOK(:,binNum)>0))/size(leftBootsAOK,1);
-    p_right(1,binNum) = (size(rightBootsAOK,1) - sum(rightBootsAOK(:,binNum)>0))/size(rightBootsAOK,1);
+    p_left(1,binNum) = (size(leftBootsAOK,1) - sum(leftBootsAOK(:,binNum)<0))/size(leftBootsAOK,1);
+    p_right(1,binNum) = (size(rightBootsAOK,1) - sum(rightBootsAOK(:,binNum)<0))/size(rightBootsAOK,1);
 end
 
 
@@ -169,8 +167,8 @@ end
 
 %create tiled layout for all plots
 figure;
-t= tiledlayout(2,1);
-title(t,append(input('Name of metric of interest: ',"s"),' Kernels and AOK in ',input('Name of brain area and task type: ',"s")))
+t = tiledlayout(2,1);
+%title(t,append(input('Name of metric of interest: ',"s"),' Kernels and AOK in ',input('Name of brain area and task type: ',"s")))
 
 %below mean
 ax1 = nexttile;

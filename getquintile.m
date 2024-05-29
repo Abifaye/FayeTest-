@@ -1,5 +1,4 @@
 function getquintile
-    function [firstQuintile,secondQuintile,thirdQuintile] = getTertile(T)
 %Splits RTs into tertile and takes the corresponding
 %hit profiles and plot it. It then bootsraps each tertile and grabs the AOK for each tertile and create a plot
 %of it
@@ -16,19 +15,19 @@ load(uigetfile('','Choose master table of interest'));
 firstQuintile= [];
 secondQuintile = [];
 thirdQuintile = [];
-fourthQuintile =[];
+fourthQuintile = [];
 fifthQuintile = [];
 
 %% Create loop for getting hit profiles and putting them in each Tertile matrix
 
 %loop through all sessions
 for nSession = 1:height(T)
-    
+
     %create variables for hit profiles and reaction times from the master
     %table
     RTs = cell2mat(T.stimCorrectRTs(nSession));
-    hitPros = cell2mat(T.hitProfiles(nSession)); 
-   
+    hitPros = cell2mat(T.hitProfiles(nSession));
+
     %creates range for each tertile
     firstIdx = (RTs >= min(prctile(RTs,[0 20])) & RTs <= max(prctile(RTs,[0 20])));
     secondIdx = (RTs > min(prctile(RTs,[20 40])) & RTs <= max(prctile(RTs,[20 40])));
@@ -52,8 +51,34 @@ thirdQuintile = thirdQuintile/2 + 0.5;
 fourthQuintile = fourthQuintile/2 + 0.5;
 fifthQuintile = fifthQuintile/2 + 0.5;
 
+%find the mean
+MFirstQuint = mean(firstQuintile);
+MSecondQuint = mean(secondQuintile);
+MthirdQuint = mean(thirdQuintile);
+MfourthQuint = mean(fourthQuintile);
+MfifthQuint = mean(fifthQuintile);
+
+%
 quintStruct = struct('firstQuint',firstQuintile, 'secondQuint', secondQuintile, 'thirdQuint', thirdQuintile, 'fourthQuint', fourthQuintile, 'fifthQuint', fifthQuintile);
 quintFields = fieldnames(quintStruct);
+
+%% HeatMap Plot
+varNames = ['Quintile', string(1:800)];
+sz = [5 801];
+timeVar = repmat({'double'},1,800);
+varTypes = ['string', timeVar];
+TheatMap = table('size',sz,'VariableTypes',varTypes,'VariableNames',varNames);
+TheatMap.Quintile = {'FirstQuint','secondQuint','thirdQuint','fourthQuint','fifthQuint'}';
+TheatMap(:,2:end) = array2table(vertcat(MFirstQuint,MSecondQuint,MthirdQuint,MthirdQuint,MfifthQuint));
+xvar = TheatMap.Properties.VariableNames(2:end);
+yvar = string(TheatMap.(1));
+cvar = TheatMap{:,2:end};
+%plot
+figure;
+heatmap(xvar,yvar,cvar)
+
+
+
 %% Kernel Bootstrap
 
 % Filter SetUp
@@ -74,203 +99,21 @@ bins = [];
 
 %loop through each quintile in the struct
 for nQuint = 1:length(quintFields)
-boot = bootstrp(100,@mean,quintStruct.(string(quintFields(nQuint))));
-PCs = prctile(boot, [15.9, 50, 84.1]); % +/- 1 SEM
-PCMeans = mean(PCs, 2);
-CIs = zeros(3, size(quintStruct.(string(quintFields(nQuint))), 2));
-for c = 1:3
-    CIs(c,:) = filtfilt(filterLP, PCs(c,:) - PCMeans(c)) + PCMeans(c);
-end
-
-x(nQuint,:) = 1:size(CIs, 2);
-x2(nQuint,:) = [x, fliplr(x)];
-bins(nQuint) = size(CIs,2);
-CIsCell{nQuint} = CIs;
-
-end
-
-
-%% Plots
-
-%create tiled layout for all plots
-figure;
-t= tiledlayout(3,1);
-title(t,append('Reaction Time Kernels and AOK in ',input('Name of brain area and task type: ',"s"))) %change title as needed
-
-% 1st Tertile
-ax1 = nexttile;
-hold on
-plot(x, CIs(2, :), 'b', 'LineWidth', 1.5); % This plots the mean of the bootstrap
-firstfillCI = [CIs(1, :), fliplr(CIs(3, :))]; % This sets up the fill for the errors
-fill(x2, firstfillCI, 'b', 'lineStyle', '-', 'edgeColor', 'b', 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % adds the fill
-yline(0.5,'--k')
-hold off
-title('First Tertile','FontSize',8);
-ax = gca;
-xlim(ax, [0, bins]);
-ax.XGrid = 'on';
-ax.XMinorGrid = "on";
-ax.XTick = [0:200:800];
-ax.XTickLabel = {'-400', '', '0', '', '400'};
-ax.FontSize = 8;
-ax.TickDir = "out";
-ay = gca;
-ylim(ay, [0.47 0.52]);
-ay.FontSize = 8; 
-
-% 2nd Tertile
-ax2 = nexttile;
-hold on
-plot(secondx, secondCIs(2, :), 'r', 'LineWidth', 1.5); % This plots the mean of the bootstrap
-secondfillCI = [secondCIs(1, :), fliplr(secondCIs(3, :))]; % This sets up the fill for the errors
-fill(x2, secondfillCI, 'r', 'lineStyle', '-', 'edgeColor', 'r', 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % add fill
-yline(0.5,'--k')
-for nBin = 1:800
-    if p_second(nBin)==1
-        scatter(nBin,0.02,'_','r')
+    boot = bootstrp(1000,@mean,quintStruct.(string(quintFields(nQuint))));
+    PCs = prctile(boot, [15.9, 50, 84.1]); % +/- 1 SEM
+    PCMeans = mean(PCs, 2);
+    CIs = zeros(3, size(quintStruct.(string(quintFields(nQuint))), 2));
+    for c = 1:3
+        CIs(c,:) = filtfilt(filterLP, PCs(c,:) - PCMeans(c)) + PCMeans(c);
     end
-end
-hold off
-title('Second Tertile','FontSize',8);
-ax = gca;
-xlim(ax, [0, bins]);
-ax.XGrid = 'on';
-ax.XMinorGrid = "on";
-ax.XTick = [0:200:800];
-ax.XTickLabel = {'-400', '', '0', '', '400'};
-ax.FontSize = 8;
-ax.TickDir = "out";
-ay = gca;
-ylim(ay, [0.47 0.52]);
-ay.FontSize = 8; 
 
-
-% 3rd Tertile
-ax3 = nexttile;
-hold on
-plot(thirdx, thirdCIs(2, :), 'g', 'LineWidth', 1.5); % This plots the mean of the bootstrap
-thirdfillCI = [thirdCIs(1, :), fliplr(thirdCIs(3, :))]; % This sets up the fill for the errors
-fill(x2, thirdfillCI, 'g', 'lineStyle', '-', 'edgeColor', 'g', 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % adds the fill
-yline(0.5,'--k')
-for nBin = 1:800
-    if p_third(nBin)==1
-        scatter(nBin,0.02,'_','r')
-    end
-end
-hold off
-ax = gca;
-xlim(ax, [0, bins]);
-ax.XGrid = 'on';
-ax.XMinorGrid = "on";
-ax.XTick = [0:200:800];
-title('Third Tertile','FontSize',8);
-ax.XTickLabel = {'-400', '', '0', '', '400'};
-ax.FontSize = 8;
-ax.TickDir = "out";
-ay = gca;
-ylim(ay, [0.47 0.52]);
-ay.FontSize = 8; 
-
-
-%Axes Label
-xlabel([ax3],'Time(ms)','FontSize',8)
-ylabel([ax2],'Normalized Power','FontSize',8) 
-
-%AOK
-if aokChoice==1
-%1st
-nexttile;
-histogram(firstAOK,'Normalization','probability',FaceColor="b")
-xline(0,'--k')
-title('AoK of First Tertile','FontSize',8);
-ay = gca;
-ylim(ay, [0 0.4]); 
-ay.FontSize = 8;
-ylabel('Probability','FontSize',8)
-ax = gca;
-xlim(ax, [-2, 2]);
-ax.XTick = [-2:0.5:2];
-ax.XTickLabel = {'-2', '', '-1', '', '0', '', '1', '', '2'};
-ax.FontSize = 8;
-ax.TickDir = "out";
-xlabel('Area Over the Kernel (normalized power*ms)',FontSize=8)
-
-
-%2nd
-nexttile; 
-histogram(secondAOK,'Normalization','probability',FaceColor="r")
-xline(0,'--k')
-title('AoK of Second Tertile','FontSize',8);
-ay = gca;
-ylim(ay, [0 0.4]);
-ay.FontSize = 8;
-ylabel('Probability','FontSize',8)
-ax = gca;
-xlim(ax, [-2, 2]);
-ax.XTick = [-2:0.5:2];
-ax.XTickLabel = {'-2', '', '-1', '', '0', '', '1', '', '2'};
-ax.FontSize = 8;
-ax.TickDir = "out";
-xlabel('Area Over the Kernel (normalized power*ms)',FontSize=8)
-
-%3rd
-nexttile;
-histogram (thirdAOK,'Normalization','probability',FaceColor="g")
-xline(0,'--k')
-title('AoK of Third Tertile','FontSize',8);
-ay = gca;
-ylim(ay, [0 0.4]);
-ay.FontSize = 8;
-ylabel('Probability','FontSize',8)
-ax = gca;
-xlim(ax, [-2, 2]);
-ax.XTick = [-2:0.5:2];
-ax.XTickLabel = {'-2', '', '-1', '', '0', '', '1', '', '2'};
-ax.FontSize = 8;
-ax.TickDir = "out";
-xlabel('Area Over the Kernel (normalized power*ms)',FontSize=8)
-
-%3rd tertile 0-100ms vs 100-200ms
-
-%tiled layout
-figure;
-t= tiledlayout(2,1);
-title(t,'AOK of 3rd Tertile: 0-100ms vs 100-200ms')
-
-%0 - 100 ms
-nexttile;
-histogram (thirdAOK_two,'Normalization','probability',FaceColor="#77AC30")
-xline(0,':k')
-title('AoK of Third Tertile from 0-100 ms','FontSize',8);
-ay = gca;
-ylim(ay, [0 0.4]);
-ay.FontSize = 8;
-ylabel('Probability','FontSize',8)
-ax = gca;
-xlim(ax, [-2, 2]);
-ax.XTick = [-2:0.5:2];
-ax.XTickLabel = {'-2', '', '-1', '', '0', '', '1', '', '2'};
-ax.FontSize = 7;
-ax.TickDir = "out";
-xlabel('Area Over the Kernel (normalized power*ms)',FontSize=8)
-
-%100-200 ms
-nexttile;
-histogram (thirdAOK,'Normalization','probability',FaceColor="g")
-xline(0,':k')
-title('AoK of Third Tertile from 100-200 ms','FontSize',8);
-ay = gca;
-ylim(ay, [0 0.4]);
-ay.FontSize = 8;
-ylabel('Probability','FontSize',8)
-ax = gca;
-xlim(ax, [-2, 2]);
-ax.XTick = [-2:0.5:2];
-ax.XTickLabel = {'-2', '', '-1', '', '0', '', '1', '', '2'};
-ax.FontSize = 7;
-ax.TickDir = "out";
-xlabel('Area Over the Kernel (normalized power*ms)',FontSize=8)
-end
+    x(nQuint,:) = 1:size(CIs, 2);
+    x2(nQuint,:) = [x, fliplr(x)];
+    bins(nQuint) = size(CIs,2);
+    CIsCell{nQuint} = CIs;
 
 end
+
+
+
 end
