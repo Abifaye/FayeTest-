@@ -1,11 +1,8 @@
-function [leftProfiles,rightProfiles] = getAveC_profiles
+function [leftIdx, rightIdx] = getAveC_profiles(T)
 %grabs stimulated and unstimulated criterion from master table, gets their
 %average, and curve fit it using measurements below. Then they are split
 %into 2 groups (above/below mean) using zscore and the corresponding
 %opto stim profiles for each average C were put in separate matrices
-
-%load master table with profiles
-load(uigetfile('','Select desired master table'));
 
 %Get average criterion
 stimC = [T.stimC];
