@@ -8,7 +8,7 @@ folderPath = uigetdir('', 'Go to folder containing master table');
 load(uigetfile('','Select desired master table'));
 
 %% Define Variable
-[leftIdx, rightIdx] = getdelta_d_profiles_abov_bel_mean(T); %replace with function that grabs profiles for metric of interest
+[leftIdx, rightIdx] = getAveC_profiles(T); %replace with function that grabs profiles for metric of interest
 
 %Init matrices for profiles below (leftprofiles) and above (rightprofiles)
 %mean
@@ -168,7 +168,7 @@ end
 %create tiled layout for all plots
 figure;
 t = tiledlayout(2,1);
-%title(t,append(input('Name of metric of interest: ',"s"),' Kernels and AOK in ',input('Name of brain area and task type: ',"s")))
+title(t,append(input('Name of metric of interest: ',"s"),' Kernels and AOK in ',input('Name of brain area and task type: ',"s")))
 
 %below mean
 ax1 = nexttile;
@@ -179,7 +179,7 @@ fill(leftx2, leftfillCI, 'b', 'lineStyle', '-', 'edgeColor', 'b', 'edgeAlpha', 0
 yline(0,'--k')
 for nBin = 1:800
     if p_left(nBin)==1
-        scatter(nBin,0.02,'_','r')
+        scatter(nBin,0.019,'_','r')
     end
 end
 hold off
@@ -204,8 +204,8 @@ rightfillCI = [rightCIs(1, :), fliplr(rightCIs(3, :))]; % This sets up the fill 
 fill(rightx2, rightfillCI, 'r', 'lineStyle', '-', 'edgeColor', 'r', 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % add fill
 yline(0,'--k')
 for nBin = 1:800
-    if p_right==1
-        scatter(nBin,0.02,'_')
+    if p_right(nBin)==1
+        scatter(nBin,0.019,'_','r')
     end
 end
 hold off
