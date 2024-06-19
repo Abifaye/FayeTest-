@@ -89,7 +89,20 @@ subsampledthird = smooththird(1:stepSize:end);
 subsampledfourth = smoothfourth(1:stepSize:end);
 subsampledfifth = smoothfifth(1:stepSize:end);
 
-%
+%normalize data by maximum
+%identify max of each quintile
+maxFirst = max(subsampledfirst);
+maxSecond = max(subsampledsecond);
+maxThird = max(subsampledthird);
+maxFourth = max(subsampledfourth);
+maxFifth =  max(subsampledfifth);
+subsampledfirst = -(subsampledfirst/maxFirst);
+subsampledsecond = -(subsampledsecond/maxSecond);
+subsampledthird = -(subsampledthird/maxSecond);
+subsampledfourth = -(subsampledsecond/maxSecond);
+subsampledfifth = -(subsampledsecond/maxSecond);
+
+%create a struct for plotting
 quintStruct = struct('firstQuint',subsampledfirst, 'secondQuint', subsampledsecond, 'thirdQuint', subsampledthird, 'fourthQuint', subsampledfourth, 'fifthQuint', subsampledfifth);
 quintFields = fieldnames(quintStruct);
 
@@ -111,13 +124,21 @@ timeVar = repmat({'double'},1,81);
 varTypes = ['string', timeVar];
 TheatMap = table('size',sz,'VariableTypes',varTypes,'VariableNames',varNames);
 TheatMap.Quintile = {'FirstQuint','secondQuint','thirdQuint','fourthQuint','fifthQuint'}';
-TheatMap(:,2:end) = array2table(vertcat(-subsampledfirst,-subsampledsecond,-subsampledthird,-subsampledfourth,subsampledfifth));
+TheatMap(:,2:end) = array2table(vertcat(subsampledfirst,subsampledsecond,subsampledthird,subsampledfourth,subsampledfifth));
 xvar = TheatMap.Properties.VariableNames(2:end);
 yvar = string(TheatMap.(1));
 cvar = TheatMap{:,2:end};
 %plot
 figure;
-heatmap(xvar,yvar,cvar);
+h = heatmap(xvar,yvar,cvar);
+%get color of heatmap 
+currentC = colormap(h);
+%reverse colour so darkest shows deepest peak
+flipC = flipud(currentC);
+colormap(h,flipC)
+xlabel('Timebin')
+title('SCAll Quintile RTs from Smoothen 400:800 Timebins')
+
 
 %% Kernel Bootstrap
 

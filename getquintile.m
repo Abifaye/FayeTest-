@@ -89,7 +89,23 @@ subsampledthird = smooththird(1:stepSize:end);
 subsampledfourth = smoothfourth(1:stepSize:end);
 subsampledfifth = smoothfifth(1:stepSize:end);
 
-%
+%normalize data by maximum
+
+%identify max of each quintile
+maxFirst = max(subsampledfirst);
+maxSecond = max(subsampledsecond);
+maxThird = max(subsampledthird);
+maxFourth = max(subsampledfourth);
+maxFifth =  max(subsampledfifth);
+
+%normalize and convert samples to negative
+subsampledfirst = -(subsampledfirst/maxFirst);
+subsampledsecond = -(subsampledsecond/maxSecond);
+subsampledthird = -(subsampledthird/maxThird);
+subsampledfourth = -(subsampledfourth/maxFourth);
+subsampledfifth = -(subsampledfifth/maxFifth);
+
+%create a struct for plotting
 quintStruct = struct('firstQuint',subsampledfirst, 'secondQuint', subsampledsecond, 'thirdQuint', subsampledthird, 'fourthQuint', subsampledfourth, 'fifthQuint', subsampledfifth);
 quintFields = fieldnames(quintStruct);
 
@@ -121,10 +137,10 @@ h = heatmap(xvar,yvar,cvar);
 %get color of heatmap 
 currentC = colormap(h);
 %reverse colour so darkest shows deepest peak
-flipC = flipud(currentC);
-colormap(h,flipC)
+%flipC = flipud(currentC);
+%colormap(h,flipC)
 xlabel('Timebin')
-title('SCAll Quintile RTs from Smoothen 400:800 Timebins')
+title('V1 Gabor Quintile RTs from Smoothen 400:800 Timebins Max Normalized')
 
 
 %% Kernel Bootstrap
