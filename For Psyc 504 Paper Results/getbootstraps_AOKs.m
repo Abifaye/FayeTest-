@@ -8,7 +8,7 @@ folderPath = uigetdir('', 'Go to folder containing master table');
 load(uigetfile('','Select desired master table'));
 
 %% Define Variable
-[leftIdx, rightIdx] = getAveC_profiles(T); %replace with function that grabs profiles for metric of interest
+[leftIdx, rightIdx] =  getdelta_d_profiles_abov_bel_mean(T); %replace with function that grabs profiles for metric of interest
 
 %Init matrices for profiles below (leftprofiles) and above (rightprofiles)
 %mean
@@ -78,8 +78,8 @@ analysisEndBin   = 775; %Similarly we cant test past the end of the vector so wh
 
 % How Many of Each Outcome Type to control bootstrapping to match
 % experimental proportions
-left_nHit = size(hitsLeft,1);
-left_total = size(leftProfiles,1);
+left_nHit = size(hitsLeft,1); %how many hits
+left_total = size(leftProfiles,1); %total of both hits and miss profiles for below mean
 right_nHit = size(hitsRight,1);
 right_total = size(rightProfiles,1);
 
