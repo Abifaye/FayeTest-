@@ -48,6 +48,7 @@ filterLP = designfilt('lowpassfir', 'PassbandFrequency', 90 / sampleFreqHz, ...
 
 % Compute below mean w/ SEM
 bootleft_AOK = bootstrp(1000,@mean,leftProfiles);
+bootleft_AOK = gather(bootleft_AOK);
 leftPCs = prctile(bootleft_AOK, [15.9, 50, 84.1]); % +/- 1 SEM
 leftPCMeans = mean(leftPCs, 2);
 leftCIs = zeros(3, size(leftProfiles, 2));
@@ -60,6 +61,7 @@ leftbins = size(leftCIs,2);
 
 %above mean w/ SEM
 bootright_AOK = bootstrp(3,@mean,rightProfiles);
+bootright_AOK = gather(bootright_AOK);
 rightPCs = prctile(bootright_AOK, [15.9, 50, 84.1]); % +/- 1 SEM
 rightPCMeans = mean(rightPCs, 2);
 rightCIs = zeros(3, size(rightProfiles, 2));
