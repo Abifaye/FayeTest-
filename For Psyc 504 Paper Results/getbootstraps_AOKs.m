@@ -8,7 +8,7 @@ folderPath = uigetdir('', 'Go to folder containing master table');
 load(uigetfile('','Select desired master table'));
 
 %% Define Variable
-[leftIdx, rightIdx] =  getdelta_d_profiles_abov_bel_mean(T); %replace with function that grabs profiles for metric of interest
+[leftIdx, rightIdx] = getdelta_d_profiles_abov_bel_mean(T); %replace with function that grabs profiles for metric of interest
 
 %Init matrices for profiles below (leftprofiles) and above (rightprofiles)
 %mean
@@ -60,7 +60,7 @@ leftx2 = [leftx, fliplr(leftx)];
 leftbins = size(leftCIs,2);
 
 %above mean w/ SEM
-bootright_AOK = bootstrp(3,@mean,rightProfiles);
+bootright_AOK = bootstrp(1000,@mean,rightProfiles);
 bootright_AOK = gather(bootright_AOK);
 rightPCs = prctile(bootright_AOK, [15.9, 50, 84.1]); % +/- 1 SEM
 rightPCMeans = mean(rightPCs, 2);
@@ -179,11 +179,11 @@ plot(leftCIs(2, :), 'b', 'LineWidth', 1.5); % This plots the mean of the bootstr
 leftfillCI = [leftCIs(1, :), fliplr(leftCIs(3, :))]; % This sets up the fill for the errors
 fill(leftx2, leftfillCI, 'b', 'lineStyle', '-', 'edgeColor', 'b', 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % add fill
 yline(0,'--k')
-for nBin = 1:800
-    if p_left(nBin)==1
-        scatter(nBin,0.019,'_','r')
-    end
-end
+% for nBin = 1:800
+%     if p_left(nBin)==1
+%         scatter(nBin,0.019,'_','r')
+%     end
+% end
 hold off
 ax = gca;
 xlim(ax, [0, leftbins]);
@@ -205,11 +205,11 @@ plot(rightx, rightCIs(2, :), 'r', 'LineWidth', 1.5); % This plots the mean of th
 rightfillCI = [rightCIs(1, :), fliplr(rightCIs(3, :))]; % This sets up the fill for the errors
 fill(rightx2, rightfillCI, 'r', 'lineStyle', '-', 'edgeColor', 'r', 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % add fill
 yline(0,'--k')
-for nBin = 1:800
-    if p_right(nBin)==1
-        scatter(nBin,0.019,'_','r')
-    end
-end
+% for nBin = 1:800
+%     if p_right(nBin)==1
+%         scatter(nBin,0.019,'_','r')
+%     end
+% end
 hold off
 ax = gca;
 xlim(ax, [0, rightbins]);
