@@ -173,35 +173,37 @@ function [firstTertile,secondTertile,thirdTertile] = getTertile(T)
     end
 
 
+    
+
 %% Get AOK
-aokChoice = input('Get AOK? [1=Yes/0=No]: ');
-if aokChoice==1
-    % Get Kernels for AOK
-    firstAOK_KDE = firstTertile(:,401:500)-0.5;
-    secondAOK_KDE = secondTertile(:,401:500)-0.5;
-    thirdAOK_KDE = thirdTertile(:,501:600)-0.5;
-    thirdAOK_KDE_two = thirdTertile(:,401:500)-0.5;
-
-    % Compute first AOK
-    bootfirst_AOK = bootstrp(100,@mean,firstAOK_KDE);
-    bootfirst_AOK = -(bootfirst_AOK); %makes values positive
-    firstAOK = sum(bootfirst_AOK,2);
-
-    %second AOK
-    bootsecond_AOK = bootstrp(100,@mean,secondAOK_KDE);
-    bootsecond_AOK = -(bootsecond_AOK);  %makes values positive
-    secondAOK = sum(bootsecond_AOK,2);
-
-    %third AOK
-    bootthird_AOK = bootstrp(100,@mean,thirdAOK_KDE);
-    bootthird_AOK = -(bootthird_AOK);  %makes values positive
-    thirdAOK = sum(bootthird_AOK,2);
-
-    %third AOK 2
-    bootthird_AOK_two = bootstrp(100,@mean,thirdAOK_KDE_two);
-    bootthird_AOK_two = -(bootthird_AOK_two);  %makes values positive
-    thirdAOK_two = sum(bootthird_AOK_two,2);
-end
+% aokChoice = input('Get AOK? [1=Yes/0=No]: ');
+% if aokChoice==1
+%     % Get Kernels for AOK
+%     firstAOK_KDE = firstTertile(:,401:500)-0.5;
+%     secondAOK_KDE = secondTertile(:,401:500)-0.5;
+%     thirdAOK_KDE = thirdTertile(:,501:600)-0.5;
+%     thirdAOK_KDE_two = thirdTertile(:,401:500)-0.5;
+% 
+%     % Compute first AOK
+%     bootfirst_AOK = bootstrp(100,@mean,firstAOK_KDE);
+%     bootfirst_AOK = -(bootfirst_AOK); %makes values positive
+%     firstAOK = sum(bootfirst_AOK,2);
+% 
+%     %second AOK
+%     bootsecond_AOK = bootstrp(100,@mean,secondAOK_KDE);
+%     bootsecond_AOK = -(bootsecond_AOK);  %makes values positive
+%     secondAOK = sum(bootsecond_AOK,2);
+% 
+%     %third AOK
+%     bootthird_AOK = bootstrp(100,@mean,thirdAOK_KDE);
+%     bootthird_AOK = -(bootthird_AOK);  %makes values positive
+%     thirdAOK = sum(bootthird_AOK,2);
+% 
+%     %third AOK 2
+%     bootthird_AOK_two = bootstrp(100,@mean,thirdAOK_KDE_two);
+%     bootthird_AOK_two = -(bootthird_AOK_two);  %makes values positive
+%     thirdAOK_two = sum(bootthird_AOK_two,2);
+% end
 
 
 %% Plots

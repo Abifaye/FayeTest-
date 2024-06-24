@@ -8,7 +8,7 @@ folderPath = uigetdir('', 'Go to folder containing master table');
 load(uigetfile('','Select desired master table'));
 
 %% Define Variable
-[leftIdx, rightIdx] = getdelta_d_profiles_abov_bel_mean(T); %replace with function that grabs profiles for metric of interest
+[leftIdx, rightIdx] =  getdelta_d_profiles_abov_bel_mean(T); %replace with function that grabs profiles for metric of interest
 
 %Init matrices for profiles below (leftprofiles) and above (rightprofiles)
 %mean
@@ -146,24 +146,24 @@ end
 
 
 %% Get AOK
-aokChoice = input('Get AOK? [1=Yes/0=No]: ');
-if aokChoice==1
-
-% Get Kernels for AOK
-leftAOK_KDE = leftProfiles(:,401:500);
-rightAOK_KDE = rightProfiles(:,401:500);
-
-% Compute left AOK
-bootleft_AOK = bootstrp(3,@mean,leftAOK_KDE);
-bootleft_AOK = -(bootleft_AOK); %makes values positive
-leftAOK = sum(bootleft_AOK,2);
-
-%right AOK
-bootright_AOK = bootstrp(3,@mean,rightAOK_KDE);
-bootright_AOK = -(bootright_AOK); %makes values positive
-rightAOK = sum(bootright_AOK,2);
-
-end
+% aokChoice = input('Get AOK? [1=Yes/0=No]: ');
+% if aokChoice==1
+% 
+% % Get Kernels for AOK
+% leftAOK_KDE = leftProfiles(:,401:500);
+% rightAOK_KDE = rightProfiles(:,401:500);
+% 
+% % Compute left AOK
+% bootleft_AOK = bootstrp(3,@mean,leftAOK_KDE);
+% bootleft_AOK = -(bootleft_AOK); %makes values positive
+% leftAOK = sum(bootleft_AOK,2);
+% 
+% %right AOK
+% bootright_AOK = bootstrp(3,@mean,rightAOK_KDE);
+% bootright_AOK = -(bootright_AOK); %makes values positive
+% rightAOK = sum(bootright_AOK,2);
+% 
+% end
 
 %% Plots
 
@@ -179,11 +179,11 @@ plot(leftCIs(2, :), 'b', 'LineWidth', 1.5); % This plots the mean of the bootstr
 leftfillCI = [leftCIs(1, :), fliplr(leftCIs(3, :))]; % This sets up the fill for the errors
 fill(leftx2, leftfillCI, 'b', 'lineStyle', '-', 'edgeColor', 'b', 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % add fill
 yline(0,'--k')
-% for nBin = 1:800
-%     if p_left(nBin)==1
-%         scatter(nBin,0.019,'_','r')
-%     end
-% end
+for nBin = 1:800
+    if p_left(nBin)==1
+        scatter(nBin,0.019,'_','r')
+    end
+end
 hold off
 ax = gca;
 xlim(ax, [0, leftbins]);
@@ -205,11 +205,11 @@ plot(rightx, rightCIs(2, :), 'r', 'LineWidth', 1.5); % This plots the mean of th
 rightfillCI = [rightCIs(1, :), fliplr(rightCIs(3, :))]; % This sets up the fill for the errors
 fill(rightx2, rightfillCI, 'r', 'lineStyle', '-', 'edgeColor', 'r', 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % add fill
 yline(0,'--k')
-% for nBin = 1:800
-%     if p_right(nBin)==1
-%         scatter(nBin,0.019,'_','r')
-%     end
-% end
+for nBin = 1:800
+    if p_right(nBin)==1
+        scatter(nBin,0.019,'_','r')
+    end
+end
 hold off
 ax = gca;
 xlim(ax, [0, rightbins]);
@@ -229,46 +229,46 @@ xlabel([ax1 ax2],'Time Relative to Stimulus Onset (ms)','FontSize',8)
 ylabel([ax1 ax2],'Normalized Power','FontSize',8)
 
 
-%AOK
-if aokChoice==1
-%Left
-nexttile;
-hold on
-histogram(leftAOK,'Normalization','probability',FaceColor="b")
-xline(0,'--k')
-hold off
-title('AOK of Below Mean Profiles','FontSize',8);
-ay = gca;
-ylim(ay, [0 0.4]); %adjust to correct limits
-ay.FontSize = 8;
-ylabel('Probability','FontSize',8)
-ax = gca;
-xlim(ax, [-4, 4]);
-ax.XTick = [-4:1:4];
-ax.XTickLabel = {'-4', '', '-2', '', '0', '', '2', '', '4'};
-ax.FontSize = 7;
-ax.TickDir = "out";
-xlabel('Area Over the Kernel (normalized power*ms)',FontSize=8)
-
-%Right
-nexttile;
-hold on
-histogram (rightAOK,'Normalization','probability',FaceColor="r")
-xline(0,'--k')
-hold off
-title('AOK of Above Mean Profiles','FontSize',8);
-ay = gca;
-ylim(ay, [0 0.4]); %adjust to  correct limits
-ay.FontSize = 8;
-ylabel('Probability',FontSize=8)
-ax = gca;
-xlim(ax, [-4, 4]);
-ax.XTick = [-4:1:4];
-ax.XTickLabel = {'-4', '', '-2', '', '0', '', '2', '', '4'};
-ax.FontSize = 7;
-ax.TickDir = "out";
-xlabel('Area Over the Kernel (normalized power*ms)',FontSize=8)
-
-end
+% %AOK
+% if aokChoice==1
+% %Left
+% nexttile;
+% hold on
+% histogram(leftAOK,'Normalization','probability',FaceColor="b")
+% xline(0,'--k')
+% hold off
+% title('AOK of Below Mean Profiles','FontSize',8);
+% ay = gca;
+% ylim(ay, [0 0.4]); %adjust to correct limits
+% ay.FontSize = 8;
+% ylabel('Probability','FontSize',8)
+% ax = gca;
+% xlim(ax, [-4, 4]);
+% ax.XTick = [-4:1:4];
+% ax.XTickLabel = {'-4', '', '-2', '', '0', '', '2', '', '4'};
+% ax.FontSize = 7;
+% ax.TickDir = "out";
+% xlabel('Area Over the Kernel (normalized power*ms)',FontSize=8)
+% 
+% %Right
+% nexttile;
+% hold on
+% histogram (rightAOK,'Normalization','probability',FaceColor="r")
+% xline(0,'--k')
+% hold off
+% title('AOK of Above Mean Profiles','FontSize',8);
+% ay = gca;
+% ylim(ay, [0 0.4]); %adjust to  correct limits
+% ay.FontSize = 8;
+% ylabel('Probability',FontSize=8)
+% ax = gca;
+% xlim(ax, [-4, 4]);
+% ax.XTick = [-4:1:4];
+% ax.XTickLabel = {'-4', '', '-2', '', '0', '', '2', '', '4'};
+% ax.FontSize = 7;
+% ax.TickDir = "out";
+% xlabel('Area Over the Kernel (normalized power*ms)',FontSize=8)
+% 
+% end
 
 end

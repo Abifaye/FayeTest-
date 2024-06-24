@@ -19,9 +19,9 @@ aveC_range = -4.9:0.175:4.9;
 %for SC: amp = 136.7;mu = 0.6774;sigma = 0.4078;
 %for V1:amp = 97.8051;mu = 0.7706;sigma = 0.3690;
 
-amp = 136.7;
-mu =  0.6774;
-sigma = 0.4078;
+amp = 97.8051;
+mu =  0.7706;
+sigma =  0.3690;
 
 
 % Z-score
