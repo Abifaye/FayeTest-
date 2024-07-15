@@ -177,11 +177,11 @@ for binNum = analysisStartBin:analysisEndBin
         fifthBoot = fifthQuintile(fifthSamps_gpu, :);
 
         %bootstrapped AOK for each kernel
-        firstBootsAOK_gpu(bootNum, binNum) = sum(mean(-1 * firstBoot(:, startBin:startBin + analysisDurMS - 1)));
-        secondBootsAOK_gpu(bootNum, binNum) = sum(mean(-1 * secondBoot(:, startBin:startBin + analysisDurMS - 1)));
-        thirdBootsAOK_gpu(bootNum, binNum) = sum(mean(-1 * thirdBoot(:, startBin:startBin + analysisDurMS - 1)));
-        fourthBootsAOK_gpu(bootNum, binNum) = sum( mean(-1 * fourthBoot(:, startBin:startBin + analysisDurMS - 1)));
-        fifthBootsAOK_gpu(bootNum, binNum) = sum(mean(-1 * fifthBoot(:, startBin:startBin + analysisDurMS - 1)));
+        firstBootsAOK_gpu(bootNum, binNum) = sum(mean(0.5 - firstBoot(:, startBin:startBin + analysisDurMS - 1)));
+        secondBootsAOK_gpu(bootNum, binNum) = sum(mean(0.5 - secondBoot(:, startBin:startBin + analysisDurMS - 1)));
+        thirdBootsAOK_gpu(bootNum, binNum) = sum(mean(0.5 - thirdBoot(:, startBin:startBin + analysisDurMS - 1)));
+        fourthBootsAOK_gpu(bootNum, binNum) = sum( mean(0.5 - fourthBoot(:, startBin:startBin + analysisDurMS - 1)));
+        fifthBootsAOK_gpu(bootNum, binNum) = sum(mean(0.5 - fifthBoot(:, startBin:startBin + analysisDurMS - 1)));
     end
 
     % Advance Start Bin

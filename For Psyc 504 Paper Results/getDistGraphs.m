@@ -1,4 +1,4 @@
-function [outputArg1,outputArg2] = getDistGraphs
+function getDistGraphs
 %Plots how the distribution of certain metrics are partitioned by colour
 %coding them
 
@@ -20,9 +20,9 @@ aveC = (stimC + unStimC)/2;
 %for SC: amp = 136.7;mu = 0.6774;sigma = 0.4078;
 %for V1:amp = 97.8051;mu = 0.7706;sigma = 0.3690;
 
-amp = 136.7;
-mu = 0.6774;
-sigma = 0.4078;
+amp = 97.8051;
+mu = 0.7706;
+sigma = 0.3690;
 
 % Z-score
 aveC_zScore = (aveC - mu) / sigma;
@@ -218,13 +218,14 @@ for nTile = 1:length(distFields)
     title(string(distFields(nTile)))
     ay = gca;
     ylim(ay, [0 800]); %adjust to have same y-axis
-    xlim([0 500])
+    xlim([0 600])
     ay.FontSize = 10;
     ylabel('Counts', FontSize=10)
     ax = gca;
     ax.FontSize = 10;
     ax.TickDir = "out";
     xlabel('Reaction Time (ms)',FontSize=10)
+    legend('','Mean')
 end
 
 
