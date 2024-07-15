@@ -1,10 +1,7 @@
-function [masterRollRates] = getrollingrates
+function [masterRollRates] = getrollingrates(T)
 %Computes the rolling average for variables of interest from
 %master table and returns a table containing rolling rates for each
 %variable
-
-%load master table file
-load(uigetfile('Choose Master Table Containing Raw Data')); 
 
 %% Variables Init
 %select variables dialogue for selecting variables from master table to

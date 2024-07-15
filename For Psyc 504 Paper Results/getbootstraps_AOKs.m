@@ -18,23 +18,61 @@ rightProfiles = gpuArray();
 hitsLeft = gpuArray();
 hitsRight = gpuArray();
 
-% loop through all sessions
-for nSession = 1:height(T)
-    %get all hit & miss profiles from session
-    hitPros = gpuArray(cell2mat(T.hitProfiles(nSession)));
-    missPros = gpuArray(cell2mat(T.missProfiles(nSession)));
-    comboPros = gpuArray([hitPros;-missPros]);
-    %determine if delta_d of session is above or below mean and place in
-    %appropriate matrix
-    if leftIdx(nSession) == 1
-        leftProfiles = [leftProfiles;comboPros(:,:)];
-        hitsLeft = [hitsLeft;hitPros(:,:)];
-    elseif rightIdx(nSession) == 1
-        rightProfiles = [rightProfiles;comboPros(:,:)];
-        hitsRight = [hitsRight;hitPros(:,:)];
+%Choose whether to run code for indices that are sessional or for indices
+%that goes through each trial
+chooseLoop = input('Indices are by sessions or trials? [1=sessions/2=trials]: ');
+
+if chooseLoop==1 %by session
+    % loop through all sessions
+    for nSession = 1:height(T)
+        %get all hit & miss profiles from session
+        hitPros = gpuArray(cell2mat(T.hitProfiles(nSession)));
+        missPros = gpuArray(cell2mat(T.missProfiles(nSession)));
+        comboPros = gpuArray([hitPros;-missPros]);
+        %determine if delta_d of session is above or below mean and place in
+        %appropriate matrix
+        if leftIdx(nSession) == 1
+            leftProfiles = [leftProfiles;comboPros(:,:)];
+            hitsLeft = [hitsLeft;hitPros(:,:)];
+        elseif rightIdx(nSession) == 1
+            rightProfiles = [rightProfiles;comboPros(:,:)];
+            hitsRight = [hitsRight;hitPros(:,:)];
+        end
+
     end
 
+elseif chooseLoop==2 %by trials
+    % loop through all sessions
+    for nSession = 1:size(T,1)
+
+        %Init Vars
+        hitPros = [T.hitProfiles{nSession}];
+        missPros = [T.missProfiles{nSession}];
+        comboPros = [hitPros;-missPros];
+        sessHits = [T.hit{nSession}];
+        sessMiss = [T.miss{nSession}];
+        sessPower = [T.optoPowerMW{nSession}];
+        sessLeftIdx = [leftIdx{nSession}];
+        sessRightIdx = [rightIdx{nSession}];
+
+        % filter each session so that only stimulated hits/misses trials are
+        %included for further classification
+        leftIdx_hits = sessLeftIdx(sessHits==1 & sessPower~=0);
+        lefttIdx_miss = sessLeftIdx(sessMiss==1 & sessPower~=0);
+        leftIdx_combo = [leftIdx_hits';lefttIdx_miss'];
+        rightIdx_hits = sessRightIdx(sessHits==1 & sessPower~=0);
+        rightIdx_miss = sessRightIdx(sessMiss==1 & sessPower~=0);
+        rightIdx_combo = [rightIdx_hits';rightIdx_miss'];
+
+        %grab the miss+hits profiles and hit outcomes corresponding to the indices
+        leftProfiles = [leftProfiles;comboPros(leftIdx_combo==1,:)];
+        rightProfiles = [rightProfiles;comboPros(rightIdx_combo==1,:)];
+        hitsLeft = [hitsLeft; hitPros(leftIdx_hits==1,:)];
+        hitsRight = [hitsRight; hitPros(rightIdx_hits==1,:)];
+
+    end
 end
+
 
 %% Kernel Bootstrap
 

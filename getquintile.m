@@ -1,6 +1,6 @@
 function getquintile
-%Splits RTs into tertile and takes the corresponding
-%hit profiles and plot it. It then bootsraps each tertile and grabs the AOK for each tertile and create a plot
+%Splits RTs into quintile and takes the corresponding
+%hit profiles and plot it. It then bootsraps each quintile and grabs the AOK for each quintile and create a plot
 %of it
 
 %% Initialize variables
@@ -11,14 +11,15 @@ cd(uigetdir('', 'Choose folder containing master table'));
 %load master table of interest
 load(uigetfile('','Choose master table of interest'));
 
-%init locations for profiles in each tertile
+%init locations for profiles in each quintile
+
 firstQuintile= [];
 secondQuintile = [];
 thirdQuintile = [];
 fourthQuintile = [];
 fifthQuintile = [];
 
-%% Create loop for getting hit profiles and putting them in each Tertile matrix
+%% Create loop for getting hit profiles and putting them in each quintile matrix
 
 %loop through all sessions
 for nSession = 1:height(T)
@@ -28,7 +29,7 @@ for nSession = 1:height(T)
     RTs = cell2mat(T.stimCorrectRTs(nSession));
     hitPros = cell2mat(T.hitProfiles(nSession));
 
-    %creates range for each tertile
+    %creates range for each quintile
     firstIdx = (RTs >= min(prctile(RTs,[0 20])) & RTs <= max(prctile(RTs,[0 20])));
     secondIdx = (RTs > min(prctile(RTs,[20 40])) & RTs <= max(prctile(RTs,[20 40])));
     thirdIdx = (RTs > min(prctile(RTs,[40 60])) & RTs <= max(prctile(RTs,[40 60])));

@@ -2,15 +2,24 @@ function [outputArg1,outputArg2] = getDistGraphs
 %Plots how the distribution of certain metrics are partitioned by colour
 %coding them
 
-%load master table with profiles
-load('TablewithProfiles.mat');
+%% load master table with profiles
+
+%Go to folder containing master table
+folderPath = uigetdir('', 'Go to folder containing master table');
+
+%choose desired master table file
+load(uigetfile('','Select desired master table'));
+
 
 %% aveC
-stimC = [TablewithProfiles.stimC];
-unStimC = [TablewithProfiles.noStimC];
+stimC = [T.stimC];
+unStimC = [T.noStimC];
 aveC = (stimC + unStimC)/2;
 
 %curvefitting variables
+%for SC: amp = 136.7;mu = 0.6774;sigma = 0.4078;
+%for V1:amp = 97.8051;mu = 0.7706;sigma = 0.3690;
+
 amp = 136.7;
 mu = 0.6774;
 sigma = 0.4078;
@@ -37,10 +46,10 @@ figure;
 hold on
 histogram(leftProfiles,25,'BinLimits',[min(leftProfiles) max(leftProfiles)],'FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor="b")
 histogram(rightProfiles,25,'BinLimits',[min(rightProfiles) max(rightProfiles)],'FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor="r")
-xline(mu,'-.')
+xline(mu,'--')
 title('Partition of the Average Criterion Distribution','FontSize',8);
 ay = gca;
-ylim(ay, [0 45]); 
+ylim(ay, [0 45]);
 ay.FontSize = 10;
 ylabel('Counts',FontSize=10)
 ax = gca;
@@ -51,13 +60,10 @@ legend('Criterion Below Mean', 'Criterion Above Mean', 'Mean')
 
 %% Top Up d'
 
-%load master table with profiles
-load('TablewithProfiles.mat');
-
 % Init variable
-topUp_D = [TablewithProfiles.topUpDPrime];
+topUp_D = [T.topUpDPrime];
 %the master table
- 
+
 % Get Profiles
 
 %curvefitting variables
@@ -91,7 +97,7 @@ histogram(rightProfiles,25,'BinLimits',[min(rightProfiles) max(rightProfiles)],'
 xline(mu,'-.')
 title('Partition of the Top Up Dprime Distribution','FontSize',8);
 ay = gca;
-ylim(ay, [0 50]); 
+ylim(ay, [0 50]);
 ay.FontSize = 10;
 ylabel('Counts',FontSize=10)
 ax = gca;
@@ -103,10 +109,7 @@ legend('Top Up Dprime Below Mean', 'Top Up Dprime Above Mean', 'Mean',fontsize=8
 %% delta d'
 
 %get delta_d
-delta_d = getdelta_d;
-
-%load master table with profiles
-load('TablewithProfiles.mat');
+delta_d = getdelta_d(T);
 
 % Curve Fitting delta d'
 d_histcounts = histcounts(delta_d,-5:0.15:5);
@@ -119,7 +122,7 @@ sigma = 0.2824;
 deltaD_zScore = (delta_d - mu) / sigma;
 
 
-%Indices 
+%Indices
 leftIdx = deltaD_zScore < 0;
 rightIdx = deltaD_zScore > 0;
 
@@ -137,7 +140,7 @@ figure;
 hold on
 histogram(leftProfiles,25,'BinLimits',[min(leftProfiles) max(leftProfiles)],'FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor="b")
 histogram(rightProfiles,25,'BinLimits',[min(rightProfiles) max(rightProfiles)],'FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor="r")
-xline(mu,'-.')
+xline(mu,'--')
 title('Partition of the Delta Dprime Distribution','FontSize',8);
 ay = gca;
 ylim(ay, [0 50]); %adjust to have same y-axis
@@ -149,19 +152,13 @@ ax.TickDir = "out";
 xlabel('Delta Dprime',FontSize=10)
 legend('Delta Dprime Below Mean', 'Delta Dprime Above Mean', 'Mean',fontsize=8)
 
-%% RTs
-% Initialize variables
-folderPath = uigetdir();
-%load master table with hit profiles file 
-load('TablewithHitProfiles.mat');
-%init locations for profiles in each tertile
-firstIdx= [];
-secondIdx = [];
-thirdIdx = [];
+%% RTs Version 1
+
+%for when sorting RTs into quintile for each session
 
 %get all RTs in trials and sessions
 masterRTs = zeros(); %preallocates vector for all RTs
-RTsCell = [TablewithHitProfiles.stimCorrectRTs]; % creates cell with all the RTs from master table for correct responses
+RTsCell = [T.stimCorrectRTs]; % creates cell with all the RTs from master table for correct responses
 Counter = 0; %creates a counter for keeping track of where to place the RTS in the masterRTs
 for nSession = 1:length(RTsCell) % loop through all the sessions in RTsCell
     for nTrial = 1:length(RTsCell{nSession}) % loop through all trials in current session
@@ -170,48 +167,76 @@ for nSession = 1:length(RTsCell) % loop through all the sessions in RTsCell
         %place the next session RTs
     end
     Counter = Counter + sum(nTrial); %The counter keeps track of how long the
-        %session is so that the RTs in the next session will be placed 
-        % correctly in masterRTs
+    %session is so that the RTs in the next session will be placed
+    % correctly in masterRTs
 end
 
-%Creates Indieces that separate RTs into tertile
-for nSession = 1:height(TablewithHitProfiles)
+% %init locations for indices in each quintile
+firstIdx= [];
+secondIdx = [];
+thirdIdx = [];
+fourthIdx = [];
+fifthIdx = [];
+
+
+%Creates Indices that separate RTs into tertile
+for nSession = 1:height(T)
     %create variables for reaction times from the master
     %table
-    RTs = cell2mat(TablewithHitProfiles.stimCorrectRTs(nSession))';
-   
-    %creates range for each tertile
-    firstIdx = logical([firstIdx; (RTs >= min(prctile(RTs,[0 33.33])) & RTs <= max(prctile(RTs,[0 33.33])))]);
-    secondIdx = logical([secondIdx; (RTs > min(prctile(RTs,[33.33 66.67])) & RTs <= max(prctile(RTs,[33.33 66.67])))]);
-    thirdIdx = logical([thirdIdx; (RTs > min(prctile(RTs,[66.67 100])) & RTs <= max(prctile(RTs,[66.67 100])))]);
+    RTs = cell2mat(T.stimCorrectRTs(nSession))';
 
+    %creates range for each quintile
+    firstIdx = logical([firstIdx; (RTs >= min(prctile(RTs,[0 20])) & RTs <= max(prctile(RTs,[0 20])))]);
+    secondIdx = logical([secondIdx; (RTs > min(prctile(RTs,[20 40])) & RTs <= max(prctile(RTs,[20 40])))]);
+    thirdIdx = logical([thirdIdx; (RTs > min(prctile(RTs,[40 60])) & RTs <= max(prctile(RTs,[40 60])))]);
+    fourthIdx = logical([fourthIdx; (RTs > min(prctile(RTs,[60 80])) & RTs <= max(prctile(RTs,[60 80])))]);
+    fifthIdx = logical([fifthIdx; (RTs > min(prctile(RTs,[80 100])) & RTs <= max(prctile(RTs,[80 100])))]);
 end
 
+%Distribution struct
+distStruct = struct('FirstQuintile',masterRTs(firstIdx), 'SecondQuintile', masterRTs(secondIdx), 'ThirdQuintile', masterRTs(thirdIdx), 'FourthQuintile', masterRTs(fourthIdx), 'FifthQuintile', masterRTs(fifthIdx));
+distFields = fieldnames(distStruct);
+
 %plot
+
+%create tiled layout for all plots
 figure;
-hold on
-histogram(masterRTs(firstIdx),25,'FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor="b")
-histogram(masterRTs(secondIdx),25,'FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor="r")
-histogram(masterRTs(thirdIdx),25,'FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor="g")
-title('Reaction Time Distribution for Each Tertile','FontSize',8);
-ay = gca;
-ylim(ay, [0 2500]); %adjust to have same y-axis
-ay.FontSize = 10;
-ylabel('Counts',FontSize=10)
-ax = gca;
-ax.FontSize = 10;
-ax.TickDir = "out";
-xlabel('Reaction Time (ms)',FontSize=10)
-legend('First Tertile', 'Second Tertile', 'ThirdTertile',fontsize=8)
+t= tiledlayout(3,2);
+title(t,'Comparison of RTs Distribution Across the Five Quintiles for SC Gabor',"FontSize",15)
+tileOrder = [1 3 5 2 4]; %places the graphs in right place
+c = ['rgbkm'];
 
-%% Reaction Time Graph Version 2 (better version)
+%loop through each quintile distribution
+for nTile = 1:length(distFields)
+    %start a tiledlayout
+    nexttile(tileOrder(nTile));
+    hold on
+    %plot the histogram of the particular quintile distribution
+    histogram(distStruct.(string(distFields(nTile))),25,'FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor=c(nTile))
+    xline(mean(distStruct.(string(distFields(nTile)))), '--')
+    hold off
+    title(string(distFields(nTile)))
+    ay = gca;
+    ylim(ay, [0 800]); %adjust to have same y-axis
+    xlim([0 500])
+    ay.FontSize = 10;
+    ylabel('Counts', FontSize=10)
+    ax = gca;
+    ax.FontSize = 10;
+    ax.TickDir = "out";
+    xlabel('Reaction Time (ms)',FontSize=10)
+end
+
+
+
+
+%% Reaction Time Graph Version 2
+
+%for when sorting the entire RTs into quintile
+
 % Initialize variables
-folderPath = uigetdir();
-%load master table with hit profiles file 
-load('TablewithHitProfiles.mat');
-
 masterRTs = zeros(); %preallocates vector for all RTs
-RTsCell = [TablewithHitProfiles.stimCorrectRTs]; % creates cell with all the RTs from master table for correct responses
+RTsCell = [T.stimCorrectRTs]; % creates cell with all the RTs from master table for correct responses
 Counter = 0; %creates a counter for keeping track of where to place the RTS in the masterRTs
 for nSession = 1:length(RTsCell) %a for loop to loop through all the sessions in RTsCell
     for nTrial = 1:length(RTsCell{nSession}) %a for loop to go loop through all trials in current session
@@ -220,8 +245,8 @@ for nSession = 1:length(RTsCell) %a for loop to loop through all the sessions in
         %place the next session RTs
     end
     Counter = Counter + sum(nTrial); %The counter keeps track of how long the
-        %session is so that the RTs in the next session will be placed 
-        % correctly in masterRTs
+    %session is so that the RTs in the next session will be placed
+    % correctly in masterRTs
 end
 
 %Separates master RTs into tertile
@@ -249,5 +274,8 @@ xlabel('Reaction Time (ms)',FontSize=10)
 legend('','Start of First Tertile Range',' Start of Second Tertile Range', ...
     'Start of Third Tertile Range',fontsize=8)
 
+
+
+
 end
-end
+
