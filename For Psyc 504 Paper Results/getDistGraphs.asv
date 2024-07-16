@@ -44,8 +44,8 @@ rightProfiles = [rightProfiles;aveC(rightIdx,:)];
 %plot
 figure;
 hold on
-histogram(leftProfiles,25,'BinLimits',[min(leftProfiles) max(leftProfiles)],'Normalization','probability',FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor="b")
-histogram(rightProfiles,25,'BinLimits',[min(rightProfiles) max(rightProfiles)],'Normalization','probability','FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor="r")
+histogram(leftProfiles,25,'BinLimits',[min(leftProfiles) max(leftProfiles)],'FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor="b",)
+histogram(rightProfiles,25,'BinLimits',[min(rightProfiles) max(rightProfiles)],'FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor="r")
 xline(mu,'--')
 title('Partition of the Average Criterion Distribution','FontSize',8);
 ay = gca;
@@ -92,8 +92,8 @@ rightProfiles = [rightProfiles;topUp_D(rightIdx,:)];
 %plot
 figure;
 hold on
-histogram(leftProfiles,25,'BinLimits',[min(leftProfiles) max(leftProfiles)],'Normalization','probability','FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor="b")
-histogram(rightProfiles,25,'BinLimits',[min(rightProfiles) max(rightProfiles)],'Normalization','probability','FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor="r")
+histogram(leftProfiles,25,'BinLimits',[min(leftProfiles) max(leftProfiles)],'FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor="b")
+histogram(rightProfiles,25,'BinLimits',[min(rightProfiles) max(rightProfiles)],'FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor="r")
 xline(mu,'-.')
 title('Partition of the Top Up Dprime Distribution','FontSize',8);
 ay = gca;
@@ -138,8 +138,8 @@ rightProfiles = [rightProfiles;delta_d(rightIdx,:)];
 %plot
 figure;
 hold on
-histogram(leftProfiles,25,'BinLimits',[min(leftProfiles) max(leftProfiles)],'Normalization','probability','FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor="b")
-histogram(rightProfiles,25,'BinLimits',[min(rightProfiles) max(rightProfiles)],'Normalization','probability','FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor="r")
+histogram(leftProfiles,25,'BinLimits',[min(leftProfiles) max(leftProfiles)],'FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor="b")
+histogram(rightProfiles,25,'BinLimits',[min(rightProfiles) max(rightProfiles)],'FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor="r")
 xline(mu,'--')
 title('Partition of the Delta Dprime Distribution','FontSize',8);
 ay = gca;
@@ -212,7 +212,7 @@ for nTile = 1:length(distFields)
     nexttile(tileOrder(nTile));
     hold on
     %plot the histogram of the particular quintile distribution
-    histogram(distStruct.(string(distFields(nTile))),25,'Normalization','probability','FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor=c(nTile))
+    histogram(distStruct.(string(distFields(nTile))),25,'FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor=c(nTile))
     xline(mean(distStruct.(string(distFields(nTile)))), '--')
     hold off
     title(string(distFields(nTile)))
