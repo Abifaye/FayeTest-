@@ -213,7 +213,7 @@ title(t,append(input('Name of metric of interest: ',"s"),' Kernels and AOK in ',
 %below mean
 ax1 = nexttile;
 hold on
-plot(leftCIs(2, :), 'b', 'LineWidth', 1.5); % This plots the mean of the bootstrap
+plot(leftx, leftCIs(2, :), 'b', 'LineWidth', 1.5); % This plots the mean of the bootstrap
 leftfillCI = [leftCIs(1, :), fliplr(leftCIs(3, :))]; % This sets up the fill for the errors
 fill(leftx2, leftfillCI, 'b', 'lineStyle', '-', 'edgeColor', 'b', 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % add fill
 yline(0,'--k')

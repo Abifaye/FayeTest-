@@ -5,7 +5,7 @@ function getDistGraphs
 %% load master table with profiles
 
 %Go to folder containing master table
-folderPath = uigetdir('', 'Go to folder containing master table');
+cd(uigetdir('', 'Go to folder containing master table'));
 
 %choose desired master table file
 load(uigetfile('','Select desired master table'));
@@ -44,14 +44,13 @@ rightProfiles = [rightProfiles;aveC(rightIdx,:)];
 %plot
 figure;
 hold on
-histogram(leftProfiles,25,'BinLimits',[min(leftProfiles) max(leftProfiles)],'Normalization','probability',FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor="b")
+histogram(leftProfiles,25,'BinLimits',[min(leftProfiles) max(leftProfiles)],'Normalization','probability','FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor="b")
 histogram(rightProfiles,25,'BinLimits',[min(rightProfiles) max(rightProfiles)],'Normalization','probability','FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor="r")
 xline(mu,'--')
 title('Partition of the Average Criterion Distribution','FontSize',8);
 ay = gca;
-ylim(ay, [0 45]);
 ay.FontSize = 10;
-ylabel('Counts',FontSize=10)
+ylabel('Probability',FontSize=10)
 ax = gca;
 ax.FontSize = 10;
 ax.TickDir = "out";
@@ -99,7 +98,7 @@ title('Partition of the Top Up Dprime Distribution','FontSize',8);
 ay = gca;
 ylim(ay, [0 50]);
 ay.FontSize = 10;
-ylabel('Counts',FontSize=10)
+ylabel('Probability',FontSize=10)
 ax = gca;
 ax.FontSize = 10;
 ax.TickDir = "out";
@@ -143,9 +142,9 @@ histogram(rightProfiles,25,'BinLimits',[min(rightProfiles) max(rightProfiles)],'
 xline(mu,'--')
 title('Partition of the Delta Dprime Distribution','FontSize',8);
 ay = gca;
-ylim(ay, [0 50]); %adjust to have same y-axis
+%ylim(ay, [0 50]); %adjust to have same y-axis
 ay.FontSize = 10;
-ylabel('Counts',FontSize=10)
+ylabel('Probability',FontSize=10)
 ax = gca;
 ax.FontSize = 10;
 ax.TickDir = "out";
@@ -202,7 +201,7 @@ distFields = fieldnames(distStruct);
 %create tiled layout for all plots
 figure;
 t= tiledlayout(3,2);
-title(t,'Comparison of RTs Distribution Across the Five Quintiles for SC Gabor',"FontSize",15)
+title(t,'Comparison of RTs Distribution Across the Five Quintiles for V1 Luminance',"FontSize",15)
 tileOrder = [1 3 5 2 4]; %places the graphs in right place
 c = ['rgbkm'];
 
@@ -217,10 +216,10 @@ for nTile = 1:length(distFields)
     hold off
     title(string(distFields(nTile)))
     ay = gca;
-    ylim(ay, [0 800]); %adjust to have same y-axis
-    xlim([0 600])
+    ylim(ay, [0 0.18]); %adjust to have same y-axis
+    xlim([0 500])
     ay.FontSize = 10;
-    ylabel('Counts', FontSize=10)
+    ylabel('Probability', FontSize=10)
     ax = gca;
     ax.FontSize = 10;
     ax.TickDir = "out";
