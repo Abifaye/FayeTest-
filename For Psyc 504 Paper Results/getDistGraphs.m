@@ -44,10 +44,10 @@ rightProfiles = [rightProfiles;aveC(rightIdx,:)];
 %plot
 figure;
 hold on
-histogram(leftProfiles,25,'BinLimits',[min(leftProfiles) max(leftProfiles)],'Normalization','probability','FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor="b")
-histogram(rightProfiles,25,'BinLimits',[min(rightProfiles) max(rightProfiles)],'Normalization','probability','FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor="r")
+h1 = histogram(leftProfiles,'BinLimits',[min(leftProfiles) max(leftProfiles)],'BinWidth', 0.11,'Normalization','probability','FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor="b");
+h2 = histogram(rightProfiles,'BinLimits',[min(rightProfiles) max(rightProfiles)],'BinWidth', 0.11,'Normalization','probability','FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor="r");
 xline(mu,'--')
-title('Partition of the Average Criterion Distribution','FontSize',8);
+title('Partition of the Average Criterion Distribution for V1 Luminance','FontSize',12);
 ay = gca;
 ay.FontSize = 10;
 ylabel('Probability',FontSize=10)
@@ -57,53 +57,55 @@ ax.TickDir = "out";
 xlabel('Criterion',FontSize=10)
 legend('Criterion Below Mean', 'Criterion Above Mean', 'Mean')
 
+%clear
+
 %% Top Up d'
 
-% Init variable
-topUp_D = [T.topUpDPrime];
-%the master table
-
-% Get Profiles
-
-%curvefitting variables
-amp = 81.03;
-mu = 2.552;
-sigma = 0.8123;
-
-% Z-score
-topUp_zScore = (topUp_D - mu) / sigma;
-
-%Indices
-leftIdx = topUp_zScore < 0;
-rightIdx = topUp_zScore > 0;
-
-
-%Init matrices for  below (leftprofiles) and above (rightprofiles)
-%mean
-leftProfiles = [];
-rightProfiles = [];
-
-
-% Divide top up ds between above and below mean using the indices
-leftProfiles = [leftProfiles;topUp_D(leftIdx,:)];
-rightProfiles = [rightProfiles;topUp_D(rightIdx,:)];
-
-%plot
-figure;
-hold on
-histogram(leftProfiles,25,'BinLimits',[min(leftProfiles) max(leftProfiles)],'Normalization','probability','FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor="b")
-histogram(rightProfiles,25,'BinLimits',[min(rightProfiles) max(rightProfiles)],'Normalization','probability','FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor="r")
-xline(mu,'-.')
-title('Partition of the Top Up Dprime Distribution','FontSize',8);
-ay = gca;
-ylim(ay, [0 50]);
-ay.FontSize = 10;
-ylabel('Probability',FontSize=10)
-ax = gca;
-ax.FontSize = 10;
-ax.TickDir = "out";
-xlabel('Top Up Dprime',FontSize=10)
-legend('Top Up Dprime Below Mean', 'Top Up Dprime Above Mean', 'Mean',fontsize=8)
+% % Init variable
+% topUp_D = [T.topUpDPrime];
+% %the master table
+% 
+% % Get Profiles
+% 
+% %curvefitting variables
+% amp = 81.03;
+% mu = 2.552;
+% sigma = 0.8123;
+% 
+% % Z-score
+% topUp_zScore = (topUp_D - mu) / sigma;
+% 
+% %Indices
+% leftIdx = topUp_zScore < 0;
+% rightIdx = topUp_zScore > 0;
+% 
+% 
+% %Init matrices for  below (leftprofiles) and above (rightprofiles)
+% %mean
+% leftProfiles = [];
+% rightProfiles = [];
+% 
+% 
+% % Divide top up ds between above and below mean using the indices
+% leftProfiles = [leftProfiles;topUp_D(leftIdx,:)];
+% rightProfiles = [rightProfiles;topUp_D(rightIdx,:)];
+% 
+% %plot
+% figure;
+% hold on
+% histogram(leftProfiles,25,'BinLimits',[min(leftProfiles) max(leftProfiles)],'Normalization','probability','FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor="b")
+% histogram(rightProfiles,25,'BinLimits',[min(rightProfiles) max(rightProfiles)],'Normalization','probability','FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor="r")
+% xline(mu,'-.')
+% title('Partition of the Top Up Dprime Distribution','FontSize',8);
+% ay = gca;
+% ylim(ay, [0 50]);
+% ay.FontSize = 10;
+% ylabel('Probability',FontSize=10)
+% ax = gca;
+% ax.FontSize = 10;
+% ax.TickDir = "out";
+% xlabel('Top Up Dprime',FontSize=10)
+% legend('Top Up Dprime Below Mean', 'Top Up Dprime Above Mean', 'Mean',fontsize=8)
 
 %% delta d'
 
@@ -137,21 +139,86 @@ rightProfiles = [rightProfiles;delta_d(rightIdx,:)];
 %plot
 figure;
 hold on
-histogram(leftProfiles,25,'BinLimits',[min(leftProfiles) max(leftProfiles)],'Normalization','probability','FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor="b")
-histogram(rightProfiles,25,'BinLimits',[min(rightProfiles) max(rightProfiles)],'Normalization','probability','FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor="r")
+h1 = histogram(leftProfiles,'BinLimits',[min(leftProfiles) max(leftProfiles)], 'BinWidth', 0.075, 'Normalization','probability','FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor="b");
+h2 = histogram(rightProfiles,'BinLimits',[min(rightProfiles) max(rightProfiles)], 'BinWidth', 0.075, 'Normalization','probability','FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor="r");
 xline(mu,'--')
-title('Partition of the Delta Dprime Distribution','FontSize',8);
+title('Partition of the Delta Dprime Distribution for V1 Luminance','FontSize',12);
 ay = gca;
-%ylim(ay, [0 50]); %adjust to have same y-axis
+%ylim(ay, [0 0.2]); %adjust to have same y-axis
 ay.FontSize = 10;
-ylabel('Probability',FontSize=10)
+ylabel('Probability')
 ax = gca;
 ax.FontSize = 10;
 ax.TickDir = "out";
-xlabel('Delta Dprime',FontSize=10)
+xlim([-0.86 0.6])
+xlabel('Delta Dprime')
 legend('Delta Dprime Below Mean', 'Delta Dprime Above Mean', 'Mean',fontsize=8)
 
-%% RTs Version 1
+%for computing optimal binwidth for histogram: max(rightProfiles)-min(leftProfiles)/(2*192^(1/3))
+
+%% Reaction Time Graph Version 1
+
+%for taking the entire RTs and colour coding each quintile
+
+%get all RTs in trials and sessions
+masterRTs = zeros(); %preallocates vector for all RTs
+RTsCell = [T.stimCorrectRTs]; % creates cell with all the RTs from master table for correct responses
+Counter = 0; %creates a counter for keeping track of where to place the RTS in the masterRTs
+for nSession = 1:length(RTsCell) % loop through all the sessions in RTsCell
+    for nTrial = 1:length(RTsCell{nSession}) % loop through all trials in current session
+        masterRTs(nTrial + Counter, 1) = RTsCell{nSession}(nTrial); %places the RT for the current trial
+        %into the masterRTs vector. The counter keeps track of where to
+        %place the next session RTs
+    end
+    Counter = Counter + sum(nTrial); %The counter keeps track of how long the
+    %session is so that the RTs in the next session will be placed
+    % correctly in masterRTs
+end
+
+% init locations for indices in each quintile
+firstIdx= [];
+secondIdx = [];
+thirdIdx = [];
+fourthIdx = [];
+fifthIdx = [];
+
+
+%Creates Indices that separate RTs into tertile
+for nSession = 1:height(T)
+    %create variables for reaction times from the master
+    %table
+    RTs = cell2mat(T.stimCorrectRTs(nSession))';
+
+    %creates range for each quintile
+    firstIdx = logical([firstIdx; (RTs >= min(prctile(RTs,[0 20])) & RTs <= max(prctile(RTs,[0 20])))]);
+    secondIdx = logical([secondIdx; (RTs > min(prctile(RTs,[20 40])) & RTs <= max(prctile(RTs,[20 40])))]);
+    thirdIdx = logical([thirdIdx; (RTs > min(prctile(RTs,[40 60])) & RTs <= max(prctile(RTs,[40 60])))]);
+    fourthIdx = logical([fourthIdx; (RTs > min(prctile(RTs,[60 80])) & RTs <= max(prctile(RTs,[60 80])))]);
+    fifthIdx = logical([fifthIdx; (RTs > min(prctile(RTs,[80 100])) & RTs <= max(prctile(RTs,[80 100])))]);
+end
+
+
+% Calculate the edges for the histogram bins
+edges = linspace(min(masterRTs), max(masterRTs), 20);
+
+% Plot 
+figure;
+hold on
+%plot the histogram of the particular quintile distribution
+histogram(masterRTs(firstIdx),edges,'Normalization','probability','FaceColor','r')
+histogram(masterRTs(secondIdx),edges,'Normalization','probability','FaceColor','g')
+histogram(masterRTs(thirdIdx),edges,'Normalization','probability','FaceColor','b')
+histogram(masterRTs(fourthIdx),edges,'Normalization','probability','FaceColor','k')
+histogram(masterRTs(fifthIdx),edges,'Normalization','probability','FaceColor','m')
+xline(mean(masterRTs), '--')
+hold off
+title('Partition of the Reaction Time Distribution for SC Luminance','FontSize',10);
+ylabel('Probability', FontSize=10)
+xlabel('Reaction Time (ms)',FontSize=10)
+legend('1st Quintile', '2nd Quintile', '3rd Quintile', '4th Quintile', '5th Quintile')
+
+
+%% RTs Version 2
 
 %for when sorting RTs into quintile for each session
 
@@ -230,7 +297,7 @@ end
 
 
 
-%% Reaction Time Graph Version 2
+%% Reaction Time Graph Version 3
 
 %for when sorting the entire RTs into quintile
 

@@ -69,10 +69,10 @@ for nSession = 1:size(T,1)
     %grab the miss+hits profiles and hit outcomes corresponding to the indices
     % leftProfiles = [leftProfiles;comboPros(leftIdx_combo==1,:)];
     % rightProfiles = [rightProfiles;comboPros(rightIdx_combo==1,:)];
-    hitsLeft = [hitsLeft; hitPros(leftIdx_hits==1,:)];
-    hitsRight = [hitsRight; hitPros(rightIdx_hits==1,:)];
-    missLeft = [missLeft; missPros(leftIdx_hits==1,:)];
-    missRight = [missRight; missPros(rightIdx_hits==1,:)];
+    hitsLeft = [hitsLeft; (hitPros(leftIdx_hits==1,:)/2)+0.5];
+    hitsRight = [hitsRight; (hitPros(rightIdx_hits==1,:)/2)+0.5];
+    missLeft = [missLeft; (missPros(leftIdx_hits==1,:)/2)+0.5];
+    missRight = [missRight; (missPros(rightIdx_hits==1,:)/2)+0.5];
 
 
     % end
@@ -199,10 +199,10 @@ for binNum = analysisStartBin:analysisEndBin
         rightBoot_hits = hitsRight(rightSamps_gpuHits,:);
 
         %bootstrapped AOK for each kernel
-        leftBootsAOK_miss(bootNum,binNum) = sum(mean(-1*leftBoot_miss(:,startBin:startBin+analysisDurMS-1)));
-        leftBootsAOK_hits(bootNum,binNum) = sum(mean(-1*leftBoot_hits(:,startBin:startBin+analysisDurMS-1)));
-        rightBootsAOK_miss(bootNum,binNum) = sum(mean(-1*rightBoot_miss(:,startBin:startBin+analysisDurMS-1)));
-        rightBootsAOK_hits(bootNum,binNum) = sum(mean(-1*rightBoot_hits(:,startBin:startBin+analysisDurMS-1)));
+        leftBootsAOK_miss(bootNum,binNum) = sum(mean(0.5-leftBoot_miss(:,startBin:startBin+analysisDurMS-1)));
+        leftBootsAOK_hits(bootNum,binNum) = sum(mean(0.5-leftBoot_hits(:,startBin:startBin+analysisDurMS-1)));
+        rightBootsAOK_miss(bootNum,binNum) = sum(mean(0.5-rightBoot_miss(:,startBin:startBin+analysisDurMS-1)));
+        rightBootsAOK_hits(bootNum,binNum) = sum(mean(0.5-rightBoot_hits(:,startBin:startBin+analysisDurMS-1)));
 
 
     end
