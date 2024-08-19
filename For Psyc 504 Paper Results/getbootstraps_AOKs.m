@@ -8,7 +8,7 @@ cd(uigetdir('', 'Choose folder containing master table'));
 load(uigetfile('','Select desired master table'));
 
 %% Define Variable
-[leftIdx, rightIdx] =  getRate_abovBel_mean(T); %replace with function that grabs profiles for metric of interest
+[leftIdx, rightIdx] = getAveC_profiles(T); %replace with function that grabs profiles for metric of interest
 
 %Init matrices for profiles below (leftprofiles) and above (rightprofiles)
 %mean

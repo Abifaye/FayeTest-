@@ -8,6 +8,9 @@ function getBootstraps_AOKs_hits_miss_separate
 cd(uigetdir('', 'Choose folder containing master table'));
 load(uigetfile('','Select desired master table'));
 
+%go to folder containing the function
+cd(uigetdir('', 'Choose folder containing getRate_abovBel_mean function'));
+
 %% Define Variable
 [leftIdx, rightIdx] =  getRate_abovBel_mean(T); %replace with function that grabs profiles for metric of interest
 
@@ -15,34 +18,12 @@ load(uigetfile('','Select desired master table'));
 %mean
 leftProfiles = gpuArray();
 rightProfiles = gpuArray();
+
 %init matrices for hit profiles for left and right of mean
 hitsLeft = gpuArray();
 hitsRight = gpuArray();
-
-%Choose whether to run code for indices that are sessional or for indices
-%that goes through each trial
-% chooseLoop = input('Indices are by sessions or trials? [1=sessions/2=trials]: ');
-
-% if chooseLoop==1 %by session
-%     % loop through all sessions
-%     for nSession = 1:height(T)
-%         %get all hit & miss profiles from session
-%         hitPros = gpuArray(cell2mat(T.hitProfiles(nSession)));
-%         missPros = gpuArray(cell2mat(T.missProfiles(nSession)));
-%         comboPros = gpuArray([hitPros;-missPros]);
-%         %determine if delta_d of session is above or below mean and place in
-%         %appropriate matrix
-%         if leftIdx(nSession) == 1
-%             leftProfiles = [leftProfiles;comboPros(:,:)];
-%             hitsLeft = [hitsLeft;hitPros(:,:)];
-%         elseif rightIdx(nSession) == 1
-%             rightProfiles = [rightProfiles;comboPros(:,:)];
-%             hitsRight = [hitsRight;hitPros(:,:)];
-%         end
-%
-%     end
-%
-% elseif chooseLoop==2 %by trials
+missLeft = gpuArray();
+missRight = gpuArray();
 
 % loop through all sessions
 for nSession = 1:size(T,1)
@@ -60,19 +41,19 @@ for nSession = 1:size(T,1)
     % filter each session so that only stimulated hits/misses trials are
     %included for further classification
     leftIdx_hits = sessLeftIdx(sessHits==1 & sessPower~=0);
-    lefttIdx_miss = sessLeftIdx(sessMiss==1 & sessPower~=0);
+    leftIdx_miss = sessLeftIdx(sessMiss==1 & sessPower~=0);
     %leftIdx_combo = [leftIdx_hits';lefttIdx_miss'];
     rightIdx_hits = sessRightIdx(sessHits==1 & sessPower~=0);
     rightIdx_miss = sessRightIdx(sessMiss==1 & sessPower~=0);
     %rightIdx_combo = [rightIdx_hits';rightIdx_miss'];
 
-    %grab the miss+hits profiles and hit outcomes corresponding to the indices
+    %grab the miss+hits profiles corresponding to the indices
     % leftProfiles = [leftProfiles;comboPros(leftIdx_combo==1,:)];
     % rightProfiles = [rightProfiles;comboPros(rightIdx_combo==1,:)];
     hitsLeft = [hitsLeft; (hitPros(leftIdx_hits==1,:)/2)+0.5];
     hitsRight = [hitsRight; (hitPros(rightIdx_hits==1,:)/2)+0.5];
-    missLeft = [missLeft; (missPros(leftIdx_hits==1,:)/2)+0.5];
-    missRight = [missRight; (missPros(rightIdx_hits==1,:)/2)+0.5];
+    missLeft = [missLeft; (missPros(leftIdx_miss==1,:)/2)+0.5];
+    missRight = [missRight; (missPros(rightIdx_miss==1,:)/2)+0.5];
 
 
     % end
@@ -241,7 +222,7 @@ end
 
 %create tiled layout for all plots
 figure;
-t = tiledlayout(2,1);
+t = tiledlayout(4,1);
 title(t,append(input('Name of metric of interest: ',"s"),' Kernels and AOK in ',input('Name of brain area and task type: ',"s")))
 
 %below mean
@@ -252,10 +233,10 @@ hold on
 plot(leftx_miss, leftCIs_miss(2, :), 'b', 'LineWidth', 1.5); % This plots the mean of the bootstrap
 leftfillCI_miss = [leftCIs_miss(1, :), fliplr(leftCIs_miss(3, :))]; % This sets up the fill for the errors
 fill(leftx2_miss, leftfillCI_miss, 'b', 'lineStyle', '-', 'edgeColor', 'b', 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % add fill
-yline(0,'--k')
+yline(0.5,'--k')
 for nBin = 1:800
     if p_leftMiss(nBin)==1
-        scatter(nBin,0.019,'_','r')
+        scatter(nBin,0.529,'_','r')
     end
 end
 hold off
@@ -268,7 +249,7 @@ ax.XTickLabel = {'-400', '-200', '0', '200', '400'};
 ax.FontSize = 8;
 ax.TickDir = "out";
 ay = gca;
-ylim(ay, [-0.04 0.02]);
+%ylim(ay, [0.4 0.6]);
 ay.FontSize = 8;
 title('Kernel of Below Mean Miss Profiles','FontSize',8);
 
@@ -278,10 +259,10 @@ hold on
 plot(leftx_hits, leftCIs_hits(2, :), 'b', 'LineWidth', 1.5); % This plots the mean of the bootstrap
 leftfillCI_hits = [leftCIs_hits(1, :), fliplr(leftCIs_hits(3, :))]; % This sets up the fill for the errors
 fill(leftx2_hits, leftfillCI_hits, 'b', 'lineStyle', '-', 'edgeColor', 'b', 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % add fill
-yline(0,'--k')
+yline(0.5,'--k')
 for nBin = 1:800
-    if p_leftRight(nBin)==1
-        scatter(nBin,0.019,'_','r')
+    if p_leftHits(nBin)==1
+        scatter(nBin,0.529,'_','r')
     end
 end
 hold off
@@ -294,7 +275,7 @@ ax.XTickLabel = {'-400', '-200', '0', '200', '400'};
 ax.FontSize = 8;
 ax.TickDir = "out";
 ay = gca;
-ylim(ay, [-0.04 0.02]);
+%ylim(ay, [0.4 0.6]);
 ay.FontSize = 8;
 title('Kernel of Below Mean Hits Profiles','FontSize',8);
 
@@ -307,10 +288,10 @@ hold on
 plot(rightx_miss, rightCIs_miss(2, :), 'r', 'LineWidth', 1.5); % This plots the mean of the bootstrap
 rightfillCI_miss = [rightCIs_miss(1, :), fliplr(rightCIs_miss(3, :))]; % This sets up the fill for the errors
 fill(rightx2_miss, rightfillCI_miss, 'r', 'lineStyle', '-', 'edgeColor', 'r', 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % add fill
-yline(0,'--k')
+yline(0.5,'--k')
 for nBin = 1:800
     if p_rightMiss(nBin)==1
-        scatter(nBin,0.019,'_','r')
+        scatter(nBin,0.529,'_','r')
     end
 end
 hold off
@@ -323,7 +304,7 @@ ax.XTickLabel = {'-400', '-200', '0', '200', '400'};
 ax.FontSize = 8;
 ax.TickDir = "out";
 ay = gca;
-ylim(ay, [-0.04 0.02]);
+%ylim(ay, [0.4 0.6]);
 ay.FontSize = 8;
 title('Kernel of Above Mean Miss Profiles','FontSize',8);
 
@@ -337,10 +318,10 @@ hold on
 plot(rightx_hits, rightCIs_hits(2, :), 'r', 'LineWidth', 1.5); % This plots the mean of the bootstrap
 rightfillCI_hits = [rightCIs_hits(1, :), fliplr(rightCIs_hits(3, :))]; % This sets up the fill for the errors
 fill(rightx2_hits, rightfillCI_hits, 'r', 'lineStyle', '-', 'edgeColor', 'r', 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % add fill
-yline(0,'--k')
+yline(0.5,'--k')
 for nBin = 1:800
     if p_rightHits(nBin)==1
-        scatter(nBin,0.019,'_','r')
+        scatter(nBin,0.529,'_','r')
     end
 end
 hold off
@@ -353,7 +334,7 @@ ax.XTickLabel = {'-400', '-200', '0', '200', '400'};
 ax.FontSize = 8;
 ax.TickDir = "out";
 ay = gca;
-ylim(ay, [-0.04 0.02]);
+%ylim(ay, [0.4 0.6]);
 ay.FontSize = 8;
 title('Kernel of Above Mean Hits Profiles','FontSize',8);
 

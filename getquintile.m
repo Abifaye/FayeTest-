@@ -180,7 +180,7 @@ for binNum = analysisStartBin:analysisEndBin
         firstBootsAOK_gpu(bootNum, binNum) = sum(mean(0.5 - firstBoot(:, startBin:startBin + analysisDurMS - 1)));
         secondBootsAOK_gpu(bootNum, binNum) = sum(mean(0.5 - secondBoot(:, startBin:startBin + analysisDurMS - 1)));
         thirdBootsAOK_gpu(bootNum, binNum) = sum(mean(0.5 - thirdBoot(:, startBin:startBin + analysisDurMS - 1)));
-        fourthBootsAOK_gpu(bootNum, binNum) = sum( mean(0.5 - fourthBoot(:, startBin:startBin + analysisDurMS - 1)));
+        fourthBootsAOK_gpu(bootNum, binNum) = sum(mean(0.5 - fourthBoot(:, startBin:startBin + analysisDurMS - 1)));
         fifthBootsAOK_gpu(bootNum, binNum) = sum(mean(0.5 - fifthBoot(:, startBin:startBin + analysisDurMS - 1)));
     end
 
@@ -207,11 +207,11 @@ p_fourth = zeros(1, 800);
 p_fifth = zeros(1, 800);
 
 for binNum = analysisStartBin:analysisEndBin
-    p_first(1,binNum) = (size(firstBootsAOK,1) - sum(firstBootsAOK(:,binNum)<0.5))/size(firstBootsAOK,1);
-    p_second(1,binNum) = (size(secondBootsAOK,1) - sum(secondBootsAOK(:,binNum)<0.5))/size(secondBootsAOK,1);
-    p_third(1,binNum) = (size(thirdBootsAOK,1) - sum(thirdBootsAOK(:,binNum)<0.5))/size(thirdBootsAOK,1);
-    p_fourth(1,binNum) = (size(fourthBootsAOK,1) - sum(fourthBootsAOK(:,binNum)<0.5))/size(fourthBootsAOK,1);
-    p_fifth(1,binNum) = (size(fifthBootsAOK,1) - sum(fifthBootsAOK(:,binNum)<0.5))/size(fifthBootsAOK,1);
+    p_first(1,binNum) = (size(firstBootsAOK,1) - sum(firstBootsAOK(:,binNum)<0))/size(firstBootsAOK,1);
+    p_second(1,binNum) = (size(secondBootsAOK,1) - sum(secondBootsAOK(:,binNum)<0))/size(secondBootsAOK,1);
+    p_third(1,binNum) = (size(thirdBootsAOK,1) - sum(thirdBootsAOK(:,binNum)<0))/size(thirdBootsAOK,1);
+    p_fourth(1,binNum) = (size(fourthBootsAOK,1) - sum(fourthBootsAOK(:,binNum)<0))/size(fourthBootsAOK,1);
+    p_fifth(1,binNum) = (size(fifthBootsAOK,1) - sum(fifthBootsAOK(:,binNum)<0))/size(fifthBootsAOK,1);
 end
 
 %% Kernel Plots
@@ -238,13 +238,13 @@ clr = 'rkgbm'; %colours of each cluster
 %create tiled layout for all plots
 figure('Position',[1 1 750 1500]);
 t= tiledlayout(3,2);
-title(t,'Comparison of Kernels Across the Five Quintiles',"FontSize",15)
 tileOrder = [1 3 5 2 4]; %places the graphs in right place
 
 
 % Compute each profile w/ SEM
 for nProfiles = 1:length(quintFields)
-    %init var for smoothing kernel
+    
+    %init vars for smoothing kernel
     smoothKernel = gpuArray();
 
     for nTrial = 1:length(quintStruct.(string(quintFields(nProfiles))))
@@ -273,14 +273,14 @@ for nProfiles = 1:length(quintFields)
     plot(x, CIs(2, :), clr(nProfiles), 'LineWidth', 1.5); % This plots the mean of the bootstrap
     fillCI = [CIs(1, :), fliplr(CIs(3, :))]; % This sets up the fill for the errors
     fill(x2, fillCI, clr(nProfiles), 'lineStyle', '-', 'edgeColor', clr(nProfiles), 'edgeAlpha', 0.5, 'faceAlpha', 0.10); % adds the fill
-    yline(0,'--k')
+    yline(0.5,'--k')
     for nBin = 1:800
         if currentP(nBin)==1
-            scatter(nBin,0.019,'_','r')
+            scatter(nBin,0.529,'_','r')
         end
     end
     hold off
-    ylim([0.465 0.515])
+    ylim([0.46 0.53])
     title(string(quintFields(nProfiles)))
     set(gca,"FontSize",15)
     ax = gca;
@@ -292,6 +292,8 @@ for nProfiles = 1:length(quintFields)
     xlabel('Time (ms)')
     ylabel('Normalized Power')
 end
+
+title(t,append('Comparison of Kernels Across the Five Quintiles for ', input('Name of brain area and task type: ',"s")),"FontSize",15)
 
 %% HeatMap Plot
 % varNames = ['Quintile', string(1:81)]; %ASK JACKSON FOR GRAPH LABELS
