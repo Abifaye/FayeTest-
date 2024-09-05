@@ -1,17 +1,11 @@
-function [delta_C] = getdelta_C
+function [delta_C] = getdelta_C(T)
 % Grabs stimulated and non stimulated C from master table and subtract them
 % from each other for each session to calculate the average effect of
-% inhibition in V1.
-
-%Go to folder containing master table
-folderPath = uigetdir();
-
-%load file containing stimulated/non d'
-load('TablewithProfiles.mat');
+% inhibition in SC and V1.
 
 %allocate the variables
-stimC = [TablewithProfiles.stimC];
-noStimC = [TablewithProfiles.noStimC];
+stimC = [T.stimC];
+noStimC = [T.noStimC];
 
 %% Mean Effect of Inhibition on d'
 for nSession = 1:length(stimC)

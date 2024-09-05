@@ -20,9 +20,9 @@ aveC = (stimC + unStimC)/2;
 %for SC: amp = 136.7;mu = 0.6774;sigma = 0.4078;
 %for V1:amp = 97.8051;mu = 0.7706;sigma = 0.3690;
 
-amp = 97.8051;
-mu = 0.7706;
-sigma = 0.3690;
+amp = 136.7;
+mu = 0.6774;
+sigma = 0.4078;
 
 % Z-score
 aveC_zScore = (aveC - mu) / sigma;
@@ -43,7 +43,7 @@ rightProfiles = [rightProfiles;aveC(rightIdx,:)];
 %plot
 
 %set graph bin edges
-binEdges = min(aveC):0.16:max(aveC);
+binEdges = min(aveC):0.12:max(aveC);
 
 figure;
 hold on
@@ -62,6 +62,8 @@ ax.FontSize = 10;
 ax.TickDir = "out";
 xlabel('Criterion',FontSize=10)
 legend('Criterion Below Mean', 'Criterion Above Mean', 'Mean')
+
+%clear
 
 %% Top Up d'
 

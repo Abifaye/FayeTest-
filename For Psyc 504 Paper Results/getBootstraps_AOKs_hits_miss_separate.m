@@ -211,9 +211,9 @@ p_rightMiss = zeros(1, 800);
 p_rightHits = zeros(1, 800);
 
 for binNum = analysisStartBin:analysisEndBin
-    p_leftMiss(1,binNum) = (size(leftBootsAOK_miss,1) - sum(leftBootsAOK_miss(:,binNum)<0))/size(leftBootsAOK_miss,1);
+    p_leftMiss(1,binNum) = (size(leftBootsAOK_miss,1) - sum(leftBootsAOK_miss(:,binNum)>0))/size(leftBootsAOK_miss,1);
     p_leftHits(1,binNum) = (size(leftBootsAOK_hits,1) - sum(leftBootsAOK_hits(:,binNum)<0))/size(leftBootsAOK_hits,1);
-    p_rightMiss(1,binNum) = (size(rightBootsAOK_miss,1) - sum(rightBootsAOK_miss(:,binNum)<0))/size(rightBootsAOK_miss,1);
+    p_rightMiss(1,binNum) = (size(rightBootsAOK_miss,1) - sum(rightBootsAOK_miss(:,binNum)>0))/size(rightBootsAOK_miss,1);
     p_rightHits(1,binNum) = (size(rightBootsAOK_hits,1) - sum(rightBootsAOK_hits(:,binNum)<0))/size(rightBootsAOK_hits,1);
 end
 

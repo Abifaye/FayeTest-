@@ -1,7 +1,7 @@
 function [delta_d] = getdelta_d(T)
-% Grabs stimulated and non stimulated d' master table and subtract them
+% Summary: Grabs stimulated and non stimulated d' master table and subtract them
 % from each other for each session to calculate the average effect of
-% inhibition in V1. 
+% inhibition in SC. 
 
 %allocate the variables
 stimDPrimes = [T.stimDPrime];
