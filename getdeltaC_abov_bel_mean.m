@@ -1,10 +1,10 @@
-function [outputArg1,outputArg2] = getdeltaC_abov_bel_mean(T)
+function [leftIdx,rightIdx] = getdeltaC_abov_bel_mean(T)
 % Summary: Grabs stimulated a master table, computes its z-score using sigma
 % and mu from curve fitting, and sorts them between above and below mean 
 % using matrices to place them.
 
-%cd to folder containing function to get delta C
-cd(uigetdir('', 'Choose folder containing getdelta_C function'))
+% %cd to folder containing function to get delta C
+% cd(uigetdir('', 'Choose folder containing getdelta_C function'))
 
 %allocate the variables
 delta_C = getdelta_C(T);

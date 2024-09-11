@@ -1,63 +1,85 @@
 function getBootstraps_AOKs_hits_miss_separate
-%% Summary
+%Summary:inserts function for metric of interest to grab its bootstrap and AOK 
+% and plots them with hits and miss separated
 
-%inserts function for metric of interest to grab its bootstrap and AOK and
-%plots them with hits and miss separated
+% Select the largest folder that contains all required subfolders and files
+baseFolder = uigetdir('', 'Select base folder containing all subfolders');
 
-%Go to folder containing master table
-cd(uigetdir('', 'Choose folder containing master table'));
-load(uigetfile('','Select desired master table'));
+% Generate the full path, including subfolders
+fullPath = genpath(baseFolder);
 
-%go to folder containing the function
-cd(uigetdir('', 'Choose folder containing getRate_abovBel_mean function'));
+% Add the full path to MATLAB's search path
+addpath(fullPath);
 
-%% Define Variable
-[leftIdx, rightIdx] =  getRate_abovBel_mean(T); %replace with function that grabs profiles for metric of interest
+% Get master table containing data you want to analyze
+load(uigetfile('','Select desired master table', baseFolder));
 
-%Init matrices for profiles below (leftprofiles) and above (rightprofiles)
+%% Define Variables
+%indices for each trial that indicate whether they were above or below
+%their session's average rate
+[leftIdx, rightIdx] =  getRate_abovBel_mean(T);
+
+% Combine data across all sessions
+hitPros = cat(1, T.hitProfiles{:});
+missPros = cat(1, T.missProfiles{:});
+hitOutcomes = cat(2, T.hit{:});
+missOutcomes = cat(2, T.miss{:});
+power = cat(2, T.optoPowerMW{:});
+leftIdx = cat(2, leftIdx{:});
+rightIdx = cat(2, rightIdx{:});
+
+% Use logical indexing to filter only trials with hit profiles for the
+% right and left indices
+leftIdx_hits = leftIdx(hitOutcomes == 1 & power ~= 0); %hit trial with power on 
+leftIdx_miss = leftIdx(missOutcomes == 1 & power ~= 0); %miss trial with power off
+rightIdx_hits = rightIdx(hitOutcomes == 1 & power ~= 0);
+rightIdx_miss = rightIdx(missOutcomes == 1 & power ~= 0);
+
+% classify hit and miss profiles based on indexing and save as gpuarrays for faster calculation
+hitsLeft = gpuArray((hitPros(leftIdx_hits == 1, :) / 2) + 0.5); % "/2+0.5" is correction of scales
+missLeft = gpuArray((missPros(leftIdx_miss == 1, :) / 2) + 0.5);
+hitsRight = gpuArray((hitPros(rightIdx_hits == 1, :) / 2) + 0.5);
+missRight = gpuArray((missPros(rightIdx_miss == 1, :) / 2) + 0.5);
+
+% %Init matrices for profiles below (leftprofiles) and above (rightprofiles)
 %mean
-leftProfiles = gpuArray();
-rightProfiles = gpuArray();
-
-%init matrices for hit profiles for left and right of mean
-hitsLeft = gpuArray();
-hitsRight = gpuArray();
-missLeft = gpuArray();
-missRight = gpuArray();
-
-% loop through all sessions
-for nSession = 1:size(T,1)
-
-    %Init Vars
-    hitPros = [T.hitProfiles{nSession}];
-    missPros = [T.missProfiles{nSession}];
-    %comboPros = [hitPros;-missPros];
-    sessHits = [T.hit{nSession}];
-    sessMiss = [T.miss{nSession}];
-    sessPower = [T.optoPowerMW{nSession}];
-    sessLeftIdx = [leftIdx{nSession}];
-    sessRightIdx = [rightIdx{nSession}];
-
-    % filter each session so that only stimulated hits/misses trials are
-    %included for further classification
-    leftIdx_hits = sessLeftIdx(sessHits==1 & sessPower~=0);
-    leftIdx_miss = sessLeftIdx(sessMiss==1 & sessPower~=0);
-    %leftIdx_combo = [leftIdx_hits';lefttIdx_miss'];
-    rightIdx_hits = sessRightIdx(sessHits==1 & sessPower~=0);
-    rightIdx_miss = sessRightIdx(sessMiss==1 & sessPower~=0);
-    %rightIdx_combo = [rightIdx_hits';rightIdx_miss'];
-
-    %grab the miss+hits profiles corresponding to the indices
-    % leftProfiles = [leftProfiles;comboPros(leftIdx_combo==1,:)];
-    % rightProfiles = [rightProfiles;comboPros(rightIdx_combo==1,:)];
-    hitsLeft = [hitsLeft; (hitPros(leftIdx_hits==1,:)/2)+0.5];
-    hitsRight = [hitsRight; (hitPros(rightIdx_hits==1,:)/2)+0.5];
-    missLeft = [missLeft; (missPros(leftIdx_miss==1,:)/2)+0.5];
-    missRight = [missRight; (missPros(rightIdx_miss==1,:)/2)+0.5];
+% leftProfiles = gpuArray();
+% rightProfiles = gpuArray();
 
 
-    % end
-end
+% % loop through all sessions
+% for nSession = 1:size(T,1)
+% 
+%     %Init Vars
+%     hitPros = [T.hitProfiles{nSession}];
+%     missPros = [T.missProfiles{nSession}];
+%     %comboPros = [hitPros;-missPros];
+%     sessHits = [T.hit{nSession}];
+%     sessMiss = [T.miss{nSession}];
+%     sessPower = [T.optoPowerMW{nSession}];
+%     sessLeftIdx = [leftIdx{nSession}];
+%     sessRightIdx = [rightIdx{nSession}];
+% 
+%     % filter each session so that only stimulated hits/misses trials are
+%     %included for further classification
+%     leftIdx_hits = sessLeftIdx(sessHits==1 & sessPower~=0);
+%     leftIdx_miss = sessLeftIdx(sessMiss==1 & sessPower~=0);
+%     %leftIdx_combo = [leftIdx_hits';lefttIdx_miss'];
+%     rightIdx_hits = sessRightIdx(sessHits==1 & sessPower~=0);
+%     rightIdx_miss = sessRightIdx(sessMiss==1 & sessPower~=0);
+%     %rightIdx_combo = [rightIdx_hits';rightIdx_miss'];
+% 
+%     %grab the miss+hits profiles corresponding to the indices
+%     % leftProfiles = [leftProfiles;comboPros(leftIdx_combo==1,:)];
+%     % rightProfiles = [rightProfiles;comboPros(rightIdx_combo==1,:)];
+%     hitsLeft = [hitsLeft; (hitPros(leftIdx_hits==1,:)/2)+0.5];
+%     hitsRight = [hitsRight; (hitPros(rightIdx_hits==1,:)/2)+0.5];
+%     missLeft = [missLeft; (missPros(leftIdx_miss==1,:)/2)+0.5];
+%     missRight = [missRight; (missPros(rightIdx_miss==1,:)/2)+0.5];
+% 
+% 
+%     % end
+% end
 
 
 %% Kernel Bootstrap
@@ -134,10 +156,6 @@ analysisStartBin = 26; %this is a rolling average centered on the test bin, we l
 analysisEndBin   = 775; %Similarly we cant test past the end of the vector so when our rolling average gets near the end we stop
 
 % How Many of Each Outcome Type for bootstrapping 
-% left_nHit = size(hitsLeft,1); %how many hits
-% left_ntotal = size(leftProfiles,1); %total of both hits and miss profiles for below mean
-% right_nHit = size(hitsRight,1);
-% right_total = size(rightProfiles,1);
 left_nMiss = size(missLeft,1);
 left_nHit = size(hitsLeft,1); 
 right_nMiss = size(missRight,1);
@@ -153,12 +171,13 @@ bootSamps = 1000;
 leftBootsAOK_miss = gpuArray.zeros(bootSamps, 800);
 leftBootsAOK_hits = gpuArray.zeros(bootSamps, 800);
 rightBootsAOK_miss = gpuArray.zeros(bootSamps, 800);
-rightBootsAOK_htis = gpuArray.zeros(bootSamps, 800);
+rightBootsAOK_hits = gpuArray.zeros(bootSamps, 800);
 
 % Bin to Start Computing AOK
 lookBack = floor(analysisDurMS/2); %This puts the center of the rolling analysis window on the bin being tested
 startBin = analysisStartBin-lookBack;  %note the difference between "analysisStartBin" and the "StartBin". startBin is set before the loop and then gets iterated with each loop to advance the window whereas analysisStartBin is set once to fix the beginning of the testing window.
 
+%loop through bins
 for binNum = analysisStartBin:analysisEndBin
     for bootNum = 1:bootSamps
         % Samps For This Round of BootStrapping
@@ -180,12 +199,10 @@ for binNum = analysisStartBin:analysisEndBin
         rightBoot_hits = hitsRight(rightSamps_gpuHits,:);
 
         %bootstrapped AOK for each kernel
-        leftBootsAOK_miss(bootNum,binNum) = sum(mean(0.5-leftBoot_miss(:,startBin:startBin+analysisDurMS-1)));
+        leftBootsAOK_miss(bootNum,binNum) = sum(mean(0.5-leftBoot_miss(:,startBin:startBin+analysisDurMS-1))); %"0.5-leftBoot_miss(:,startBin:startBin+analysisDurMS-1))" calculates the distance of data from 0.5 (center line)
         leftBootsAOK_hits(bootNum,binNum) = sum(mean(0.5-leftBoot_hits(:,startBin:startBin+analysisDurMS-1)));
         rightBootsAOK_miss(bootNum,binNum) = sum(mean(0.5-rightBoot_miss(:,startBin:startBin+analysisDurMS-1)));
         rightBootsAOK_hits(bootNum,binNum) = sum(mean(0.5-rightBoot_hits(:,startBin:startBin+analysisDurMS-1)));
-
-
     end
 
     % Advance Start Bin
@@ -210,11 +227,13 @@ p_leftHits = zeros(1, 800);
 p_rightMiss = zeros(1, 800);
 p_rightHits = zeros(1, 800);
 
+%for loop for determining what proportion of the 1000 bootstrap has the
+%data point below 0.5 (for each data point)
 for binNum = analysisStartBin:analysisEndBin
-    p_leftMiss(1,binNum) = (size(leftBootsAOK_miss,1) - sum(leftBootsAOK_miss(:,binNum)>0))/size(leftBootsAOK_miss,1);
-    p_leftHits(1,binNum) = (size(leftBootsAOK_hits,1) - sum(leftBootsAOK_hits(:,binNum)<0))/size(leftBootsAOK_hits,1);
-    p_rightMiss(1,binNum) = (size(rightBootsAOK_miss,1) - sum(rightBootsAOK_miss(:,binNum)>0))/size(rightBootsAOK_miss,1);
-    p_rightHits(1,binNum) = (size(rightBootsAOK_hits,1) - sum(rightBootsAOK_hits(:,binNum)<0))/size(rightBootsAOK_hits,1);
+    p_leftMiss(1,binNum) = (size(leftBootsAOK_miss,1) - nnz(leftBootsAOK_miss(:,binNum)>0))/size(leftBootsAOK_miss,1); % >0 because the misses are inverted; this basically indicates whether the data point is above center line (area above kernel) by looking at the difference in distance between data and 0.5
+    p_leftHits(1,binNum) = (size(leftBootsAOK_hits,1) - nnz(leftBootsAOK_hits(:,binNum)<0))/size(leftBootsAOK_hits,1); % <0 because looking at area under kernel (below centre line)
+    p_rightMiss(1,binNum) = (size(rightBootsAOK_miss,1) - nnz(rightBootsAOK_miss(:,binNum)>0))/size(rightBootsAOK_miss,1);
+    p_rightHits(1,binNum) = (size(rightBootsAOK_hits,1) - nnz(rightBootsAOK_hits(:,binNum)<0))/size(rightBootsAOK_hits,1);
 end
 
 
@@ -279,7 +298,6 @@ ay = gca;
 ay.FontSize = 8;
 title('Kernel of Below Mean Hits Profiles','FontSize',8);
 
-
 %above mean
 
 %miss
@@ -307,10 +325,6 @@ ay = gca;
 %ylim(ay, [0.4 0.6]);
 ay.FontSize = 8;
 title('Kernel of Above Mean Miss Profiles','FontSize',8);
-
-%Axes Label
-xlabel([ax1 ax2],'Time Relative to Stimulus Onset (ms)','FontSize',8)
-ylabel([ax1 ax2],'Normalized Power','FontSize',8)
 
 %hits
 ax2 = nexttile;

@@ -3,8 +3,8 @@ function [leftIdx,rightIdx] = getRate_abovBel_mean(T)
 %Trials are categorized as below or above mean of false rate for each
 %session
 
-%Go to folder with the rolling rate function
-cd(uigetdir('', 'Choose folder containing getrollingrates function'));
+% %Go to folder with the rolling rate function
+% cd(uigetdir('', 'Choose folder containing getrollingrates function'));
 
 %get the rolling rate of desired variable specified as "session by session averages"
 %and indicate the desired window length for the rolling rate

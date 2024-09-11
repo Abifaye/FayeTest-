@@ -5,11 +5,17 @@ function getquintile
 
 %% Initialize variables
 
-%Go to folder with the master table
-cd(uigetdir('', 'Choose folder containing master table'));
+% Select the largest folder that contains all required subfolders and files
+baseFolder = uigetdir('', 'Select base folder containing all subfolders');
 
-%load master table of interest
-load(uigetfile('','Choose master table of interest'));
+% Generate the full path, including subfolders
+fullPath = genpath(baseFolder);
+
+% Add the full path to MATLAB's search path
+addpath(fullPath);
+
+% Get master table containing data you want to analyze
+load(uigetfile('','Select desired master table', baseFolder));
 
 %init locations for profiles in each quintile
 

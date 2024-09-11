@@ -3,12 +3,22 @@ function getbootstraps_AOKs
 %inserts function for metric of interest to grab its bootstrap and AOK and
 %plots them
 
-%Go to folder containing master table
-cd(uigetdir('', 'Choose folder containing master table'));
-load(uigetfile('','Select desired master table'));
+%% Initialize variables
+
+% Select the largest folder that contains all required subfolders and files
+baseFolder = uigetdir('', 'Select base folder containing all subfolders');
+
+% Generate the full path, including subfolders
+fullPath = genpath(baseFolder);
+
+% Add the full path to MATLAB's search path
+addpath(fullPath);
+
+% Get master table containing data you want to analyze
+load(uigetfile('','Select desired master table', baseFolder));
 
 %% Define Variable
-[leftIdx, rightIdx] = getAveC_profiles(T); %replace with function that grabs profiles for metric of interest
+[leftIdx, rightIdx] = getDprimes_abov_bel_mean(T); %replace with function that grabs profiles for metric of interest
 
 %Init matrices for profiles below (leftprofiles) and above (rightprofiles)
 %mean
