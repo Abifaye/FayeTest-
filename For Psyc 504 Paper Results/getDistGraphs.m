@@ -50,8 +50,8 @@ hold on
 % h1 = histogram(leftProfiles,'BinLimits',[min(leftProfiles) max(leftProfiles)],'BinWidth', 0.11,'Normalization','probability','FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor="b");
 % h2 = histogram(rightProfiles,'BinLimits',[min(rightProfiles) max(rightProfiles)],'BinWidth', 0.11,'Normalization','probability','FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor="r");
 %h1 = histogram(aveC,'BinEdges',binEdges,'Normalization','probability',FaceColor="w");
-h2 = histogram(aveC(leftIdx),'BinEdges',binEdges,'Normalization','probability',FaceColor="r");
-h3 = histogram(aveC(rightIdx),'BinEdges',binEdges,'Normalization','probability',FaceColor="b");
+h2 = histogram(aveC(~leftIdx|~rightIdx),'BinEdges',binEdges,'Normalization','probability',FaceColor="r");
+h3 = histogram(aveC(rightIdx|leftIdx),'BinEdges',binEdges,'Normalization','probability',FaceColor="b");
 xline(mu,'--')
 title('Partition of the Average Criterion Distribution for V1 Luminance','FontSize',12);
 ay = gca;
