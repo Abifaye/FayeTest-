@@ -4,11 +4,70 @@ function getDistGraphs
 
 %% load master table with profiles
 
-%Go to folder containing master table
-cd(uigetdir('', 'Go to folder containing master table'));
+% Select the largest folder that contains all required subfolders and files
+baseFolder = uigetdir('', 'Select base folder containing all subfolders');
+
+% Generate the full path, including subfolders
+fullPath = genpath(baseFolder);
+
+% Add the full path to MATLAB's search path
+addpath(fullPath);
 
 %choose desired master table file
 load(uigetfile('','Select desired master table'));
+
+%% Figures V2
+%pick variable of interest (can also just use functions and rename it as
+%var; i.e. var = getdelta_d_primes);
+selection = listdlg('PromptString',{'Select variable of interest to make plot'},'ListString',T.Properties.VariableNames,'SelectionMode','single');
+var = [T.(selection)];
+
+var = getdelta_d(T);
+
+
+%run function for generating indices
+[leftIdx,rightIdx] = getdelta_d_profiles_abov_bel_mean(T); %change function depending on which you need
+
+%create combined index
+comboVar = [var(leftIdx);var(rightIdx)];
+leftVar = var(leftIdx); %below mean values of var
+rightVar = var(rightIdx); %above mean values of var
+
+%find mean of data
+mu = mean(comboVar);
+
+
+%specify bin numbers
+numBins = 11;
+
+%find bin edges using all data
+[~, binEdges] = histcounts(comboVar,numBins);
+
+%find bing counts for below and above mean separately
+[leftCounts, ~] = histcounts(leftVar,binEdges,'Normalization', 'probability');
+[rightCounts, ~] = histcounts(rightVar,binEdges,'Normalization', 'probability');
+
+dataCounts = [leftCounts(:),rightCounts(:)];
+
+
+% Calculate bin centers
+binCenters = (binEdges(1:end-1) + binEdges(2:end)) / 2; % Average of each pair of consecutive edges
+
+%plot
+figure;
+bar(binCenters,dataCounts,'stacked')
+xline(mu,'--')
+
+%edit graph labels
+title('Partition of the Delta Dprime Distribution for V1 Luminance','FontSize',12);  %change if necessary
+ay = gca;
+ay.FontSize = 10;
+ylabel('Probability')
+ax = gca;
+ax.FontSize = 10;
+ax.TickDir = "out";
+xlabel('Delta Dprime')  %change if necessary
+legend('Below Mean', 'Above Mean', 'Mean',fontsize=8)  
 
 
 %% aveC
@@ -62,103 +121,6 @@ ax.FontSize = 10;
 ax.TickDir = "out";
 xlabel('Criterion',FontSize=10)
 legend('Criterion Below Mean', 'Criterion Above Mean', 'Mean')
-
-%% Top Up d'
-
-% % Init variable
-% topUp_D = [T.topUpDPrime];
-% %the master table
-% 
-% % Get Profiles
-% 
-% %curvefitting variables
-% amp = 81.03;
-% mu = 2.552;
-% sigma = 0.8123;
-% 
-% % Z-score
-% topUp_zScore = (topUp_D - mu) / sigma;
-% 
-% %Indices
-% leftIdx = topUp_zScore < 0;
-% rightIdx = topUp_zScore > 0;
-% 
-% 
-% %Init matrices for  below (leftprofiles) and above (rightprofiles)
-% %mean
-% leftProfiles = [];
-% rightProfiles = [];
-% 
-% 
-% % Divide top up ds between above and below mean using the indices
-% leftProfiles = [leftProfiles;topUp_D(leftIdx,:)];
-% rightProfiles = [rightProfiles;topUp_D(rightIdx,:)];
-% 
-% %plot
-% figure;
-% hold on
-% histogram(leftProfiles,25,'BinLimits',[min(leftProfiles) max(leftProfiles)],'Normalization','probability','FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor="b")
-% histogram(rightProfiles,25,'BinLimits',[min(rightProfiles) max(rightProfiles)],'Normalization','probability','FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor="r")
-% xline(mu,'-.')
-% title('Partition of the Top Up Dprime Distribution','FontSize',8);
-% ay = gca;
-% ylim(ay, [0 50]);
-% ay.FontSize = 10;
-% ylabel('Probability',FontSize=10)
-% ax = gca;
-% ax.FontSize = 10;
-% ax.TickDir = "out";
-% xlabel('Top Up Dprime',FontSize=10)
-% legend('Top Up Dprime Below Mean', 'Top Up Dprime Above Mean', 'Mean',fontsize=8)
-
-%% delta d'
-
-%get delta_d
-delta_d = getdelta_d(T);
-
-% Curve Fitting delta d'
-d_histcounts = histcounts(delta_d,-5:0.15:5);
-d_range = -4.9:0.15:4.9;
-
-% Z-score
-amp =  171.3;
-mu = -0.04869;
-sigma = 0.2824;
-deltaD_zScore = (delta_d - mu) / sigma;
-
-
-%Indices
-leftIdx = deltaD_zScore < 0;
-rightIdx = deltaD_zScore > 0;
-
-%Init matrices for  below (leftprofiles) and above (rightprofiles)
-%mean
-leftProfiles = [];
-rightProfiles = [];
-
-% Divide delta ds between above and below mean using the indices
-leftProfiles = [leftProfiles;delta_d(leftIdx,:)];
-rightProfiles = [rightProfiles;delta_d(rightIdx,:)];
-
-%plot
-figure;
-hold on
-h1 = histogram(leftProfiles,'BinLimits',[min(leftProfiles) max(leftProfiles)], 'BinWidth', 0.075, 'Normalization','probability','FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor="b");
-h2 = histogram(rightProfiles,'BinLimits',[min(rightProfiles) max(rightProfiles)], 'BinWidth', 0.075, 'Normalization','probability','FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor="r");
-xline(mu,'--')
-title('Partition of the Delta Dprime Distribution for V1 Luminance','FontSize',12);
-ay = gca;
-%ylim(ay, [0 0.2]); %adjust to have same y-axis
-ay.FontSize = 10;
-ylabel('Probability')
-ax = gca;
-ax.FontSize = 10;
-ax.TickDir = "out";
-xlim([-0.86 0.6])
-xlabel('Delta Dprime')
-legend('Delta Dprime Below Mean', 'Delta Dprime Above Mean', 'Mean',fontsize=8)
-
-%for computing optimal binwidth for histogram: max(rightProfiles)-min(leftProfiles)/(2*192^(1/3))
 
 %% Reaction Time Graph Version 1
 
@@ -345,30 +307,104 @@ xlabel('Reaction Time (ms)',FontSize=10)
 legend('','Start of First Tertile Range',' Start of Second Tertile Range', ...
     'Start of Third Tertile Range',fontsize=8)
 
-%% Figures V2
 
-[leftIdx,rightIdx] = getUnstimDprimes_abov_bel_mean(T); %change function depending on which you need
 
-selection = listdlg('PromptString',{'Select variable of interest to make plot'},'ListString',T.Properties.VariableNames,'SelectionMode','single');
+%% Top Up d'
 
-var = [T.(selection)];
+% % Init variable
+% topUp_D = [T.topUpDPrime];
+% %the master table
+% 
+% % Get Profiles
+% 
+% %curvefitting variables
+% amp = 81.03;
+% mu = 2.552;
+% sigma = 0.8123;
+% 
+% % Z-score
+% topUp_zScore = (topUp_D - mu) / sigma;
+% 
+% %Indices
+% leftIdx = topUp_zScore < 0;
+% rightIdx = topUp_zScore > 0;
+% 
+% 
+% %Init matrices for  below (leftprofiles) and above (rightprofiles)
+% %mean
+% leftProfiles = [];
+% rightProfiles = [];
+% 
+% 
+% % Divide top up ds between above and below mean using the indices
+% leftProfiles = [leftProfiles;topUp_D(leftIdx,:)];
+% rightProfiles = [rightProfiles;topUp_D(rightIdx,:)];
+% 
+% %plot
+% figure;
+% hold on
+% histogram(leftProfiles,25,'BinLimits',[min(leftProfiles) max(leftProfiles)],'Normalization','probability','FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor="b")
+% histogram(rightProfiles,25,'BinLimits',[min(rightProfiles) max(rightProfiles)],'Normalization','probability','FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor="r")
+% xline(mu,'-.')
+% title('Partition of the Top Up Dprime Distribution','FontSize',8);
+% ay = gca;
+% ylim(ay, [0 50]);
+% ay.FontSize = 10;
+% ylabel('Probability',FontSize=10)
+% ax = gca;
+% ax.FontSize = 10;
+% ax.TickDir = "out";
+% xlabel('Top Up Dprime',FontSize=10)
+% legend('Top Up Dprime Below Mean', 'Top Up Dprime Above Mean', 'Mean',fontsize=8)
 
-%Divide var between above and below mean using the indices
-% leftProfiles = [leftProfiles;var(leftIdx,:)];
-% rightProfiles = [rightProfiles;var(rightIdx,:)];
-comboIdx = [var(leftIdx);var(rightIdx)];
-
-binrng = [min(var):max(var)];
-counts = [];
-for k = 1:size(comboIdx,1)
-    counts(k,:) = histc(comboIdx(k,:), binrng);
-end
-
-%plot
-figure;
-bar(binrng,counts,'stacked')
-grid
-
+%% delta d'
+% 
+% %get delta_d
+% delta_d = getdelta_d(T);
+% 
+% % Curve Fitting delta d'
+% d_histcounts = histcounts(delta_d,-5:0.15:5);
+% d_range = -4.9:0.15:4.9;
+% 
+% % Z-score
+% amp =  171.3;
+% mu = -0.04869;
+% sigma = 0.2824;
+% deltaD_zScore = (delta_d - mu) / sigma;
+% 
+% 
+% %Indices
+% leftIdx = deltaD_zScore < 0;
+% rightIdx = deltaD_zScore > 0;
+% 
+% %Init matrices for  below (leftprofiles) and above (rightprofiles)
+% %mean
+% leftProfiles = [];
+% rightProfiles = [];
+% 
+% % Divide delta ds between above and below mean using the indices
+% leftProfiles = [leftProfiles;delta_d(leftIdx,:)];
+% rightProfiles = [rightProfiles;delta_d(rightIdx,:)];
+% 
+% %plot
+% figure;
+% hold on
+% h1 = histogram(leftProfiles,'BinLimits',[min(leftProfiles) max(leftProfiles)], 'BinWidth', 0.075, 'Normalization','probability','FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor="b");
+% h2 = histogram(rightProfiles,'BinLimits',[min(rightProfiles) max(rightProfiles)], 'BinWidth', 0.075, 'Normalization','probability','FaceAlpha',0.3,'EdgeAlpha',0.3,FaceColor="r");
+% xline(mu,'--')
+% title('Partition of the Delta Dprime Distribution for V1 Luminance','FontSize',12);
+% ay = gca;
+% %ylim(ay, [0 0.2]); %adjust to have same y-axis
+% ay.FontSize = 10;
+% ylabel('Probability')
+% ax = gca;
+% ax.FontSize = 10;
+% ax.TickDir = "out";
+% xlim([-0.86 0.6])
+% xlabel('Delta Dprime')
+% legend('Delta Dprime Below Mean', 'Delta Dprime Above Mean', 'Mean',fontsize=8)
+% 
+% %for computing optimal binwidth for histogram: max(rightProfiles)-min(leftProfiles)/(2*192^(1/3))
 
 end
 

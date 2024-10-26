@@ -29,8 +29,7 @@ paramT.V1Lum = [53.6384;-0.0498;0.2462];
 selection = listdlg('PromptString',{'Select Brain area and task type'},'ListString',paramT.Properties.VariableNames,'SelectionMode','single');
 
 % Z-scores
-deltaC_zScore = (delta_C - paramT.(selection)(2)) / paramT.(selection)(3);
-deltaD_zScore = (delta_d - mu) / sigma;
+deltaD_zScore = (delta_d - paramT.(selection)(2)) / paramT.(selection)(3);
 
 %% Variables Initiation
 %Indices

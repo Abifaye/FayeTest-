@@ -5,9 +5,7 @@ function [leftIdx, rightIdx] = getAveC_profiles(T)
 %opto stim profiles for each average C were put in separate matrices
 
 %Get average criterion
-stimC = [T.stimC];
-unStimC = [T.noStimC];
-aveC = (stimC + unStimC)/2;
+aveC =  getAveC(T);
 
 %% Get Profiles
 
@@ -31,7 +29,7 @@ paramT.V1Lum = [45.3142;0.7585;0.3454];
 selection = listdlg('PromptString',{'Select Brain area and task type'},'ListString',paramT.Properties.VariableNames,'SelectionMode','single');
 
 % Z-scores
-aveC_zScore = (delta_C - paramT.(selection)(2)) / paramT.(selection)(3);
+aveC_zScore = (aveC - paramT.(selection)(2)) / paramT.(selection)(3);
 
 %Indices
 leftIdx = aveC_zScore < 0;
