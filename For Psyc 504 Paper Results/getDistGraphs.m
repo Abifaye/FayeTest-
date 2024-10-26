@@ -345,7 +345,29 @@ xlabel('Reaction Time (ms)',FontSize=10)
 legend('','Start of First Tertile Range',' Start of Second Tertile Range', ...
     'Start of Third Tertile Range',fontsize=8)
 
+%% Figures V2
 
+[leftIdx,rightIdx] = getUnstimDprimes_abov_bel_mean(T); %change function depending on which you need
+
+selection = listdlg('PromptString',{'Select variable of interest to make plot'},'ListString',T.Properties.VariableNames,'SelectionMode','single');
+
+var = [T.(selection)];
+
+%Divide var between above and below mean using the indices
+% leftProfiles = [leftProfiles;var(leftIdx,:)];
+% rightProfiles = [rightProfiles;var(rightIdx,:)];
+comboIdx = [var(leftIdx);var(rightIdx)];
+
+binrng = [min(var):max(var)];
+counts = [];
+for k = 1:size(comboIdx,1)
+    counts(k,:) = histc(comboIdx(k,:), binrng);
+end
+
+%plot
+figure;
+bar(binrng,counts,'stacked')
+grid
 
 
 end

@@ -18,7 +18,7 @@ addpath(fullPath);
 load(uigetfile('','Select desired master table', baseFolder));
 
 %% Define Variable
-[leftIdx, rightIdx] = getDprimes_abov_bel_mean(T); %replace with function that grabs profiles for metric of interest
+[leftIdx, rightIdx] =getUnstimDprimes_abov_bel_mean(T); %replace with function that grabs profiles for metric of interest
 
 %Init matrices for profiles below (leftprofiles) and above (rightprofiles)
 %mean
